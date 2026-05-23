@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重生·圆明园 | AI数字文化遗产</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, 'Microsoft YaHei', sans-serif; background: #0a0a1a; overflow: hidden; color: #fff; }
+        canvas { display: block; }
+        
+        #ui {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; z-index: 100;
+        }
+        #ui > * { pointer-events: auto; }
+        
+        .header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 16px 24px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h1 { font-size: 22px; font-weight: 600; }
+        .header h1 em { color: #ffd700; font-style: normal; }
+        .header .info { font-size: 12px; color: #888; }
+        
+        .sidebar {
+            position: absolute; top: 70px; right: 16px;
+            width: 230px; background: rgba(10,10,26,0.92);
+            border-radius: 14px; border: 1px solid rgba(255,215,0,0.2);
+            padding: 16px;
+        }
+        .sidebar h3 { font-size: 13px; color: #ffd700; margin-bottom: 12px; font-weight: 500; }
+        
+        .scene-btn {
+            width: 100%; padding: 11px 14px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.04); border: 1px solid transparent;
+            border-radius: 10px; cursor: pointer; text-align: left;
+            transition: all 0.2s;
+        }
+        .scene-btn:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); }
+        .scene-btn.active { background: rgba(255,215,0,0.15); border-color: #ffd700; }
+        .scene-btn h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+        .scene-btn p { font-size: 11px; color: #888; }
+        
+        .detail-panel {
+            position: absolute; bottom: 20px; left: 20px;
+            width: 340px; background: rgba(10,10,26,0.95);
+            border-radius: 14px; border: 1px solid rgba(255,215,0,0.2);
+            padding: 20px; display: none;
+        }
+        .detail-panel.show { display: block; }
+        .detail-panel .close {
+            position: absolute; top: 14px; right: 14px;
+            width: 28px; height: 28px; background: rgba(255,255,255,0.1);
+            border: none; border-radius: 50%; color: #888; cursor: pointer;
+            font-size: 16px; display: flex; align-items: center; justify-content: center;
+        }
+        .detail-panel .close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .detail-panel h2 { font-size: 20px; color: #ffd700; margin-bottom: 6px; }
+        .detail-panel .year { font-size: 12px; color: #666; margin-bottom: 12px; }
+        .detail-panel .desc { font-size: 13px; color: #bbb; line-height: 1.7; }
+        .detail-panel .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+        .detail-panel .tag {
+            padding: 4px 10px; background: rgba(255,215,0,0.12);
+            color: #ffd700; border-radius: 12px; font-size: 11px;
+        }
+        
+        .footer {
+            position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+            padding: 8px 20px; background: rgba(10,10,26,0.8);
+            border-radius: 20px; font-size: 11px; color: #666;
+        }
+        .footer em { color: #ffd700; font-style: normal; }
+        
+        .loading {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: #0a0a1a; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
+            transition: opacity 0.5s;
+        }
+        .loading.hide { opacity: 0; pointer-events: none; }
+        .loading h1 { font-size: 32px; margin-bottom: 10px; }
+        .loading h1 em { color: #ffd700; font-style: normal; }
+        .loading p { color: #666; font-size: 14px; }
+        .loading .bar { width: 200px; height: 3px; background: #222; border-radius: 3px; margin-top: 20px; overflow: hidden; }
+        .loading .bar span { display: block; height: 100%; background: #ffd700; width: 0; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <h1>🏛️ <em>重生·圆明园</em></h1>
+        <p>AI数字文化遗产 3D重建</p>
+        <div class="bar"><span id="progress"></span></div>
+    </div>
+    
+    <div id="ui">
+        <div class="header">
+            <h1>🏛️ <em>重生·圆明园</em></h1>
+            <div class="info">2026 第19届全国3D大赛 · 方案C</div>
+        </div>
+        
+        <div class="sidebar">
+            <h3>📍 重点景区</h3>
+            <button class="scene-btn active" data-scene="overview">
+                <h4>🏞️ 全景漫游</h4>
+                <p>圆明园全景俯瞰</p>
+            </button>
+            <button class="scene-btn" data-scene="jiuzhou">
+                <h4>🏝️ 九州清晏</h4>
+                <p>后湖核心 · 九岛仙山</p>
+            </button>
+            <button class="scene-btn" data-scene="dashuifa">
+                <h4>🏛️ 大水法</h4>
+                <p>西洋楼 · 猎狗逐鹿</p>
+            </button>
+            <button class="scene-btn" data-scene="fangpu">
+                <h4>🏯 方壶胜境</h4>
+                <p>人间仙境 · 水上楼阁</p>
+            </button>
+            <button class="scene-btn" data-scene="zhengda">
+                <h4>👑 正大光明</h4>
+                <p>圆明园正殿</p>
+            </button>
+        </div>
+        
+        <div class="detail-panel" id="detail">
+            <button class="close" onclick="document.getElementById('detail').classList.remove('show')">×</button>
+            <h2 id="detail-title">景区名称</h2>
+            <div class="year" id="detail-year">建造年代</div>
+            <div class="desc" id="detail-desc">景区描述</div>
+            <div class="tags" id="detail-tags"></div>
+        </div>
+        
+        <div class="footer">
+            <em>重生·圆明园</em> · 左键旋转 · 滚轮缩放 · 右键平移
+        </div>
+    </div>
+
+    <script src="three.min.js"></script>
+    <script>
+    (function() {
+        // ==================== 配置 ====================
+        const CONFIG = {
+            camera: { fov: 50, near: 0.1, far: 500, default: [60, 45, 60] },
+            fog: { color: 0x1a2a3a, near: 80, far: 300 },
+            bg: 0x1a2a3a
+        };
+
+        const SCENES = {
+            overview: { pos: [0,0,0], cam: [80,60,80], title: '圆明园全景', year: '1707-1860', 
+                desc: '圆明园由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林。集中中国古代造园艺术之精华，被誉为"万园之园"。',
+                tags: ['皇家园林','万园之园','40景','文化遗产'] },
+            jiuzhou: { pos: [0,0,0], cam: [30,22,30], title: '九州清晏', year: '雍正元年 (1723)',
+                desc: '圆明园四十景之首，位于后湖中心。由九座岛屿组成，象征华夏九州。主殿为皇帝寝宫，黄琉璃瓦，气势恢宏。雍正帝每年在此居住200余天。',
+                tags: ['核心景区','岛屿群','皇帝寝宫','后湖'] },
+            dashuifa: { pos: [0,0,70], cam: [25,18,100], title: '大水法', year: '乾隆十二年 (1747)',
+                desc: '西洋楼景区核心，融合巴洛克与洛可可风格。石龛式建筑前有"猎狗逐鹿"喷泉：铜鹿喷水八道，十只铜犬直射鹿身。两侧各有十三级喷水塔，蔚为壮观。',
+                tags: ['西洋楼','巴洛克','喷泉群','铜雕'] },
+            fangpu: { pos: [70,0,0], cam: [100,25,25], title: '方壶胜境', year: '乾隆十五年 (1750)',
+                desc: '圆明园四十景之一，仿古代神仙仙境建造。楼阁矗立水面，九座桥梁相连，宛如蓬莱仙境。是圆明园中最具道家意境的景区。',
+                tags: ['仙境','湖上建筑','道家','九桥'] },
+            zhengda: { pos: [-70,0,0], cam: [-40,25,25], title: '正大光明', year: '雍正元年 (1723)',
+                desc: '圆明园正殿，皇帝在此举行朝会、接见外使、颁发诏书。殿内悬雍正帝亲题"正大光明"匾额。重檐歇山顶，面阔七间，庄严雄伟。',
+                tags: ['正殿','朝政','雍正御笔','华表'] }
+        };
+
+        // ==================== 材质库 ====================
+        const Materials = {
+            marble:    new THREE.MeshStandardMaterial({ color: 0xf5f0e8, roughness: 0.3, metalness: 0.05 }),
+            marbleD:   new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.4 }),
+            pillar:    new THREE.MeshStandardMaterial({ color: 0x8b2020, roughness: 0.6 }),
+            gold:      new THREE.MeshStandardMaterial({ color: 0xd4a84b, roughness: 0.3, metalness: 0.7 }),
+            roofYellow:new THREE.MeshStandardMaterial({ color: 0xc9a227, roughness: 0.4, metalness: 0.15 }),
+            wood:      new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.8 }),
+            water:     new THREE.MeshStandardMaterial({ color: 0x1a7a8a, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.85 }),
+            grass:     new THREE.MeshStandardMaterial({ color: 0x3a6a3a, roughness: 0.95 }),
+            bronze:    new THREE.MeshStandardMaterial({ color: 0x8b7355, roughness: 0.35, metalness: 0.75 }),
+            rock:      new THREE.MeshStandardMaterial({ color: 0x6a6a6a, roughness: 0.9 })
+        };
+
+        // ==================== 全局变量 ====================
+        let scene, camera, renderer;
+        let cameraTarget = new THREE.Vector3();
+        let cameraSpherical = new THREE.Spherical();
+        let isDrag = false, isPan = false;
+        let prevMouse = { x: 0, y: 0 };
+        let targetPos = null, targetLook = null, animStart = 0;
+
+        // ==================== 初始化 ====================
+        function init() {
+            setProgress(10);
+            
+            // 场景
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.bg);
+            scene.fog = new THREE.Fog(CONFIG.fog.color, CONFIG.fog.near, CONFIG.fog.far);
+            
+            // 相机
+            camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth/window.innerHeight, CONFIG.camera.near, CONFIG.camera.far);
+            camera.position.set(...CONFIG.camera.default);
+            cameraTarget.set(0, 0, 0);
+            updateCameraSpherical();
+            
+            // 渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.1;
+            document.body.appendChild(renderer.domElement);
+            
+            setProgress(20);
+            setupLights();
+            setProgress(30);
+            buildWorld();
+            setProgress(80);
+            setupControls();
+            setupUI();
+            setProgress(100);
+            
+            setTimeout(() => document.getElementById('loading').classList.add('hide'), 500);
+            animate();
+        }
+
+        function setProgress(p) {
+            document.getElementById('progress').style.width = p + '%';
+        }
+
+        // ==================== 灯光 ====================
+        function setupLights() {
+            scene.add(new THREE.AmbientLight(0x8899bb, 0.45));
+            
+            const sun = new THREE.DirectionalLight(0xffeedd, 1.1);
+            sun.position.set(60, 100, 40);
+            sun.castShadow = true;
+            sun.shadow.mapSize.set(2048, 2048);
+            const d = 120;
+            sun.shadow.camera.left = -d; sun.shadow.camera.right = d;
+            sun.shadow.camera.top = d; sun.shadow.camera.bottom = -d;
+            sun.shadow.camera.near = 10; sun.shadow.camera.far = 300;
+            scene.add(sun);
+            
+            const fill = new THREE.DirectionalLight(0xaaccff, 0.25);
+            fill.position.set(-40, 50, -30);
+            scene.add(fill);
+            
+            const back = new THREE.DirectionalLight(0xffd700, 0.15);
+            back.position.set(0, 30, -60);
+            scene.add(back);
+        }
+
+        // ==================== 世界构建 ====================
+        function buildWorld() {
+            buildTerrain();
+            buildJiuzhouScene();
+            buildDashuifaScene();
+            buildFangpuScene();
+            buildZhengdaScene();
+        }
+
+        function buildTerrain() {
+            // 水面
+            const water = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), Materials.water);
+            water.rotation.x = -Math.PI/2; water.position.y = -0.1;
+            scene.add(water);
+            
+            // 草地
+            const grass = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), Materials.grass);
+            grass.rotation.x = -Math.PI/2; grass.position.y = -0.25;
+            grass.receiveShadow = true;
+            scene.add(grass);
+            
+            // 假山
+            for(let i = 0; i < 8; i++) {
+                const size = 2 + Math.random() * 4;
+                const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(size, 1), Materials.rock);
+                rock.position.set(
+                    (Math.random()-0.5) * 200,
+                    size * 0.3,
+                    (Math.random()-0.5) * 200
+                );
+                rock.scale.y = 0.5 + Math.random() * 0.3;
+                rock.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+                rock.castShadow = true;
+                scene.add(rock);
+            }
+            
+            // 树木
+            for(let i = 0; i < 50; i++) {
+                const x = (Math.random()-0.5) * 240;
+                const z = (Math.random()-0.5) * 240;
+                if(Math.abs(x) < 20 && Math.abs(z) < 20) continue;
+                if(Math.abs(x-70) < 15 && Math.abs(z) < 10) continue;
+                if(Math.abs(x) < 10 && Math.abs(z-70) < 15) continue;
+                if(Math.abs(x+70) < 15 && Math.abs(z) < 10) continue;
+                
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 2.5, 8), Materials.wood);
+                trunk.position.set(x, 1.25, z);
+                trunk.castShadow = true;
+                scene.add(trunk);
+                
+                const crown = new THREE.Mesh(new THREE.SphereGeometry(1.5 + Math.random(), 8, 8), Materials.grass);
+                crown.position.set(x, 3 + Math.random() * 0.5, z);
+                crown.castShadow = true;
+                scene.add(crown);
+            }
+        }
+
+        // ==================== 九州清晏 ====================
+        function buildJiuzhouScene() {
+            // 主殿
+            buildPalace(0, 0, { w: 20, d: 16, h: 9, style: 'hip' });
+            
+            // 九岛布局
+            const islands = [
+                [0, 0],           // 中央主岛
+                [35, 0], [-35, 0],
+                [0, 35], [0, -35],
+                [28, 28], [28, -28], [-28, 28], [-28, -28]
+            ];
+            
+            islands.forEach(([ix, iz], idx) => {
+                if(idx === 0) return;
+                
+                // 岛屿
+                const island = new THREE.Mesh(new THREE.CylinderGeometry(11, 13, 1.8, 24), Materials.grass);
+                island.position.set(ix, 0, iz);
+                island.receiveShadow = true;
+                scene.add(island);
+                
+                // 石岸
+                const shore = new THREE.Mesh(new THREE.TorusGeometry(11, 0.4, 8, 24), Materials.marbleD);
+                shore.rotation.x = Math.PI/2;
+                shore.position.set(ix, 0.7, iz);
+                scene.add(shore);
+                
+                // 亭子
+                buildPavilion(ix, 1.5, iz);
+                
+                // 桥梁
+                const bridgeLen = Math.sqrt(ix*ix + iz*iz) - 12;
+                if(bridgeLen > 2) {
+                    const angle = Math.atan2(iz, ix);
+                    const bridge = new THREE.Mesh(
+                        new THREE.BoxGeometry(bridgeLen, 0.25, 2.2),
+                        Materials.marble
+                    );
+                    bridge.position.set(ix/2, 0.5, iz/2);
+                    bridge.rotation.y = angle === 0 ? 0 : (Math.abs(angle) < Math.PI/4 ? 0 : Math.PI/2);
+                    scene.add(bridge);
+                }
+            });
+        }
+
+        function buildPalace(x, z, cfg) {
+            const { w, d, h } = cfg;
+            const g = new THREE.Group();
+            g.position.set(x, 0, z);
+            
+            // 三层汉白玉须弥座
+            for(let i = 0; i < 3; i++) {
+                const base = new THREE.Mesh(
+                    new THREE.BoxGeometry(w + 6 - i*2, 0.45, d + 6 - i*2),
+                    Materials.marble
+                );
+                base.position.y = 0.22 + i * 0.45;
+                base.castShadow = true;
+                base.receiveShadow = true;
+                g.add(base);
+            }
+            
+            // 栏杆望柱
+            const postGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.7, 8);
+            for(let side = 0; side < 4; side++) {
+                const len = side % 2 === 0 ? w + 2 : d + 2;
+                const count = Math.floor(len / 1.8);
+                for(let i = 0; i < count; i++) {
+                    const post = new THREE.Mesh(postGeo, Materials.marble);
+                    const offset = -len/2 + i * (len/count) + len/(count*2);
+                    if(side === 0) post.position.set(offset, 1.6, -d/2 - 2);
+                    else if(side === 1) post.position.set(offset, 1.6, d/2 + 2);
+                    else if(side === 2) post.position.set(-w/2 - 2, 1.6, offset);
+                    else post.position.set(w/2 + 2, 1.6, offset);
+                    g.add(post);
+                }
+            }
+            
+            // 踏跺（台阶）
+            for(let i = 0; i < 7; i++) {
+                const step = new THREE.Mesh(new THREE.BoxGeometry(5, 0.12, 0.45), Materials.marble);
+                step.position.set(0, 1.35 + i * 0.06, -d/2 - 2.5 - i * 0.4);
+                g.add(step);
+            }
+            
+            // 丹陛石
+            const danbi = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.06, 3.5), Materials.marbleD);
+            danbi.position.set(0, 1.38, -d/2 - 3);
+            g.add(danbi);
+            
+            // 金柱（大柱）
+            const pillarPositions = [];
+            for(let i = 0; i < 6; i++) {
+                pillarPositions.push([-w/2.5 + i*w/3.1, -d/3]);
+                pillarPositions.push([-w/2.5 + i*w/3.1, d/3]);
+            }
+            
+            pillarPositions.forEach(([px, pz]) => {
+                const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, h, 16), Materials.pillar);
+                pillar.position.set(px, 1.35 + h/2, pz);
+                pillar.castShadow = true;
+                g.add(pillar);
+                
+                // 柱础
+                const base = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.48, 0.2, 8), Materials.marble);
+                base.position.set(px, 1.45, pz);
+                g.add(base);
+            });
+            
+            // 额枋
+            const beamGeo = new THREE.BoxGeometry(w - 2, 0.28, 0.35);
+            [-d/3, d/3].forEach(pz => {
+                const beam = new THREE.Mesh(beamGeo, Materials.pillar);
+                beam.position.set(0, 1.35 + h - 0.14, pz);
+                g.add(beam);
+            });
+            
+            // 平板枋
+            const plankGeo = new THREE.BoxGeometry(w - 1.5, 0.12, 0.3);
+            [-d/3, d/3].forEach(pz => {
+                const plank = new THREE.Mesh(plankGeo, Materials.gold);
+                plank.position.set(0, 1.35 + h + 0.05, pz);
+                g.add(plank);
+            });
+            
+            // 斗拱
+            pillarPositions.forEach(([px, pz]) => {
+                const dougong = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.22, 0.5), Materials.gold);
+                dougong.position.set(px, 1.35 + h + 0.2, pz);
+                g.add(dougong);
+            });
+            
+            // 檐椽
+            const eave = new THREE.Mesh(new THREE.BoxGeometry(w + 3.5, 0.18, d + 3.5), Materials.wood);
+            eave.position.y = 1.35 + h + 0.4;
+            g.add(eave);
+            
+            // 歇山屋顶
+            const roofH = h * 0.5;
+            const roofGeo = new THREE.ConeGeometry(w * 0.58, roofH, 4);
+            const roof = new THREE.Mesh(roofGeo, Materials.roofYellow);
+            roof.position.y = 1.35 + h + roofH/2 + 0.5;
+            roof.rotation.y = Math.PI / 4;
+            roof.scale.z = d / w;
+            roof.castShadow = true;
+            g.add(roof);
+            
+            // 正脊
+            const ridgeGeo = new THREE.BoxGeometry(0.18, 0.25, d * 0.75);
+            for(let i = 0; i < 3; i++) {
+                const ridge = new THREE.Mesh(ridgeGeo, Materials.gold);
+                ridge.position.set(-w*0.25 + i*w*0.25, 1.35 + h + roofH * 0.75, 0);
+                g.add(ridge);
+            }
+            
+            // 垂脊
+            [-1, 1].forEach(sx => {
+                [-1, 1].forEach(sz => {
+                    const hipRidge = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, w*0.5, 6), Materials.gold);
+                    hipRidge.position.set(sx*w*0.2, 1.35 + h + roofH*0.5, sz*d*0.15);
+                    hipRidge.rotation.z = sx * 0.6;
+                    hipRidge.rotation.x = sz * 0.3;
+                    g.add(hipRidge);
+                });
+            });
+            
+            // 脊兽
+            [-1, 1].forEach(sx => {
+                for(let i = 0; i < 3; i++) {
+                    const beast = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), Materials.gold);
+                    beast.position.set(sx*(w*0.15 + i*0.25), 1.35 + h + roofH*0.6 - i*0.1, 0);
+                    g.add(beast);
+                }
+            });
+            
+            // 宝顶
+            const finial = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), Materials.gold);
+            finial.position.y = 1.35 + h + roofH + 0.3;
+            g.add(finial);
+            
+            // 门窗（格扇）
+            const doorGeo = new THREE.BoxGeometry(1.1, h - 1.5, 0.06);
+            for(let i = -2; i <= 2; i++) {
+                const door = new THREE.Mesh(doorGeo, Materials.wood);
+                door.position.set(i * 1.9, 1.35 + h/2 - 0.3, -d/2 + 0.08);
+                g.add(door);
+            }
+            
+            scene.add(g);
+        }
+
+        function buildPavilion(x, y, z) {
+            const g = new THREE.Group();
+            g.position.set(x, y, z);
+            
+            // 基座
+            const base = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 3.6, 0.4, 8), Materials.marble);
+            base.position.y = 0.2;
+            g.add(base);
+            
+            // 柱子
+            for(let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 2.8, 8), Materials.pillar);
+                pillar.position.set(Math.cos(angle) * 2.4, 1.8, Math.sin(angle) * 2.4);
+                g.add(pillar);
+            }
+            
+            // 额枋
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.08, 6, 12), Materials.gold);
+            ring.position.y = 3.3;
+            ring.rotation.x = Math.PI/2;
+            g.add(ring);
+            
+            // 攒尖顶
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(3.8, 2.2, 8), Materials.roofYellow);
+            roof.position.y = 4.5;
+            roof.castShadow = true;
+            g.add(roof);
+            
+            // 宝顶
+            const top = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), Materials.gold);
+            top.position.y = 5.7;
+            g.add(top);
+            
+            scene.add(g);
+        }
+
+        // ==================== 大水法 ====================
+        function buildDashuifaScene() {
+            const g = new THREE.Group();
+            g.position.set(0, 0, 70);
+            
+            // 大理石基座
+            const platform = new THREE.Mesh(new THREE.BoxGeometry(32, 0.75, 22), Materials.marble);
+            platform.position.y = 0.38;
+            platform.castShadow = true;
+            platform.receiveShadow = true;
+            g.add(platform);
+            
+            // 基座装饰线
+            const cornice = new THREE.Mesh(new THREE.BoxGeometry(33, 0.12, 23), Materials.marbleD);
+            cornice.position.y = 0.8;
+            g.add(cornice);
+            
+            // === 中央石龛（拱门）===
+            buildArch(g, 0, -4);
+            
+            // === 巴洛克罗马柱 ===
+            const colPositions = [];
+            for(let i = -6; i <= 6; i += 2) {
+                if(Math.abs(i) < 3) continue;
+                colPositions.push([i, 2]);
+            }
+            for(let i = -5; i <= 5; i += 2) {
+                colPositions.push([i, -7]);
+            }
+            
+            colPositions.forEach(([cx, cz]) => {
+                buildBaroqueColumn(g, cx, cz);
+            });
+            
+            // === 后墙 ===
+            const backWall = new THREE.Mesh(new THREE.BoxGeometry(16, 6, 0.5), Materials.marbleD);
+            backWall.position.set(0, 3.8, -7);
+            g.add(backWall);
+            
+            // === 猎狗逐鹿喷泉 ===
+            buildFountain(g);
+            
+            // === 十三级喷水塔 ===
+            buildWaterTower(g, -10, 8);
+            buildWaterTower(g, 10, 8);
+            
+            scene.add(g);
+        }
+
+        function buildArch(group, x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.75, z);
+            
+            // 两侧立柱
+            [-2.8, 2.8].forEach(sx => {
+                const col = new THREE.Mesh(new THREE.BoxGeometry(0.9, 6, 0.9), Materials.marble);
+                col.position.set(sx, 3.5, 0);
+                col.castShadow = true;
+                g.add(col);
+                
+                // 柱头
+                const capital = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.4, 1.1), Materials.marble);
+                capital.position.set(sx, 6.7, 0);
+                g.add(capital);
+            });
+            
+            // 拱顶横梁
+            const lintel = new THREE.Mesh(new THREE.BoxGeometry(7, 1.3, 1.2), Materials.marble);
+            lintel.position.set(0, 7.2, 0);
+            g.add(lintel);
+            
+            // 蚌壳装饰（大水法标志性特征）
+            const shellGeo = new THREE.SphereGeometry(1.5, 16, 12, 0, Math.PI*2, 0, Math.PI*0.6);
+            const shell = new THREE.Mesh(shellGeo, Materials.marble);
+            shell.position.set(0, 8.2, 0);
+            shell.rotation.x = -0.2;
+            g.add(shell);
+            
+            // 狮子头喷水口
+            const lionHead = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), Materials.bronze);
+            lionHead.position.set(0, 4, 0.6);
+            g.add(lionHead);
+            
+            // 水帘效果
+            for(let i = 0; i < 7; i++) {
+                const waterfall = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.08, 0.5, 0.08),
+                    Materials.water
+                );
+                waterfall.position.set((i-3)*0.35, 3 - i*0.35, 1);
+                g.add(waterfall);
+            }
+            
+            // 涡卷装饰
+            [-1, 1].forEach(side => {
+                const scroll = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 16, Math.PI), Materials.marble);
+                scroll.position.set(side * 3.8, 6.5, 0);
+                scroll.rotation.z = side * Math.PI/2;
+                g.add(scroll);
+            });
+            
+            group.add(g);
+        }
+
+        function buildBaroqueColumn(group, x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.75, z);
+            
+            // 柱础
+            const base = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.7), Materials.marble);
+            base.position.y = 0.18;
+            g.add(base);
+            
+            // 柱身
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 5, 12), Materials.marble);
+            shaft.position.y = 2.85;
+            shaft.castShadow = true;
+            g.add(shaft);
+            
+            // 凹槽效果（装饰线）
+            for(let i = 0; i < 8; i++) {
+                const groove = new THREE.Mesh(new THREE.BoxGeometry(0.02, 4.5, 0.02), Materials.marbleD);
+                const angle = (i / 8) * Math.PI * 2;
+                groove.position.set(Math.cos(angle)*0.24, 2.85, Math.sin(angle)*0.24);
+                g.add(groove);
+            }
+            
+            // 科林斯柱头
+            const capital = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), Materials.marble);
+            capital.position.y = 5.55;
+            g.add(capital);
+            
+            // 涡卷
+            const volute = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 6, 12), Materials.marble);
+            volute.position.y = 5.9;
+            g.add(volute);
+            
+            group.add(g);
+        }
+
+        function buildFountain(group) {
+            const g = new THREE.Group();
+            g.position.set(0, 0.75, 7);
+            
+            // 菊花形喷水池
+            const pool = new THREE.Mesh(new THREE.CylinderGeometry(5.5, 6, 0.45, 16), Materials.marble);
+            pool.position.y = 0.22;
+            g.add(pool);
+            
+            // 池内装饰
+            const poolInner = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 0.08, 16), Materials.marbleD);
+            poolInner.position.y = 0.42;
+            g.add(poolInner);
+            
+            // === 铜鹿 ===
+            buildDeer(g);
+            
+            // === 十只铜犬 ===
+            for(let i = 0; i < 10; i++) {
+                const angle = (i / 10) * Math.PI - Math.PI/2;
+                buildHound(g, Math.cos(angle)*4, Math.sin(angle)*4, -angle + Math.PI);
+            }
+            
+            // 中央水柱
+            for(let i = 0; i < 8; i++) {
+                const angle = (i/8) * Math.PI * 2;
+                const water = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.04, 0.08, 1.5 + Math.random()*0.5, 6),
+                    Materials.water
+                );
+                water.position.set(Math.cos(angle)*0.5, 1.8, Math.sin(angle)*0.5);
+                g.add(water);
+            }
+            
+            group.add(g);
+        }
+
+        function buildDeer(group) {
+            const g = new THREE.Group();
+            g.position.set(0, 0.6, 0);
+            
+            // 身体
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.7, 8, 12), Materials.bronze);
+            body.rotation.z = Math.PI/2;
+            body.position.y = 0.75;
+            g.add(body);
+            
+            // 颈部
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.4, 8), Materials.bronze);
+            neck.position.set(0.4, 1.05, 0);
+            neck.rotation.z = -0.4;
+            g.add(neck);
+            
+            // 头
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), Materials.bronze);
+            head.position.set(0.55, 1.25, 0);
+            g.add(head);
+            
+            // 鹿角
+            [-0.1, 0.1].forEach(z => {
+                const antler = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, 0.5, 6), Materials.bronze);
+                antler.position.set(0.6, 1.55, z);
+                antler.rotation.z = 0.3;
+                g.add(antler);
+                
+                // 角分支
+                const branch = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.03, 0.25, 6), Materials.bronze);
+                branch.position.set(0.68, 1.65, z*1.5);
+                branch.rotation.z = -0.5;
+                g.add(branch);
+            });
+            
+            // 四条腿
+            [[-0.2,-0.12], [-0.2,0.12], [0.2,-0.12], [0.2,0.12]].forEach(([lx, lz]) => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.55, 6), Materials.bronze);
+                leg.position.set(lx, 0.3, lz);
+                g.add(leg);
+            });
+            
+            group.add(g);
+        }
+
+        function buildHound(group, x, z, rotY) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.5, z);
+            g.rotation.y = rotY;
+            
+            // 身体
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.4, 6, 10), Materials.bronze);
+            body.rotation.z = Math.PI/2;
+            body.position.y = 0.32;
+            g.add(body);
+            
+            // 头
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), Materials.bronze);
+            head.position.set(0.28, 0.45, 0);
+            g.add(head);
+            
+            // 嘴
+            const mouth = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.12, 6), Materials.bronze);
+            mouth.position.set(0.38, 0.45, 0);
+            mouth.rotation.z = -Math.PI/2;
+            g.add(mouth);
+            
+            // 喷水柱
+            const water = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, 1.8, 4), Materials.water);
+            water.position.set(0.5, 0.6, 0);
+            water.rotation.z = -0.35;
+            g.add(water);
+            
+            // 腿
+            [[-0.1,-0.06], [-0.1,0.06], [0.1,-0.06], [0.1,0.06]].forEach(([lx, lz]) => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.025, 0.2, 6), Materials.bronze);
+                leg.position.set(lx, 0.12, lz);
+                g.add(leg);
+            });
+            
+            group.add(g);
+        }
+
+        function buildWaterTower(group, x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.75, z);
+            
+            // 十三级方塔
+            for(let i = 0; i < 13; i++) {
+                const size = 1.4 - i * 0.06;
+                const lv = new THREE.Mesh(new THREE.BoxGeometry(size, 0.28, size), Materials.marble);
+                lv.position.y = 0.5 + i * 0.32;
+                g.add(lv);
+                
+                // 装饰角
+                if(i % 3 === 0) {
+                    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz]) => {
+                        const corner = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.12), Materials.marbleD);
+                        corner.position.set(sx*size*0.4, 0.5 + i*0.32, sz*size*0.4);
+                        g.add(corner);
+                    });
+                }
+            }
+            
+            // 塔顶喷口
+            const spout = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), Materials.bronze);
+            spout.position.y = 4.7;
+            g.add(spout);
+            
+            // 水柱
+            const water = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, 2, 6), Materials.water);
+            water.position.y = 5.8;
+            g.add(water);
+            
+            group.add(g);
+        }
+
+        // ==================== 方壶胜境 ====================
+        function buildFangpuScene() {
+            // 水上平台
+            const platform = new THREE.Mesh(new THREE.BoxGeometry(45, 0.5, 35), Materials.marble);
+            platform.position.set(70, 0.25, 0);
+            platform.castShadow = true;
+            scene.add(platform);
+            
+            // 主殿
+            buildPalace(70, 0, { w: 16, d: 12, h: 8, style: 'hip' });
+            
+            // 两侧楼阁
+            [-18, 18].forEach(sx => {
+                buildTower(70 + sx, 0);
+            });
+            
+            // 桥梁
+            [-12, 12].forEach(sz => {
+                const bridge = new THREE.Mesh(new THREE.BoxGeometry(9, 0.2, 2.5), Materials.marble);
+                bridge.position.set(70, 0.45, sz);
+                scene.add(bridge);
+            });
+            
+            // 亭子
+            [[70, -22], [70, 22]].forEach(([tx, tz]) => {
+                buildPavilion(tx, 1.5, tz);
+            });
+        }
+
+        function buildTower(x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.5, z);
+            
+            // 三层楼阁
+            for(let f = 0; f < 3; f++) {
+                const size = 4 - f * 0.4;
+                
+                // 墙体
+                const wall = new THREE.Mesh(new THREE.CylinderGeometry(size, size+0.2, 3, 8), Materials.pillar);
+                wall.position.y = 2 + f * 3.5;
+                wall.castShadow = true;
+                g.add(wall);
+                
+                // 窗
+                for(let w = 0; w < 4; w++) {
+                    const angle = (w/4) * Math.PI * 2;
+                    const window = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.1), Materials.wood);
+                    window.position.set(Math.cos(angle)*(size+0.1), 2+f*3.5, Math.sin(angle)*(size+0.1));
+                    window.rotation.y = -angle;
+                    g.add(window);
+                }
+                
+                // 檐
+                const eave = new THREE.Mesh(new THREE.CylinderGeometry(size+1, size+1.2, 0.15, 8), Materials.roofYellow);
+                eave.position.y = 3.5 + f * 3.5;
+                g.add(eave);
+            }
+            
+            // 顶层屋顶
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(3.5, 2, 8), Materials.roofYellow);
+            roof.position.y = 12;
+            roof.castShadow = true;
+            g.add(roof);
+            
+            // 宝顶
+            const top = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 10), Materials.gold);
+            top.position.y = 13.2;
+            g.add(top);
+            
+            scene.add(g);
+        }
+
+        // ==================== 正大光明 ====================
+        function buildZhengdaScene() {
+            // 主殿
+            buildPalace(-70, 0, { w: 24, d: 18, h: 10, style: 'hip' });
+            
+            // 月台
+            const platform = new THREE.Mesh(new THREE.BoxGeometry(14, 0.3, 7), Materials.marble);
+            platform.position.set(-70, 1.35, -14);
+            scene.add(platform);
+            
+            // 华表
+            [-3.5, 3.5].forEach(hx => {
+                buildHuabiao(-70 + hx, -17);
+            });
+            
+            // 石狮
+            [-4, 4].forEach(sx => {
+                buildStoneLion(-70 + sx, -12);
+            });
+        }
+
+        function buildHuabiao(x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0, z);
+            
+            // 八角基座
+            const base = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 0.9), Materials.marble);
+            base.position.y = 0.35;
+            g.add(base);
+            
+            // 柱身（带云龙纹）
+            const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 5, 12), Materials.marble);
+            shaft.position.y = 3.2;
+            g.add(shaft);
+            
+            // 云板
+            const cloud = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 0.35), Materials.marble);
+            cloud.position.y = 5.7;
+            g.add(cloud);
+            
+            // 望天吼
+            const beast = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 10), Materials.marble);
+            beast.position.y = 6.3;
+            g.add(beast);
+            
+            scene.add(g);
+        }
+
+        function buildStoneLion(x, z) {
+            const g = new THREE.Group();
+            g.position.set(x, 0.8, z);
+            
+            // 基座
+            const base = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.8), Materials.marble);
+            base.position.y = 0.25;
+            g.add(base);
+            
+            // 身体
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.6), Materials.marble);
+            body.position.y = 0.75;
+            g.add(body);
+            
+            // 头
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), Materials.marble);
+            head.position.set(0, 1.1, 0.2);
+            g.add(head);
+            
+            scene.add(g);
+        }
+
+        // ==================== 相机控制 ====================
+        function updateCameraSpherical() {
+            const offset = camera.position.clone().sub(cameraTarget);
+            cameraSpherical.setFromVector3(offset);
+        }
+
+        function setupControls() {
+            const el = renderer.domElement;
+            
+            el.addEventListener('mousedown', e => {
+                if(e.button === 0) isDrag = true;
+                else if(e.button === 2) isPan = true;
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            
+            el.addEventListener('mouseup', () => { isDrag = false; isPan = false; });
+            el.addEventListener('mouseleave', () => { isDrag = false; isPan = false; });
+            
+            el.addEventListener('mousemove', e => {
+                const dx = e.clientX - prevMouse.x;
+                const dy = e.clientY - prevMouse.y;
+                
+                if(isDrag) {
+                    cameraSpherical.theta -= dx * 0.005;
+                    cameraSpherical.phi = Math.max(0.15, Math.min(Math.PI*0.48, cameraSpherical.phi - dy*0.005));
+                    applyCamera();
+                }
+                
+                if(isPan) {
+                    const panSpeed = 0.08 * (cameraSpherical.radius / 60);
+                    const offset = new THREE.Vector3();
+                    offset.setFromMatrixColumn(camera.matrix, 0);
+                    offset.multiplyScalar(-dx * panSpeed);
+                    cameraTarget.add(offset);
+                    offset.setFromMatrixColumn(camera.matrix, 1);
+                    offset.multiplyScalar(dy * panSpeed);
+                    cameraTarget.add(offset);
+                    camera.position.add(offset);
+                }
+                
+                prevMouse = { x: e.clientX, y: e.clientY };
+            });
+            
+            el.addEventListener('wheel', e => {
+                e.preventDefault();
+                const factor = e.deltaY > 0 ? 1.08 : 0.92;
+                cameraSpherical.radius = Math.max(15, Math.min(200, cameraSpherical.radius * factor));
+                applyCamera();
+            }, { passive: false });
+            
+            el.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
+        function applyCamera() {
+            const offset = new THREE.Vector3().setFromSpherical(cameraSpherical);
+            camera.position.copy(cameraTarget).add(offset);
+            camera.lookAt(cameraTarget);
+        }
+
+        // ==================== UI交互 ====================
+        function setupUI() {
+            document.querySelectorAll('.scene-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.scene;
+                    const data = SCENES[id];
+                    if(!data) return;
+                    
+                    document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // 更新详情
+                    document.getElementById('detail-title').textContent = data.title;
+                    document.getElementById('detail-year').textContent = data.year;
+                    document.getElementById('detail-desc').textContent = data.desc;
+                    document.getElementById('detail-tags').innerHTML = data.tags.map(t => `<span class="tag">${t}</span>`).join('');
+                    document.getElementById('detail').classList.add('show');
+                    
+                    // 相机动画
+                    targetPos = new THREE.Vector3(...data.cam);
+                    targetLook = new THREE.Vector3(...data.pos);
+                    animStart = Date.now();
+                });
+            });
+            
+            document.querySelector('.close').addEventListener('click', () => {
+                document.getElementById('detail').classList.remove('show');
+            });
+        }
+
+        // ==================== 动画循环 ====================
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // 相机动画
+            if(targetPos && Date.now() - animStart < 1200) {
+                const t = Math.min((Date.now() - animStart) / 1200, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                
+                const startSph = new THREE.Spherical().setFromVector3(camera.position.clone().sub(cameraTarget));
+                const endSph = new THREE.Spherical().setFromVector3(targetPos.clone().sub(targetLook));
+                
+                cameraSpherical.theta = startSph.theta + (endSph.theta - startSph.theta) * ease;
+                cameraSpherical.phi = startSph.phi + (endSph.phi - startSph.phi) * ease;
+                cameraSpherical.radius = startSph.radius + (endSph.radius - startSph.radius) * ease;
+                
+                cameraTarget.lerpVectors(cameraTarget, targetLook, ease);
+                applyCamera();
+            } else {
+                targetPos = null;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        // ==================== 窗口大小 ====================
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ==================== 启动 ====================
+        init();
+    })();
+    </script>
+</body>
+</html>
