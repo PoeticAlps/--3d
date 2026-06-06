@@ -11,58 +11,81 @@ body{font-family:'Noto Serif SC','ZCOOL XiaoWei',serif;background:#0a0a1a;overfl
 canvas{display:block}
 #ui{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:100}
 #ui>*{pointer-events:auto}
-.header{position:absolute;top:0;left:0;right:0;padding:14px 24px;background:linear-gradient(180deg,rgba(10,10,26,0.92) 0%,rgba(10,10,26,0.6) 60%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,215,0,0.12)}
-.header h1{font-size:22px;font-weight:700;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;display:inline-block;overflow:hidden;white-space:nowrap;border-right:2px solid #ffd700;animation:typewriter 1.8s steps(6) 0.5s both,blink 0.8s step-end infinite}
-.header h1 em{color:#ffd700;font-style:normal}
+.header{position:absolute;top:0;left:0;right:0;padding:14px 24px;background:linear-gradient(180deg,rgba(10,10,26,0.92) 0%,rgba(10,10,26,0.6) 60%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,215,0,0.15)}
+.header h1,.header .slogan{font-size:18px;font-weight:700;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;display:inline-block;overflow:hidden;white-space:nowrap;border-right:none;animation:none;color:#cc2222;letter-spacing:2px;text-shadow:0 0 8px rgba(200,30,30,0.3)}
+.header h1 em{color:#FFD700;font-style:normal}
 @keyframes typewriter{from{max-width:0}to{max-width:200px}}
 @keyframes blink{50%{border-color:transparent}}
 .header-left{display:flex;align-items:center;gap:10px}
 .header-right{display:flex;align-items:center;gap:10px}
 .header .info{font-size:11px;color:#8B8370;padding:4px 10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:12px}
-.fullscreen-btn{width:32px;height:32px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:8px;color:#ffd700;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.fullscreen-btn:hover{background:rgba(255,215,0,0.2);transform:scale(1.1)}
-.sidebar{position:absolute;top:65px;right:14px;width:210px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:14px;transition:all 0.3s ease;overflow:hidden}
-.sidebar.collapsed{width:42px;padding:14px 6px}
-.sidebar.collapsed .sidebar-title{opacity:0;width:0;overflow:hidden}
-.sidebar.collapsed .scene-btn span,.sidebar.collapsed .scene-btn h4{opacity:0;width:0;overflow:hidden;white-space:nowrap}
-.sidebar.collapsed .scene-btn{padding:10px 6px;justify-content:center}
-.sidebar.collapsed .scene-btn h4{font-size:0;margin:0}
+.fullscreen-btn{width:30px;height:30px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.15);border-radius:8px;color:#ffd700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease}
+.fullscreen-btn:hover{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.3);transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.2)}
+.fullscreen-btn:active{transform:scale(0.95)}
+.sidebar{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(255,215,0,0.25);padding:8px 16px;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
+.sidebar.collapsed{padding:6px 10px}
+.sidebar.collapsed .sidebar-title{display:none}
+.sidebar.collapsed .scene-btn span{display:none}
+.sidebar.collapsed .scene-btn h4{display:none}
+.sidebar.collapsed .scene-btn{padding:6px 8px;justify-content:center}
 .sidebar.collapsed .scene-btn .btn-icon{margin:0}
-.sidebar-toggle{position:absolute;top:10px;right:10px;width:24px;height:24px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:2}
+.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:2}
 .sidebar-toggle:hover{background:rgba(255,215,0,0.2)}
-.sidebar h3,.sidebar .sidebar-title{font-size:12px;color:#ffd700;margin-bottom:10px;font-weight:500;letter-spacing:1px;transition:all 0.3s}
-.scene-btn{width:100%;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,0.04);border:1px solid transparent;border-left:3px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:#fff;font-size:13px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;display:flex;align-items:center;gap:8px}
-.scene-btn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);border-left-color:#ffd700;transform:translateX(4px)}
-.scene-btn.active{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.3);border-left-color:#ffd700;box-shadow:inset 0 0 15px rgba(255,215,0,0.08)}
-.scene-btn h4{margin:0;font-size:13px;font-weight:500}
-.scene-btn span{font-size:11px;color:#888;display:block;margin-top:2px}
-.btn-icon{width:28px;height:28px;border-radius:6px;background:rgba(255,215,0,0.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
-.scene-btn:hover .btn-icon{background:rgba(255,215,0,0.15)}
-.scene-btn.active .btn-icon{background:rgba(255,215,0,0.2)}
-.detail{position:absolute;bottom:16px;left:16px;width:320px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:16px;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
-.detail.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.sidebar h3,.sidebar .sidebar-title{display:none}
+.scene-btn{padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid transparent;border-bottom:2px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:#fff;font-size:12px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
+.scene-btn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);border-bottom-color:#FFD700;transform:translateY(-2px)}
+.scene-btn.active{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.4);border-bottom-color:#FFD700;box-shadow:0 0 16px rgba(255,215,0,0.3);animation:btnFlash 0.6s ease}
+.scene-btn:not(.active){opacity:0.45;transition:opacity 0.3s ease}
+.scene-btn:not(.active):hover{opacity:0.75}
+@keyframes btnFlash{0%{box-shadow:0 0 0 rgba(255,215,0,0)}30%{box-shadow:0 0 28px rgba(255,215,0,0.6)}100%{box-shadow:0 0 16px rgba(255,215,0,0.3)}}
+.scene-btn h4{margin:0;font-size:12px;font-weight:500}
+.scene-btn span{display:none}
+.btn-icon{width:22px;height:22px;border-radius:4px;background:rgba(255,215,0,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.scene-btn:hover .btn-icon{background:rgba(255,215,0,0.18)}
+.scene-btn.active .btn-icon{background:rgba(255,215,0,0.25)}
+.detail{position:absolute;top:65px;right:14px;transform:translateX(20px);width:280px;max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:16px;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
+.detail.show{opacity:1;transform:translateX(0);pointer-events:auto}
 .detail .close{position:absolute;top:10px;right:10px;width:26px;height:26px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:#888;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .detail .close:hover{background:rgba(255,255,255,0.2);color:#fff}
-.detail h2{font-size:20px;color:#ffd700;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:1px}
-.detail .year{font-size:11px;color:#888;margin-bottom:8px}
-.detail p{font-size:12px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif}
+.detail-content{transition:opacity 0.25s ease,transform 0.25s ease}
+.detail-content.fade-out{opacity:0;transform:translateY(8px)}
+.detail h2{font-size:20px;color:#FFD700;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:1px}
+.detail .year{font-size:11px;color:#888;margin-bottom:8px;transition:color 0.3s}
+.detail p{font-size:12px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif;transition:color 0.3s}
 .detail .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
-.detail .tag{font-size:10px;padding:3px 8px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:10px;color:#ffd700;font-family:'Noto Serif SC',serif;cursor:default;transition:all 0.2s}
+.detail .tag{font-size:10px;padding:3px 8px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:10px;color:#FFD700;font-family:'Noto Serif SC',serif;cursor:default;transition:all 0.2s}
 .detail .tag:hover{background:rgba(255,215,0,0.2)}
-.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:14px;width:160px;transition:all 0.3s}
-.stats h3{font-size:12px;color:#ffd700;margin-bottom:10px;font-weight:500}
-.stat-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px}
-.stat-item .num{color:#ffd700;font-weight:700;font-family:'ZCOOL QingKe HuangYou','Noto Serif SC',monospace;font-size:13px}
-.stat-item .label{color:#888;font-family:'Noto Serif SC',serif;font-size:10px}
-.stat-item .sicon{width:18px;height:18px;border-radius:4px;background:rgba(255,215,0,0.08);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-right:6px}
-.footer{position:absolute;bottom:16px;right:16px;font-size:10px;color:#555}
+.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:10px 12px;width:160px;transition:all 0.3s}
+.stats h3{font-size:11px;color:#FFD700;margin-bottom:8px;font-weight:500;letter-spacing:0.5px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
+.stat-item{background:rgba(255,215,0,0.04);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,215,0,0.06)}
+.stat-item .num{color:#FFD700;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;font-size:15px;line-height:1.1}
+.stat-item .label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px;letter-spacing:0.2px;margin-top:2px}
+.stat-item .stat-progress{margin-top:4px}
+.stat-extra{margin-top:6px;display:flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.12);border-radius:10px}
+.stat-extra .extra-num{color:#FFD700;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;font-size:13px}
+.stat-extra .extra-label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px}
+.compass{display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,215,0,0.08)}
+.compass-ring{width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,215,0,0.25);position:relative;background:rgba(255,215,0,0.03)}
+.compass-ring span{position:absolute;font-size:7px;font-family:'ZCOOL QingKe HuangYou',monospace;color:#666;font-weight:600}
+.compass-n{top:2px;left:50%;transform:translateX(-50%);color:#cc2222!important}
+.compass-s{bottom:2px;left:50%;transform:translateX(-50%)}
+.compass-w{left:3px;top:50%;transform:translateY(-50%)}
+.compass-e{right:3px;top:50%;transform:translateY(-50%)}
+.compass-arrow{position:absolute;top:50%;left:50%;width:2px;height:20px;transform-origin:50% 0%;transform:translate(-50%,0) rotate(0deg);transition:transform 0.15s ease-out}
+.compass-arrow::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid #cc2222}
+.compass-arrow::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:12px;background:rgba(204,34,34,0.5);border-radius:1px}
+.compass-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;background:#FFD700;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 4px rgba(255,215,0,0.5)}
+.stat-progress{width:100%;height:2px;background:rgba(255,215,0,0.08);border-radius:2px;overflow:hidden}
+.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#FFD700 0%,#FFB800 60%,rgba(255,184,0,0.4) 100%);border-radius:2px;transition:width 0.8s ease;width:0}
+.footer{position:absolute;bottom:16px;right:14px;font-size:11px;color:#8B8370;padding:4px 10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:12px;font-family:'Noto Serif SC',serif;letter-spacing:0.3px}
 .logo-btn{cursor:pointer;transition:transform 0.2s}
 .logo-btn:hover{transform:scale(1.1)}
 .logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;cursor:pointer}
 .logo-modal.show{display:flex}
 .logo-modal img{max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 0 60px rgba(212,168,75,0.3);border:2px solid rgba(255,215,0,0.3)}
 .logo-modal .hint{position:absolute;bottom:30px;color:#666;font-size:12px}
-.controls{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);padding:6px 16px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:11px;color:#666;display:flex;align-items:center;gap:12px}
+.controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:101;padding:4px 14px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:11px;color:#777;display:flex;align-items:center;gap:12px}
 .controls svg{width:14px;height:14px;fill:none;stroke:#666;stroke-width:1.5}
 .loading{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.6s ease, transform 0.6s ease}
 .loading.hide{opacity:0;transform:scale(1.05);pointer-events:none}
@@ -70,11 +93,15 @@ canvas{display:block}
 .loading-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
 .loading-content img{animation:logoFloat 2s ease-in-out infinite alternate}
 @keyframes logoFloat{from{transform:translateY(0)}to{transform:translateY(-8px)}}
-.loading-content h1{font-size:32px;margin-bottom:8px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:3px;opacity:0;transform:translateY(20px);animation:fadeUp 0.8s ease 0.3s forwards}
+.loading-content img{filter:drop-shadow(0 0 20px rgba(255,215,0,0.4));animation:logoFloat 2s ease-in-out infinite alternate,logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.4))}50%{filter:drop-shadow(0 0 35px rgba(255,215,0,0.7))}}
+.loading-content h1{font-size:32px;margin-bottom:8px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:3px;opacity:0;transform:translateY(20px);animation:fadeUp 0.8s ease 0.3s forwards;color:#FFD700}
 .loading-content p{color:#666;font-size:13px;opacity:0;animation:fadeUp 0.6s ease 0.5s forwards}
+.loading-status{color:#FFD700;font-size:11px;margin-top:12px;opacity:0;animation:fadeUp 0.4s ease 0.7s forwards;font-family:'ZCOOL QingKe HuangYou',monospace;letter-spacing:1px}
+.loading-version{position:absolute;bottom:20px;color:#333;font-size:10px;font-family:'ZCOOL QingKe HuangYou',monospace}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 .loading .bar{width:220px;height:3px;background:rgba(255,215,0,0.1);border-radius:3px;margin-top:16px;overflow:hidden;position:relative}
-.loading .bar span{display:block;height:100%;background:linear-gradient(90deg,#ffd700,#ffb700);width:0;transition:width 0.4s ease;border-radius:3px;box-shadow:0 0 12px rgba(255,215,0,0.4),0 0 24px rgba(255,215,0,0.2)}
+.loading .bar span{display:block;height:100%;background:linear-gradient(90deg,#FFD700,#FFB800);width:0;transition:width 0.4s ease;border-radius:3px;box-shadow:0 0 12px rgba(255,215,0,0.5),0 0 24px rgba(255,215,0,0.25)}
 .loading .bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent);animation:barPulse 1.5s ease-in-out infinite}
 @keyframes barPulse{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
@@ -87,16 +114,13 @@ canvas{display:block}
 .stats.collapsed .stats-toggle{transform:rotate(-90deg)}
 .stats.collapsed .stats-body{max-height:0;opacity:0;padding:0;margin:0;overflow:hidden}
 .stats-body{transition:all 0.3s ease;max-height:300px;opacity:1;overflow:hidden}
-.stat-progress{width:100%;height:3px;background:rgba(255,215,0,0.08);border-radius:3px;margin-top:4px;overflow:hidden}
-.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#ffd700,#ffb700);border-radius:3px;transition:width 0.8s ease;width:0}
-.stat-item{padding:4px 0}
-.stat-item .stat-top{display:flex;justify-content:space-between;align-items:center}
+.stats-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid rgba(255,215,0,0.08)}
 
 /* Phase 5: Detail timeline */
 .detail-timeline{margin-top:12px;padding-left:12px;border-left:2px solid rgba(255,215,0,0.2);position:relative}
-.timeline-dot{width:8px;height:8px;background:#ffd700;border-radius:50%;position:absolute;left:-5px;top:2px;box-shadow:0 0 6px rgba(255,215,0,0.4)}
+.timeline-dot{width:8px;height:8px;background:#FFD700;border-radius:50%;position:absolute;left:-5px;top:2px;box-shadow:0 0 6px rgba(255,215,0,0.5)}
 .timeline-item{margin-bottom:8px;padding-left:10px;position:relative}
-.timeline-year{font-size:10px;color:#ffd700;font-weight:600;font-family:'ZCOOL QingKe HuangYou',monospace}
+.timeline-year{font-size:10px;color:#FFD700;font-weight:600;font-family:'ZCOOL QingKe HuangYou',monospace}
 .timeline-event{font-size:11px;color:#888;line-height:1.5;margin-top:1px}
 .detail-divider{height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.3),transparent);margin:10px 0}
 </style>
@@ -115,12 +139,18 @@ canvas{display:block}
 <div id="ui">
   <div class="header">
     <div class="header-left">
-      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')" style="height:38px;width:38px;border-radius:50%;border:1px solid rgba(255,215,0,0.3)"/>
-      <h1><em>重生·圆明园</em></h1>
+      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')" style="height:36px;width:36px;border-radius:50%;border:1px solid rgba(200,30,30,0.4)"/>
     </div>
     <div class="header-right">
-      <div class="info">2026 第19届全国3D大赛 · 方案C</div>
-      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏">⛶</button>
+      <div class="info" style="color:#cc2222;border-color:rgba(200,30,30,0.25);background:rgba(200,30,30,0.08);text-shadow:0 0 6px rgba(200,30,30,0.2)">铭记历史 勿忘国耻 振兴中华 文传撄锋</div>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+      </button>
     </div>
   </div>
 
@@ -130,52 +160,63 @@ canvas{display:block}
       <span class="stats-toggle">▼</span>
     </div>
     <div class="stats-body">
-      <div class="stat-item"><div class="stat-top"><span class="num" id="stat-1">1,247</span><span class="label">已复原建筑</span></div><div class="stat-progress"><span id="bar-1"></span></div></div>
-      <div class="stat-item"><div class="stat-top"><span class="num" id="stat-2">350</span><span class="label">景区面积(公顷)</span></div><div class="stat-progress"><span id="bar-2"></span></div></div>
-      <div class="stat-item"><div class="stat-top"><span class="num" id="stat-3">8,432</span><span class="label">历史文献</span></div><div class="stat-progress"><span id="bar-3"></span></div></div>
-      <div class="stat-item"><div class="stat-top"><span class="num" id="stat-4">2,048</span><span class="label">数字模型</span></div><div class="stat-progress"><span id="bar-4"></span></div></div>
-      <div class="stat-item" id="stat-extra" style="display:none"><div class="stat-top"><span class="num" id="stat-extra-num">-</span><span class="label" id="stat-extra-label">-</span></div><div class="stat-progress"><span id="bar-extra"></span></div></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="num" id="stat-1">1,247</div><div class="label">已复原建筑</div><div class="stat-progress"><span id="bar-1"></span></div></div>
+        <div class="stat-item"><div class="num" id="stat-2">350</div><div class="label">景区面积</div><div class="stat-progress"><span id="bar-2"></span></div></div>
+        <div class="stat-item"><div class="num" id="stat-3">8,432</div><div class="label">历史文献</div><div class="stat-progress"><span id="bar-3"></span></div></div>
+        <div class="stat-item"><div class="num" id="stat-4">2,048</div><div class="label">数字模型</div><div class="stat-progress"><span id="bar-4"></span></div></div>
+      </div>
+      <div class="stat-extra" id="stat-extra" style="display:none"><span class="extra-num" id="stat-extra-num">-</span><span class="extra-label" id="stat-extra-label">-</span></div>
+      <div class="compass" id="compass">
+        <div class="compass-ring">
+          <span class="compass-n">N</span><span class="compass-s">S</span><span class="compass-w">W</span><span class="compass-e">E</span>
+          <div class="compass-arrow" id="compass-arrow"></div>
+          <div class="compass-dot"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="sidebar" id="sidebar">
     <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开">◀</button>
     <h3 class="sidebar-title">📍 重点景区</h3>
-    <button class="scene-btn active" data-scene="overview">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-      <div><h4>全景漫游</h4><span>圆明园全景俯瞰</span></div>
-    </button>
-    <button class="scene-btn" data-scene="jiuzhou">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
-      <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
-    </button>
-    <button class="scene-btn" data-scene="dashuifa">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-      <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
-    </button>
-    <button class="scene-btn" data-scene="fangpu">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
-      <div><h4>方壶胜境</h4><span>人间仙境 · 水上楼阁</span></div>
-    </button>
-    <button class="scene-btn" data-scene="zhengda">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
-      <div><h4>正大光明</h4><span>圆明园正殿</span></div>
-    </button>
+  <button class="scene-btn active" data-scene="overview">
+    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+    <div><h4>全景漫游</h4><span>圆明园全景俯瞰</span></div>
+  </button>
+  <button class="scene-btn" data-scene="fangpu">
+    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
+    <div><h4>方壶胜境</h4><span>人间仙境 · 水上楼阁</span></div>
+  </button>
+  <button class="scene-btn" data-scene="jiuzhou">
+    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+    <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
+  </button>
+  <button class="scene-btn" data-scene="zhengda">
+    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
+    <div><h4>正大光明</h4><span>圆明园正殿</span></div>
+  </button>
+  <button class="scene-btn" data-scene="dashuifa">
+    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+    <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
+  </button>
   </div>
 
   <div class="detail" id="detail">
     <button class="close" id="detail-close">×</button>
-    <h2 id="d-title">圆明园全景</h2>
-    <div class="year" id="d-year">1707-1860</div>
-    <p id="d-desc">圆明园由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林，被誉为"万园之园"。</p>
-    <div class="tags" id="d-tags">
-      <span class="tag">皇家园林</span><span class="tag">万园之园</span><span class="tag">文化遗产</span>
-    </div>
-    <div class="detail-divider"></div>
-    <div class="detail-timeline" id="d-timeline">
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">2026</div><div class="timeline-event">AI数字重建，重现辉煌</div></div>
+    <div class="detail-content" id="detail-content">
+      <h2 id="d-title">圆明园全景</h2>
+      <div class="year" id="d-year">1707-1860</div>
+      <p id="d-desc">圆明园由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林，被誉为"万园之园"。</p>
+      <div class="tags" id="d-tags">
+        <span class="tag">皇家园林</span><span class="tag">万园之园</span><span class="tag">文化遗产</span>
+      </div>
+      <div class="detail-divider"></div>
+      <div class="detail-timeline" id="d-timeline">
+        <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
+        <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
+        <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">2026</div><div class="timeline-event">AI数字重建，重现辉煌</div></div>
+      </div>
     </div>
   </div>
 
@@ -424,8 +465,8 @@ var M = {
   marble:   new THREE.MeshStandardMaterial({color:0xf5f0e8,roughness:0.3,metalness:0.05}),
   marbleD:  new THREE.MeshStandardMaterial({color:0xe8e0d0,roughness:0.4}),
   pillar:   new THREE.MeshStandardMaterial({color:0x8b2020,roughness:0.6}),
-  gold:     new THREE.MeshStandardMaterial({color:0xd4a84b,roughness:0.3,metalness:0.7}),
-  roofY:    new THREE.MeshStandardMaterial({color:0xc9a227,roughness:0.4,metalness:0.15}),
+  gold:     new THREE.MeshStandardMaterial({color:0xFFD700,roughness:0.18,metalness:0.85}),
+  roofY:    new THREE.MeshStandardMaterial({color:0xFFD700,roughness:0.28,metalness:0.6}),
   roofGray: new THREE.MeshStandardMaterial({color:0x5a5a5a,roughness:0.6}),
   roofGreen:new THREE.MeshStandardMaterial({color:0x2a6a3a,roughness:0.5,metalness:0.1}),
   roofDark: new THREE.MeshStandardMaterial({color:0x2a1a0a,roughness:0.7}),
@@ -434,9 +475,12 @@ var M = {
   roofBlack:new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.7}),
   roofTeal: new THREE.MeshStandardMaterial({color:0x3a6a5a,roughness:0.55,metalness:0.08}),
   wood:     new THREE.MeshStandardMaterial({color:0x4a3020,roughness:0.8}),
+  woodD:    new THREE.MeshStandardMaterial({color:0x2a1a0a,roughness:0.85}),
   wall:     new THREE.MeshStandardMaterial({color:0xd4c5a0,roughness:0.85,metalness:0.02}),
   water:    new THREE.MeshStandardMaterial({color:0x7a9ab8,roughness:0.05,metalness:0.4,transparent:true,opacity:0.82,envMapIntensity:1.5}),
-  bronze:   new THREE.MeshStandardMaterial({color:0x8b7355,roughness:0.35,metalness:0.75}),
+  bronze:   new THREE.MeshStandardMaterial({color:0xB87333,roughness:0.3,metalness:0.9}),
+  bronzeDark:new THREE.MeshStandardMaterial({color:0x5a3a1a,roughness:0.55,metalness:0.8}),
+  bronzeGreen:new THREE.MeshStandardMaterial({color:0x4a7a5a,roughness:0.45,metalness:0.7}),
   rock:     new THREE.MeshStandardMaterial({color:0x6a6a6a,roughness:0.9}),
   grass:    new THREE.MeshStandardMaterial({color:0x3a6a3a,roughness:0.95}),
   // 树木材质（基于圆明园历史植被）
@@ -467,8 +511,19 @@ function fixedRoof(mat){ return mat || M.roofGray; }
 
 // ==================== 全局变量 ====================
 var scene, camera, renderer, controls, sky;
-var animating = false, animStart = 0, animDuration = 1200;
-var startPos, endPos, startLook, endLook;
+var animating = false, animStart = 0, animDuration = 2400;
+var orbitFrom = {}, orbitTo = {};
+var orbitCenter = new THREE.Vector3(0, 0, 30); // 固定轨道中心
+var ORBIT_RADIUS = 90; // 统一轨道半径
+var ORBIT_HEIGHT = 24; // 子景统一轨道高度（提升避免过低）
+var OVERVIEW_HEIGHT = 55; // 全景高度
+// 各景区在圆环上的角度（弧度）
+var SCENE_ANGLES = {
+  fangpu:  -Math.PI/4,       // 315° 九州向左45°（西北）
+  jiuzhou: -Math.PI/2,       // 270° 正南
+  zhengda: -3*Math.PI/4,     // 225° 九州向右45°（西南）
+  dashuifa: Math.PI/2        // 90°  正北
+};
 
 // ==================== 初始化 ====================
 function init(){
@@ -508,9 +563,13 @@ function init(){
 
   setTimeout(function(){
     document.getElementById('loading').classList.add('hide');
-    // 停止粒子动画
     if(particleAnimId){ cancelAnimationFrame(particleAnimId); particleAnimId = null; }
     setTimeout(function(){ if(particleCanvas) particleCanvas.style.display = 'none'; }, 700);
+    // 默认切换到方壶胜境场景
+    setTimeout(function(){ 
+      var btn = document.querySelector('.scene-btn[data-scene="fangpu"]');
+      if(btn) btn.click();
+    }, 300);
   }, 400);
   animate();
 }
@@ -1389,67 +1448,1100 @@ function buildDashuifaScene(){
   buildWaterTower(g, -10, 8);
   buildWaterTower(g, 10, 8);
 
-  // 十二生肖铜首
+  // 十二生肖铜首（每个造型不同）
+  var zodiacNames = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
   for(var i=0; i<12; i++){
     var angle = Math.PI + (i/11)*Math.PI;
     var r = 4.5;
     var zx = Math.cos(angle)*r;
     var zz = 6 + Math.sin(angle)*r;
-    var base = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.8, 8), M.marble);
-    base.position.set(zx, 0.8, zz);
-    g.add(base);
-    var head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), M.bronze);
-    head.position.set(zx, 1.4, zz);
-    g.add(head);
+    buildZodiacHead(g, zx, zz, angle, i);
   }
 
   scene.add(g);
+}
+
+function buildZodiacHead(parent, x, z, angle, index){
+  var g = new THREE.Group();
+  g.position.set(x, 0.75, z);
+  g.rotation.y = angle + Math.PI/2;
+
+  // ====== 须弥座基座 ======
+  // 底层台基
+  var baseBottom = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.06, 32), M.marble);
+  baseBottom.position.y = 0.03;
+  g.add(baseBottom);
+  // 覆莲瓣装饰环
+  var lotusRing = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.025, 8, 32), M.gold);
+  lotusRing.rotation.x = Math.PI/2;
+  lotusRing.position.y = 0.07;
+  g.add(lotusRing);
+  // 收腰须弥座
+  var baseWaist = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.08, 32), M.marble);
+  baseWaist.position.y = 0.12;
+  g.add(baseWaist);
+  // 上层台
+  var baseTop = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.19, 0.04, 32), M.marble);
+  baseTop.position.y = 0.18;
+  g.add(baseTop);
+  // 金边
+  var goldBand = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.015, 8, 32), M.gold);
+  goldBand.rotation.x = Math.PI/2;
+  goldBand.position.y = 0.2;
+  g.add(goldBand);
+
+  // ====== 石柱（带凹槽） ======
+  var pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.08, 0.52, 32), M.marble);
+  pillar.position.y = 0.46;
+  g.add(pillar);
+  // 柱身20道凹槽
+  for(var v=0; v<20; v++){
+    var va = (v/20)*Math.PI*2;
+    var flute = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.48, 0.008), M.marbleD);
+    flute.position.set(Math.cos(va)*0.067, 0.46, Math.sin(va)*0.067);
+    g.add(flute);
+  }
+  // 柱顶环
+  var pillarCap = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.012, 8, 32), M.gold);
+  pillarCap.rotation.x = Math.PI/2;
+  pillarCap.position.y = 0.72;
+  g.add(pillarCap);
+
+  // ====== 铜首平台 ======
+  var platform = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.06, 32), M.bronzeDark);
+  platform.position.y = 0.82;
+  g.add(platform);
+  // 平台金线
+  var platRing = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.008, 8, 32), M.gold);
+  platRing.rotation.x = Math.PI/2;
+  platRing.position.y = 0.85;
+  g.add(platRing);
+
+  // ====== 动物头部 ======
+  var headGroup = new THREE.Group();
+  headGroup.position.y = 1.05;
+
+  // Helper: create eyes for any head
+  function addEyes(parentGrp, eyeY, eyeZ, eyeSep, eyeSize){
+    [-1,1].forEach(function(side){
+      var eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(eyeSize||0.028, 16, 16), M.bronze);
+      eyeWhite.position.set(side*eyeSep, eyeY, eyeZ);
+      parentGrp.add(eyeWhite);
+      var pupil = new THREE.Mesh(new THREE.SphereGeometry((eyeSize||0.028)*0.55, 12, 12), M.bronzeDark);
+      pupil.position.set(side*eyeSep, eyeY, eyeZ + (eyeSize||0.028)*0.5);
+      parentGrp.add(pupil);
+    });
+  }
+
+  // Helper: create nostrils
+  function addNostrils(parentGrp, ny, nz, nSep, nSize){
+    [-1,1].forEach(function(side){
+      var nostril = new THREE.Mesh(new THREE.SphereGeometry(nSize||0.015, 12, 12), M.bronzeDark);
+      nostril.position.set(side*nSep, ny, nz);
+      parentGrp.add(nostril);
+    });
+  }
+
+  switch(index){
+    case 0: { // ====== 鼠(Rat) - 尖嘴大耳,大圆耳,胡须,小牙齿 ======
+      // 头骨 - 略扁，前尖后圆
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), M.bronze);
+      skull.scale.set(1.0, 0.88, 1.25);
+      headGroup.add(skull);
+      // 吻部 - 锥形向前延伸
+      var snout = new THREE.Mesh(new THREE.SphereGeometry(0.07, 32, 32), M.bronze);
+      snout.scale.set(0.75, 0.65, 1.1);
+      snout.position.set(0, -0.03, 0.12);
+      headGroup.add(snout);
+      // 鼻尖
+      var noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), M.bronzeDark);
+      noseTip.position.set(0, -0.02, 0.19);
+      headGroup.add(noseTip);
+      // 大圆耳 - 用LatheGeometry做弧形
+      [-1,1].forEach(function(side){
+        // 耳廓 - 扁平圆形
+        var earShape = [];
+        for(var i=0; i<=16; i++){
+          var t = i/16;
+          var earR = Math.sin(t*Math.PI)*0.065;
+          var earY = t*0.09;
+          earShape.push(new THREE.Vector2(earR, earY));
+        }
+        var earGeo = new THREE.LatheGeometry(earShape, 24);
+        var ear = new THREE.Mesh(earGeo, M.bronze);
+        ear.position.set(side*0.09, 0.09, -0.04);
+        ear.rotation.set(-0.15, side*0.3, side*0.2);
+        headGroup.add(ear);
+        // 耳内凹陷
+        var innerEar = new THREE.Mesh(new THREE.SphereGeometry(0.04, 16, 16), M.bronzeDark);
+        innerEar.position.set(side*0.09, 0.095, -0.03);
+        innerEar.scale.set(0.6, 0.8, 0.3);
+        innerEar.rotation.y = side*0.3;
+        headGroup.add(innerEar);
+      });
+      // 眼睛
+      addEyes(headGroup, 0.01, 0.04, 0.055, 0.022);
+      // 胡须 - 用CatmullRomCurve3 + TubeGeometry
+      [-1,1].forEach(function(side){
+        for(var w=0; w<3; w++){
+          var whispPts = [
+            new THREE.Vector3(side*0.03, -0.02 + w*0.012, 0.14),
+            new THREE.Vector3(side*0.14, -0.03 + w*0.015, 0.18),
+            new THREE.Vector3(side*0.22, -0.02 + w*0.02, 0.16)
+          ];
+          var whispCurve = new THREE.CatmullRomCurve3(whispPts);
+          var whispGeo = new THREE.TubeGeometry(whispCurve, 12, 0.003, 8, false);
+          headGroup.add(new THREE.Mesh(whispGeo, M.bronze));
+        }
+      });
+      // 小牙齿 - 上下各两颗
+      [-0.012, 0.012].forEach(function(dx){
+        var tooth = new THREE.Mesh(new THREE.BoxGeometry(0.006, 0.012, 0.015), M.marble);
+        tooth.position.set(dx, -0.06, 0.16);
+        headGroup.add(tooth);
+      });
+      break;
+    }
+    case 1: { // ====== 牛(Ox) - 宽脸,弯角,宽鼻,强颌,鼻环 ======
+      // 头骨 - 宽大方正
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.18, 32, 32), M.bronze);
+      skull.scale.set(1.15, 0.92, 1.05);
+      headGroup.add(skull);
+      // 额部 - 微隆起
+      var forehead = new THREE.Mesh(new THREE.SphereGeometry(0.12, 24, 24), M.bronze);
+      forehead.scale.set(1.2, 0.5, 0.8);
+      forehead.position.set(0, 0.08, 0.04);
+      headGroup.add(forehead);
+      // 口鼻 - 宽大方形
+      var muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.1, 0.12), M.bronze);
+      muzzle.position.set(0, -0.06, 0.1);
+      // Round the edges
+      var muzzleMesh = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), M.bronze);
+      muzzleMesh.scale.set(1.4, 0.65, 0.9);
+      muzzleMesh.position.set(0, -0.05, 0.1);
+      headGroup.add(muzzleMesh);
+      // 鼻孔 - 大而宽
+      addNostrils(headGroup, -0.07, 0.17, 0.035, 0.02);
+      // 鼻镜（湿润鼻头）
+      var nosePad = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 16), M.bronzeDark);
+      nosePad.scale.set(1.3, 0.7, 0.5);
+      nosePad.position.set(0, -0.06, 0.18);
+      headGroup.add(nosePad);
+      // 鼻环
+      var noseRing = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.006, 12, 24), M.gold);
+      noseRing.position.set(0, -0.07, 0.17);
+      headGroup.add(noseRing);
+      // 牛角 - 粗壮弯曲向上
+      [-1,1].forEach(function(side){
+        var hornPts = [
+          new THREE.Vector3(side*0.12, 0.1, 0),
+          new THREE.Vector3(side*0.15, 0.18, -0.02),
+          new THREE.Vector3(side*0.14, 0.22, -0.05),
+          new THREE.Vector3(side*0.11, 0.24, -0.04)
+        ];
+        var hornCurve = new THREE.CatmullRomCurve3(hornPts);
+        var hornGeo = new THREE.TubeGeometry(hornCurve, 16, 0.018, 12, false);
+        headGroup.add(new THREE.Mesh(hornGeo, M.bronzeDark));
+        // 角尖
+        var tip = new THREE.Mesh(new THREE.SphereGeometry(0.014, 12, 12), M.bronzeDark);
+        tip.position.set(side*0.11, 0.24, -0.04);
+        headGroup.add(tip);
+      });
+      // 眼睛 - 稍小，位于头侧
+      addEyes(headGroup, 0.03, 0.02, 0.1, 0.025);
+      // 眉弓
+      [-1,1].forEach(function(side){
+        var brow = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.06, 12), M.bronze);
+        brow.position.set(side*0.08, 0.06, 0.03);
+        brow.rotation.z = side*0.3;
+        brow.rotation.x = 0.2;
+        headGroup.add(brow);
+      });
+      break;
+    }
+    case 2: { // ====== 虎(Tiger) - 宽圆头,小圆耳,眉脊,强力颌,额头王字 ======
+      // 头骨 - 宽圆有力
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.17, 32, 32), M.bronze);
+      skull.scale.set(1.08, 0.95, 1.0);
+      headGroup.add(skull);
+      // 颧骨突出
+      [-1,1].forEach(function(side){
+        var cheek = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), M.bronze);
+        cheek.position.set(side*0.1, -0.02, 0.06);
+        cheek.scale.set(0.8, 0.7, 0.6);
+        headGroup.add(cheek);
+      });
+      // 眉脊 - 厚重突出
+      [-1,1].forEach(function(side){
+        var browRidge = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.015, 0.08, 12), M.bronze);
+        browRidge.position.set(side*0.065, 0.07, 0.06);
+        browRidge.rotation.z = side*0.25;
+        browRidge.rotation.x = 0.15;
+        headGroup.add(browRidge);
+      });
+      // 口鼻 - 宽而短
+      var muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 24), M.bronze);
+      muzzle.scale.set(1.0, 0.6, 0.8);
+      muzzle.position.set(0, -0.05, 0.1);
+      headGroup.add(muzzle);
+      // 鼻头
+      var nose = new THREE.Mesh(new THREE.SphereGeometry(0.025, 16, 16), M.bronzeDark);
+      nose.scale.set(1.2, 0.8, 0.7);
+      nose.position.set(0, -0.04, 0.16);
+      headGroup.add(nose);
+      addNostrils(headGroup, -0.05, 0.16, 0.018, 0.012);
+      // 小圆耳
+      [-1,1].forEach(function(side){
+        var ear = new THREE.Mesh(new THREE.SphereGeometry(0.04, 16, 16), M.bronze);
+        ear.position.set(side*0.1, 0.13, -0.03);
+        ear.scale.set(0.6, 0.8, 0.4);
+        headGroup.add(ear);
+        var innerEar = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 12), M.bronzeDark);
+        innerEar.position.set(side*0.1, 0.13, -0.02);
+        innerEar.scale.set(0.5, 0.7, 0.3);
+        headGroup.add(innerEar);
+      });
+      // 眼睛
+      addEyes(headGroup, 0.04, 0.05, 0.07, 0.025);
+      // 额头王字 - 三横一竖
+      var wangPattern = [
+        // 三横
+        {y:0.13, z:-0.06, len:0.07},
+        {y:0.145, z:-0.05, len:0.08},
+        {y:0.16, z:-0.04, len:0.065},
+      ];
+      wangPattern.forEach(function(l){
+        var stripe = new THREE.Mesh(new THREE.BoxGeometry(l.len, 0.008, 0.012), M.bronzeDark);
+        stripe.position.set(0, l.y, l.z);
+        headGroup.add(stripe);
+      });
+      // 一竖
+      var verticalStripe = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.05, 0.012), M.bronzeDark);
+      verticalStripe.position.set(0, 0.145, -0.055);
+      headGroup.add(verticalStripe);
+      // 下颌 - 强力
+      var jaw = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 24), M.bronze);
+      jaw.scale.set(0.9, 0.45, 0.7);
+      jaw.position.set(0, -0.1, 0.04);
+      headGroup.add(jaw);
+      break;
+    }
+    case 3: { // ====== 兔(Rabbit) - 长直立耳,圆头,裂上唇,大眼 ======
+      // 头骨 - 圆润
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.13, 32, 32), M.bronze);
+      skull.scale.set(1.0, 0.95, 1.05);
+      headGroup.add(skull);
+      // 颊部 - 鼓起
+      [-1,1].forEach(function(side){
+        var cheek = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), M.bronze);
+        cheek.position.set(side*0.08, -0.02, 0.04);
+        cheek.scale.set(0.7, 0.7, 0.6);
+        headGroup.add(cheek);
+      });
+      // 鼻子 - 小而圆
+      var nose = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), M.bronzeDark);
+      nose.position.set(0, -0.01, 0.12);
+      headGroup.add(nose);
+      // 裂上唇 - Y形裂缝
+      var lipSplit = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.03, 0.01), M.bronzeDark);
+      lipSplit.position.set(0, -0.04, 0.11);
+      headGroup.add(lipSplit);
+      // 大眼睛
+      addEyes(headGroup, 0.02, 0.06, 0.06, 0.03);
+      // 长直立耳 - 用LatheGeometry做精致耳廓
+      [-1,1].forEach(function(side){
+        var earPts = [
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(0.025, 0.02, 0),
+          new THREE.Vector3(0.03, 0.08, 0),
+          new THREE.Vector3(0.028, 0.16, 0),
+          new THREE.Vector3(0.015, 0.22, 0),
+          new THREE.Vector3(0.005, 0.25, 0)
+        ];
+        var earCurve = new THREE.CatmullRomCurve3(earPts);
+        var earGeo = new THREE.TubeGeometry(earCurve, 16, 0.015, 12, false);
+        var earMesh = new THREE.Mesh(earGeo, M.bronze);
+        earMesh.position.set(side*0.04, 0.07, -0.02);
+        earMesh.rotation.set(-0.1, side*0.15, side*0.08);
+        headGroup.add(earMesh);
+        // 耳廓内侧 - 粉色青铜
+        var innerPts = [
+          new THREE.Vector3(0, 0.01, 0),
+          new THREE.Vector3(0.015, 0.04, 0),
+          new THREE.Vector3(0.018, 0.1, 0),
+          new THREE.Vector3(0.012, 0.18, 0)
+        ];
+        var innerCurve = new THREE.CatmullRomCurve3(innerPts);
+        var innerGeo = new THREE.TubeGeometry(innerCurve, 12, 0.006, 8, false);
+        var innerMesh = new THREE.Mesh(innerGeo, M.bronzeDark);
+        innerMesh.position.set(side*0.04, 0.08, -0.015);
+        innerMesh.rotation.set(-0.1, side*0.15, side*0.08);
+        headGroup.add(innerMesh);
+      });
+      break;
+    }
+    case 4: { // ====== 龙(Dragon) - 鹿角(分叉),鼓眼,流须,鳞片,张口 ======
+      // 头骨 - 棱角分明
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.16, 32, 32), M.bronze);
+      skull.scale.set(0.88, 0.78, 1.3);
+      headGroup.add(skull);
+      // 额部隆起
+      var forehead = new THREE.Mesh(new THREE.SphereGeometry(0.09, 24, 24), M.bronze);
+      forehead.scale.set(1.0, 0.6, 0.7);
+      forehead.position.set(0, 0.08, -0.02);
+      headGroup.add(forehead);
+      // 鼻梁 - 长而有棱
+      var noseBridge = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.12, 12), M.bronze);
+      noseBridge.position.set(0, 0.01, 0.1);
+      noseBridge.rotation.x = Math.PI/2;
+      headGroup.add(noseBridge);
+      // 鼻孔
+      addNostrils(headGroup, 0.0, 0.16, 0.025, 0.018);
+      // 鼻端翘起
+      var noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 16), M.bronze);
+      noseTip.scale.set(1.2, 0.8, 0.8);
+      noseTip.position.set(0, 0.02, 0.16);
+      headGroup.add(noseTip);
+      // 张口 - 下颌
+      var lowerJaw = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 24), M.bronze);
+      lowerJaw.scale.set(0.7, 0.4, 0.9);
+      lowerJaw.position.set(0, -0.08, 0.06);
+      headGroup.add(lowerJaw);
+      // 牙齿
+      [-1,1].forEach(function(side){
+        for(var t=0; t<3; t++){
+          var tooth = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.025, 8), M.marble);
+          tooth.position.set(side*0.03 + side*t*0.015, -0.04, 0.12 + t*0.015);
+          tooth.rotation.x = Math.PI/2;
+          headGroup.add(tooth);
+        }
+      });
+      // 鼓眼 - 突出
+      [-1,1].forEach(function(side){
+        var eyeBulge = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 16), M.bronze);
+        eyeBulge.position.set(side*0.07, 0.04, 0.04);
+        headGroup.add(eyeBulge);
+        var pupil = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 12), M.bronzeDark);
+        pupil.position.set(side*0.07, 0.04, 0.065);
+        headGroup.add(pupil);
+      });
+      // 鹿角 - 精致分叉（用TubeGeometry）
+      [-1,1].forEach(function(side){
+        // 主角干
+        var mainPts = [
+          new THREE.Vector3(side*0.08, 0.1, -0.03),
+          new THREE.Vector3(side*0.11, 0.16, -0.04),
+          new THREE.Vector3(side*0.12, 0.22, -0.05),
+          new THREE.Vector3(side*0.1, 0.27, -0.06)
+        ];
+        var mainCurve = new THREE.CatmullRomCurve3(mainPts);
+        var mainGeo = new THREE.TubeGeometry(mainCurve, 16, 0.014, 12, false);
+        headGroup.add(new THREE.Mesh(mainGeo, M.bronzeDark));
+        // 分叉1
+        var fork1Pts = [
+          new THREE.Vector3(side*0.11, 0.18, -0.04),
+          new THREE.Vector3(side*0.16, 0.22, -0.02),
+          new THREE.Vector3(side*0.18, 0.25, 0)
+        ];
+        var fork1Curve = new THREE.CatmullRomCurve3(fork1Pts);
+        var fork1Geo = new THREE.TubeGeometry(fork1Curve, 12, 0.008, 10, false);
+        headGroup.add(new THREE.Mesh(fork1Geo, M.bronzeDark));
+        // 分叉2 - 小叉
+        var fork2Pts = [
+          new THREE.Vector3(side*0.12, 0.23, -0.05),
+          new THREE.Vector3(side*0.15, 0.26, -0.08)
+        ];
+        var fork2Curve = new THREE.CatmullRomCurve3(fork2Pts);
+        var fork2Geo = new THREE.TubeGeometry(fork2Curve, 8, 0.006, 8, false);
+        headGroup.add(new THREE.Mesh(fork2Geo, M.bronzeDark));
+      });
+      // 龙须 - 飘逸长须
+      [-1,1].forEach(function(side){
+        for(var w=0; w<2; w++){
+          var whiskerPts = [
+            new THREE.Vector3(side*0.05, -0.01 + w*0.015, 0.12),
+            new THREE.Vector3(side*0.12, -0.03 + w*0.01, 0.18),
+            new THREE.Vector3(side*0.18, -0.01 + w*0.005, 0.22),
+            new THREE.Vector3(side*0.22, 0.02, 0.24)
+          ];
+          var whiskerCurve = new THREE.CatmullRomCurve3(whiskerPts);
+          var whiskerGeo = new THREE.TubeGeometry(whiskerCurve, 16, 0.004, 8, false);
+          headGroup.add(new THREE.Mesh(whiskerGeo, M.bronze));
+        }
+      });
+      // 鳞片纹理 - 额头和鼻梁
+      for(var sy=0; sy<4; sy++){
+        for(var sx=-2; sx<=2; sx++){
+          var scaleTile = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), M.bronzeDark);
+          scaleTile.scale.set(1, 0.5, 0.8);
+          scaleTile.position.set(sx*0.025, 0.06 + sy*0.015, -0.04 + sy*0.02);
+          headGroup.add(scaleTile);
+        }
+      }
+      // 角后鬃毛
+      for(var m=0; m<5; m++){
+        var manePts = [
+          new THREE.Vector3(0, 0.1 - m*0.01, -0.06 - m*0.01),
+          new THREE.Vector3(0, 0.06 - m*0.01, -0.1 - m*0.02)
+        ];
+        var maneCurve = new THREE.CatmullRomCurve3(manePts);
+        var maneGeo = new THREE.TubeGeometry(maneCurve, 6, 0.005, 6, false);
+        headGroup.add(new THREE.Mesh(maneGeo, M.bronze));
+      }
+      break;
+    }
+    case 5: { // ====== 蛇(Snake) - 三角头,无耳,分叉舌,鳞片 ======
+      // 头骨 - 三角形扁平
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), M.bronze);
+      skull.scale.set(0.85, 0.5, 1.4);
+      headGroup.add(skull);
+      // 吻部 - 尖
+      var snout = new THREE.Mesh(new THREE.SphereGeometry(0.05, 24, 24), M.bronze);
+      snout.scale.set(0.6, 0.45, 1.2);
+      snout.position.set(0, -0.01, 0.1);
+      headGroup.add(snout);
+      // 颞部 - 三角形两侧展开
+      [-1,1].forEach(function(side){
+        var temporal = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), M.bronze);
+        temporal.position.set(side*0.06, 0, 0.02);
+        temporal.scale.set(0.7, 0.4, 0.6);
+        headGroup.add(temporal);
+      });
+      // 眼睛 - 凸起杏仁形
+      [-1,1].forEach(function(side){
+        var eye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 12, 12), M.bronze);
+        eye.position.set(side*0.045, 0.02, 0.04);
+        eye.scale.set(0.8, 1.2, 0.8);
+        headGroup.add(eye);
+        var pupil = new THREE.Mesh(new THREE.SphereGeometry(0.01, 8, 8), M.bronzeDark);
+        pupil.position.set(side*0.045, 0.02, 0.05);
+        headGroup.add(pupil);
+      });
+      // 蛇信子 - 分叉舌
+      var tongueBase = [
+        new THREE.Vector3(0, -0.02, 0.13),
+        new THREE.Vector3(0, -0.025, 0.16),
+        new THREE.Vector3(0, -0.03, 0.19)
+      ];
+      var tongueCurve = new THREE.CatmullRomCurve3(tongueBase);
+      var tongueGeo = new THREE.TubeGeometry(tongueCurve, 10, 0.003, 8, false);
+      headGroup.add(new THREE.Mesh(tongueGeo, M.bronzeDark));
+      // 分叉
+      [-1,1].forEach(function(side){
+        var forkPts = [
+          new THREE.Vector3(0, -0.03, 0.19),
+          new THREE.Vector3(side*0.03, -0.035, 0.22),
+          new THREE.Vector3(side*0.05, -0.03, 0.24)
+        ];
+        var forkCurve = new THREE.CatmullRomCurve3(forkPts);
+        var forkGeo = new THREE.TubeGeometry(forkCurve, 8, 0.002, 6, false);
+        headGroup.add(new THREE.Mesh(forkGeo, M.bronzeDark));
+      });
+      // 鳞片 - 菱形网格覆盖头部
+      for(var row=0; row<5; row++){
+        for(var col=-2; col<=2; col++){
+          var sc = new THREE.Mesh(new THREE.SphereGeometry(0.01, 8, 8), M.bronzeDark);
+          sc.scale.set(1.2, 0.4, 1.0);
+          sc.position.set(col*0.02, 0.03 - row*0.012, 0.04 + row*0.02);
+          headGroup.add(sc);
+        }
+      }
+      break;
+    }
+    case 6: { // ====== 马(Horse) - 长脸,飘鬃,翘鼻,尖耳 ======
+      // 头骨 - 长而窄
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), M.bronze);
+      skull.scale.set(0.75, 0.82, 1.35);
+      headGroup.add(skull);
+      // 口鼻 - 长锥形
+      var muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.08, 24, 24), M.bronze);
+      muzzle.scale.set(0.7, 0.6, 1.0);
+      muzzle.position.set(0, -0.05, 0.12);
+      headGroup.add(muzzle);
+      // 鼻孔 - 大而张开
+      [-1,1].forEach(function(side){
+        var nostril = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.005, 8, 16, Math.PI), M.bronzeDark);
+        nostril.position.set(side*0.025, -0.04, 0.18);
+        nostril.rotation.x = Math.PI/2;
+        headGroup.add(nostril);
+      });
+      // 鼻梁 - 微隆
+      var noseRidge = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.025, 0.14, 12), M.bronze);
+      noseRidge.position.set(0, 0.02, 0.08);
+      noseRidge.rotation.x = Math.PI/2;
+      headGroup.add(noseRidge);
+      // 尖耳 - 三角形直立
+      [-1,1].forEach(function(side){
+        var earPts = [
+          new THREE.Vector3(side*0.06, 0.1, -0.02),
+          new THREE.Vector3(side*0.07, 0.16, -0.03),
+          new THREE.Vector3(side*0.065, 0.2, -0.035),
+          new THREE.Vector3(side*0.055, 0.22, -0.03)
+        ];
+        var earCurve = new THREE.CatmullRomCurve3(earPts);
+        var earGeo = new THREE.TubeGeometry(earCurve, 12, 0.012, 10, false);
+        headGroup.add(new THREE.Mesh(earGeo, M.bronze));
+      });
+      // 眼睛 - 大而有神
+      addEyes(headGroup, 0.03, 0.02, 0.065, 0.025);
+      // 鬃毛 - 飘逸流动
+      for(var m=0; m<12; m++){
+        var t = m/11;
+        var manePts = [
+          new THREE.Vector3(0, 0.08 - t*0.08, -0.04 - t*0.06),
+          new THREE.Vector3(0.01*Math.sin(m*0.7), 0.06 - t*0.08, -0.07 - t*0.08),
+          new THREE.Vector3(0.015*Math.sin(m*1.2), 0.03 - t*0.08, -0.1 - t*0.1)
+        ];
+        var maneCurve = new THREE.CatmullRomCurve3(manePts);
+        var maneGeo = new THREE.TubeGeometry(maneCurve, 10, 0.006 + (1-t)*0.004, 8, false);
+        headGroup.add(new THREE.Mesh(maneGeo, M.bronze));
+      }
+      break;
+    }
+    case 7: { // ====== 羊(Goat) - 螺旋弯角,胡须,矩形瞳 ======
+      // 头骨 - 略长方形
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), M.bronze);
+      skull.scale.set(0.95, 0.9, 1.1);
+      headGroup.add(skull);
+      // 额部 - 平坦
+      var forehead = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.06, 0.08), M.bronze);
+      forehead.position.set(0, 0.06, 0);
+      headGroup.add(forehead);
+      // 口鼻 - 方形
+      var muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.06, 24, 24), M.bronze);
+      muzzle.scale.set(0.8, 0.7, 0.9);
+      muzzle.position.set(0, -0.06, 0.1);
+      headGroup.add(muzzle);
+      // 鼻子
+      var nose = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), M.bronzeDark);
+      nose.scale.set(1.2, 0.8, 0.6);
+      nose.position.set(0, -0.05, 0.15);
+      headGroup.add(nose);
+      addNostrils(headGroup, -0.06, 0.15, 0.015, 0.01);
+      // 眼睛 - 带矩形瞳孔暗示
+      [-1,1].forEach(function(side){
+        var eye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 12), M.bronze);
+        eye.position.set(side*0.07, 0.02, 0.03);
+        headGroup.add(eye);
+        // 横瞳孔 - 用扁平矩形
+        var pupil = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.008, 0.005), M.bronzeDark);
+        pupil.position.set(side*0.07, 0.02, 0.04);
+        headGroup.add(pupil);
+      });
+      // 螺旋弯角 - 精致螺旋
+      [-1,1].forEach(function(side){
+        var hornPts = [];
+        for(var i=0; i<=20; i++){
+          var t = i/20;
+          var spiralAngle = t * Math.PI * 2.5;
+          var spiralR = 0.02 + t * 0.06;
+          hornPts.push(new THREE.Vector3(
+            side*(0.08 + Math.cos(spiralAngle)*spiralR),
+            0.08 + t*0.12,
+            Math.sin(spiralAngle)*spiralR - 0.02
+          ));
+        }
+        var hornCurve = new THREE.CatmullRomCurve3(hornPts);
+        var hornGeo = new THREE.TubeGeometry(hornCurve, 24, 0.012, 10, false);
+        headGroup.add(new THREE.Mesh(hornGeo, M.bronzeDark));
+      });
+      // 胡须 - 多缕
+      for(var b=0; b<4; b++){
+        var beardPts = [
+          new THREE.Vector3((b-1.5)*0.015, -0.08, 0.08),
+          new THREE.Vector3((b-1.5)*0.02, -0.12, 0.06),
+          new THREE.Vector3((b-1.5)*0.025, -0.16, 0.04)
+        ];
+        var beardCurve = new THREE.CatmullRomCurve3(beardPts);
+        var beardGeo = new THREE.TubeGeometry(beardCurve, 10, 0.004, 8, false);
+        headGroup.add(new THREE.Mesh(beardGeo, M.bronze));
+      }
+      break;
+    }
+    case 8: { // ====== 猴(Monkey) - 人脸,凸眉,圆耳,宽嘴 ======
+      // 头骨 - 圆形，略扁
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), M.bronze);
+      skull.scale.set(0.92, 0.88, 0.88);
+      headGroup.add(skull);
+      // 面部 - 人类样脸型
+      var face = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 24), M.bronze);
+      face.scale.set(0.9, 0.85, 0.5);
+      face.position.set(0, -0.01, 0.06);
+      headGroup.add(face);
+      // 眉弓 - 突出
+      [-1,1].forEach(function(side){
+        var brow = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.01, 0.06, 12), M.bronze);
+        brow.position.set(side*0.05, 0.05, 0.07);
+        brow.rotation.z = side*0.3;
+        brow.rotation.x = 0.1;
+        headGroup.add(brow);
+      });
+      // 眼睛 - 大而圆
+      addEyes(headGroup, 0.01, 0.08, 0.05, 0.025);
+      // 鼻子 - 扁平，鼻孔朝前
+      var nose = new THREE.Mesh(new THREE.SphereGeometry(0.02, 12, 12), M.bronze);
+      nose.scale.set(1.0, 0.6, 0.8);
+      nose.position.set(0, -0.02, 0.12);
+      headGroup.add(nose);
+      addNostrils(headGroup, -0.015, 0.13, 0.01, 0.008);
+      // 嘴 - 宽而突出
+      var mouth = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 16), M.bronze);
+      mouth.scale.set(1.1, 0.5, 0.7);
+      mouth.position.set(0, -0.05, 0.09);
+      headGroup.add(mouth);
+      // 唇线
+      var lipLine = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.004, 0.004), M.bronzeDark);
+      lipLine.position.set(0, -0.05, 0.12);
+      headGroup.add(lipLine);
+      // 圆耳 - 人类型
+      [-1,1].forEach(function(side){
+        var earShape = [];
+        for(var i=0; i<=12; i++){
+          var t = i/12;
+          var earR = Math.sin(t*Math.PI)*0.035;
+          var earY = t*0.05;
+          earShape.push(new THREE.Vector2(earR, earY));
+        }
+        var earGeo = new THREE.LatheGeometry(earShape, 16);
+        var ear = new THREE.Mesh(earGeo, M.bronze);
+        ear.position.set(side*0.12, 0.01, -0.01);
+        ear.rotation.y = side*0.4;
+        headGroup.add(ear);
+      });
+      // 额部皱纹
+      for(var wr=0; wr<3; wr++){
+        var wrinkle = new THREE.Mesh(new THREE.BoxGeometry(0.06 - wr*0.01, 0.003, 0.003), M.bronzeDark);
+        wrinkle.position.set(0, 0.08 + wr*0.008, 0.04);
+        headGroup.add(wrinkle);
+      }
+      break;
+    }
+    case 9: { // ====== 鸡(Rooster) - 大冠,肉垂,尖喙,尾羽 ======
+      // 头骨 - 略长
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), M.bronze);
+      skull.scale.set(0.8, 0.88, 1.1);
+      headGroup.add(skull);
+      // 喙 - 弯钩形
+      var beakUpper = [
+        new THREE.Vector3(0, 0, 0.08),
+        new THREE.Vector3(0, -0.01, 0.12),
+        new THREE.Vector3(0, -0.03, 0.15),
+        new THREE.Vector3(0, -0.04, 0.16)
+      ];
+      var beakCurve = new THREE.CatmullRomCurve3(beakUpper);
+      var beakGeo = new THREE.TubeGeometry(beakCurve, 12, 0.012, 10, false);
+      headGroup.add(new THREE.Mesh(beakGeo, M.bronze));
+      // 下喙
+      var lowerBeak = [
+        new THREE.Vector3(0, -0.02, 0.08),
+        new THREE.Vector3(0, -0.025, 0.12),
+        new THREE.Vector3(0, -0.03, 0.14)
+      ];
+      var lowerBeakCurve = new THREE.CatmullRomCurve3(lowerBeak);
+      var lowerBeakGeo = new THREE.TubeGeometry(lowerBeakCurve, 10, 0.008, 8, false);
+      headGroup.add(new THREE.Mesh(lowerBeakGeo, M.bronze));
+      // 鸡冠 - 大锯齿形
+      var combPts = [];
+      for(var i=0; i<=12; i++){
+        var t = i/12;
+        var combY = 0.08 + Math.sin(t*Math.PI*3)*0.015 + t*0.04;
+        combPts.push(new THREE.Vector3(0, combY, -0.02 + t*0.12));
+      }
+      var combCurve = new THREE.CatmullRomCurve3(combPts);
+      var combGeo = new THREE.TubeGeometry(combCurve, 16, 0.018, 12, false);
+      headGroup.add(new THREE.Mesh(combGeo, M.bronze));
+      // 冠齿
+      for(var c=0; c<5; c++){
+        var ct = c/4;
+        var crownTooth = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.02, 8), M.bronze);
+        crownTooth.position.set(0, 0.1 + Math.sin(ct*Math.PI*3)*0.015, -0.02 + ct*0.12);
+        headGroup.add(crownTooth);
+      }
+      // 肉垂 - 下方
+      [-1,1].forEach(function(side){
+        var wattlePts = [
+          new THREE.Vector3(side*0.015, -0.04, 0.06),
+          new THREE.Vector3(side*0.02, -0.08, 0.05),
+          new THREE.Vector3(side*0.015, -0.1, 0.04)
+        ];
+        var wattleCurve = new THREE.CatmullRomCurve3(wattlePts);
+        var wattleGeo = new THREE.TubeGeometry(wattleCurve, 10, 0.008, 8, false);
+        headGroup.add(new THREE.Mesh(wattleGeo, M.bronze));
+      });
+      // 眼睛
+      addEyes(headGroup, 0.01, 0.04, 0.045, 0.02);
+      // 尾羽 - 长弧形
+      for(var f=0; f<5; f++){
+        var featherAngle = (f-2)*0.15;
+        var featherPts = [
+          new THREE.Vector3(0, 0.02, -0.08),
+          new THREE.Vector3(0, 0.04 + f*0.01, -0.14),
+          new THREE.Vector3(0, 0.06 + f*0.015, -0.2)
+        ];
+        var featherCurve = new THREE.CatmullRomCurve3(featherPts);
+        var featherGeo = new THREE.TubeGeometry(featherCurve, 12, 0.004 + (5-f)*0.001, 8, false);
+        var featherMesh = new THREE.Mesh(featherGeo, M.bronze);
+        featherMesh.rotation.z = featherAngle;
+        headGroup.add(featherMesh);
+      }
+      break;
+    }
+    case 10: { // ====== 狗(Dog) - 垂耳,湿鼻,警觉表情 ======
+      // 头骨 - 椭圆
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 32), M.bronze);
+      skull.scale.set(1.0, 0.92, 1.05);
+      headGroup.add(skull);
+      // 口鼻 - 中等长度
+      var muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), M.bronze);
+      muzzle.scale.set(0.8, 0.7, 0.9);
+      muzzle.position.set(0, -0.04, 0.1);
+      headGroup.add(muzzle);
+      // 鼻子 - 大而湿润感
+      var nose = new THREE.Mesh(new THREE.SphereGeometry(0.025, 16, 16), M.bronzeDark);
+      nose.scale.set(1.2, 0.8, 0.8);
+      nose.position.set(0, -0.03, 0.16);
+      headGroup.add(nose);
+      addNostrils(headGroup, -0.015, 0.165, 0.012, 0.01);
+      // 额部
+      var forehead = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), M.bronze);
+      forehead.scale.set(1.0, 0.6, 0.7);
+      forehead.position.set(0, 0.06, 0.02);
+      headGroup.add(forehead);
+      // 眼睛 - 警觉大眼
+      addEyes(headGroup, 0.02, 0.04, 0.06, 0.024);
+      // 眉毛区域 - 微隆
+      [-1,1].forEach(function(side){
+        var brow = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.008, 0.05, 10), M.bronze);
+        brow.position.set(side*0.05, 0.06, 0.05);
+        brow.rotation.z = side*0.2;
+        headGroup.add(brow);
+      });
+      // 垂耳 - 大而下垂
+      [-1,1].forEach(function(side){
+        var earPts = [
+          new THREE.Vector3(side*0.08, 0.06, 0),
+          new THREE.Vector3(side*0.1, 0.02, 0.02),
+          new THREE.Vector3(side*0.11, -0.03, 0.03),
+          new THREE.Vector3(side*0.1, -0.07, 0.02),
+          new THREE.Vector3(side*0.08, -0.1, 0.01)
+        ];
+        var earCurve = new THREE.CatmullRomCurve3(earPts);
+        var earGeo = new THREE.TubeGeometry(earCurve, 16, 0.018, 10, false);
+        headGroup.add(new THREE.Mesh(earGeo, M.bronze));
+        // 耳内侧
+        var innerEarPts = [
+          new THREE.Vector3(side*0.09, 0.04, 0.01),
+          new THREE.Vector3(side*0.1, 0, 0.025),
+          new THREE.Vector3(side*0.1, -0.04, 0.025)
+        ];
+        var innerEarCurve = new THREE.CatmullRomCurve3(innerEarPts);
+        var innerEarGeo = new THREE.TubeGeometry(innerEarCurve, 10, 0.008, 8, false);
+        headGroup.add(new THREE.Mesh(innerEarGeo, M.bronzeDark));
+      });
+      // 嘴部
+      var mouthLine = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.004, 0.004), M.bronzeDark);
+      mouthLine.position.set(0, -0.05, 0.12);
+      headGroup.add(mouthLine);
+      break;
+    }
+    case 11: { // ====== 猪(Pig) - 平鼻,大垂耳,圆脸 ======
+      // 头骨 - 大而圆
+      var skull = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), M.bronze);
+      skull.scale.set(1.05, 0.9, 0.95);
+      headGroup.add(skull);
+      // 颊部 - 肥厚鼓起
+      [-1,1].forEach(function(side){
+        var cheek = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), M.bronze);
+        cheek.position.set(side*0.09, -0.01, 0.04);
+        cheek.scale.set(0.7, 0.8, 0.6);
+        headGroup.add(cheek);
+      });
+      // 猪鼻 - 平坦圆盘形
+      var snoutDisk = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.04, 32), M.bronze);
+      snoutDisk.position.set(0, -0.03, 0.14);
+      snoutDisk.rotation.x = Math.PI/2;
+      headGroup.add(snoutDisk);
+      // 鼻盘面
+      var snoutFace = new THREE.Mesh(new THREE.SphereGeometry(0.055, 24, 24), M.bronze);
+      snoutFace.scale.set(1.0, 0.7, 0.4);
+      snoutFace.position.set(0, -0.03, 0.155);
+      headGroup.add(snoutFace);
+      // 鼻孔 - 大而椭圆
+      [-1,1].forEach(function(side){
+        var nostril = new THREE.Mesh(new THREE.TorusGeometry(0.015, 0.005, 8, 16), M.bronzeDark);
+        nostril.position.set(side*0.022, -0.03, 0.17);
+        headGroup.add(nostril);
+      });
+      // 大垂耳 - 扁平下垂
+      [-1,1].forEach(function(side){
+        var earPts = [
+          new THREE.Vector3(side*0.1, 0.06, -0.02),
+          new THREE.Vector3(side*0.13, 0.03, -0.01),
+          new THREE.Vector3(side*0.14, -0.02, 0),
+          new THREE.Vector3(side*0.12, -0.06, 0.01),
+          new THREE.Vector3(side*0.09, -0.08, 0)
+        ];
+        var earCurve = new THREE.CatmullRomCurve3(earPts);
+        var earGeo = new THREE.TubeGeometry(earCurve, 16, 0.022, 12, false);
+        headGroup.add(new THREE.Mesh(earGeo, M.bronze));
+      });
+      // 眼睛 - 小而圆
+      addEyes(headGroup, 0.02, 0.04, 0.07, 0.02);
+      // 嘴 - 微笑状
+      var mouthCurve = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.004, 0.004), M.bronzeDark);
+      mouthCurve.position.set(0, -0.07, 0.1);
+      headGroup.add(mouthCurve);
+      // 下巴
+      var chin = new THREE.Mesh(new THREE.SphereGeometry(0.04, 16, 16), M.bronze);
+      chin.position.set(0, -0.1, 0.06);
+      chin.scale.set(0.8, 0.5, 0.7);
+      headGroup.add(chin);
+      break;
+    }
+  }
+
+  // ====== 喷水口（嘴巴位置） ======
+  var spout = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.02, 0.06, 12), M.gold);
+  spout.position.set(0, -0.05, 0.18);
+  spout.rotation.x = Math.PI/2;
+  headGroup.add(spout);
+  // 喷口装饰环
+  var spoutRing = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.004, 8, 16), M.gold);
+  spoutRing.position.set(0, -0.05, 0.18);
+  headGroup.add(spoutRing);
+
+  g.add(headGroup);
+  parent.add(g);
 }
 
 function buildArch(group, x, z){
   var g = new THREE.Group();
   g.position.set(x, 0.75, z);
 
-  // 两侧立柱
+  // ====== 两侧立柱（科林斯式，带凹槽和收分） ======
   [-2.8, 2.8].forEach(function(sx){
-    var col = new THREE.Mesh(new THREE.BoxGeometry(0.9, 6, 0.9), M.marble);
-    col.position.set(sx, 3.5, 0);
-    col.castShadow = true;
-    g.add(col);
-    var capital = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.4, 1.1), M.marble);
-    capital.position.set(sx, 6.7, 0);
-    g.add(capital);
+    // 柱础（Attic base样式：上下凸圆+凹圆）
+    var basePlinth = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.15, 1.2), M.marbleD);
+    basePlinth.position.set(sx, 0.08, 0);
+    g.add(basePlinth);
+    var baseTorus1 = new THREE.Mesh(new THREE.TorusGeometry(0.48, 0.06, 12, 32), M.marble);
+    baseTorus1.rotation.x = Math.PI/2;
+    baseTorus1.position.set(sx, 0.2, 0);
+    g.add(baseTorus1);
+    var baseScotia = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.45, 0.08, 32), M.marbleD);
+    baseScotia.position.set(sx, 0.24, 0);
+    g.add(baseScotia);
+    var baseTorus2 = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.04, 10, 32), M.marble);
+    baseTorus2.rotation.x = Math.PI/2;
+    baseTorus2.position.set(sx, 0.29, 0);
+    g.add(baseTorus2);
+
+    // 柱身（带entasis收分 - 略微鼓胀）
+    // 用多段CylinderGeometry模拟entasis
+    var colSegs = 4;
+    for(var seg=0; seg<colSegs; seg++){
+      var t1 = seg/colSegs;
+      var t2 = (seg+1)/colSegs;
+      var y1 = 0.35 + t1*5.8;
+      var y2 = 0.35 + t2*5.8;
+      var h = (y2-y1);
+      // entasis: radius = base - (base-top)*t + sin(t*PI)*0.03
+      var r1 = 0.42 - (0.42-0.32)*t1 + Math.sin(t1*Math.PI)*0.025;
+      var r2 = 0.42 - (0.42-0.32)*t2 + Math.sin(t2*Math.PI)*0.025;
+      var colSeg = new THREE.Mesh(new THREE.CylinderGeometry(r2, r1, h, 32), M.marble);
+      colSeg.position.set(sx, (y1+y2)/2, 0);
+      colSeg.castShadow = true;
+      g.add(colSeg);
+    }
+    // 20道凹槽（flutes）
+    for(var v=0; v<20; v++){
+      var va = (v/20)*Math.PI*2;
+      var groove = new THREE.Mesh(new THREE.BoxGeometry(0.035, 5.6, 0.035), M.marbleD);
+      groove.position.set(sx+Math.cos(va)*0.39, 3.2, Math.sin(va)*0.39);
+      g.add(groove);
+    }
+
+    // ====== 科林斯柱头（Corinthian Capital） ======
+    // 柱头底部 - 倒钟形（calyx）
+    var capitalBase = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.36, 0.25, 32), M.marble);
+    capitalBase.position.set(sx, 6.45, 0);
+    g.add(capitalBase);
+    // 阿坎瑟斯叶（Acanthus leaves）- 两层，每层8片
+    for(var layer=0; layer<2; layer++){
+      for(var leaf=0; leaf<8; leaf++){
+        var la = (leaf/8)*Math.PI*2 + layer*Math.PI/8;
+        var ly = 6.35 + layer*0.2;
+        // 叶片 - 用拉伸的弧形
+        var leafShape = new THREE.Shape();
+        leafShape.moveTo(0, 0);
+        leafShape.quadraticCurveTo(0.04, 0.08, 0.02, 0.18);
+        leafShape.quadraticCurveTo(0, 0.2, -0.02, 0.18);
+        leafShape.quadraticCurveTo(-0.04, 0.08, 0, 0);
+        var leafExtrudeSettings = {depth:0.02, bevelEnabled:true, bevelThickness:0.005, bevelSize:0.005, bevelSegments:4};
+        var leafGeo = new THREE.ExtrudeGeometry(leafShape, leafExtrudeSettings);
+        var leafMesh = new THREE.Mesh(leafGeo, M.marble);
+        leafMesh.position.set(sx+Math.cos(la)*(0.38-layer*0.03), ly, Math.sin(la)*(0.38-layer*0.03));
+        leafMesh.rotation.set(-Math.PI/2+0.3, -la, 0);
+        leafMesh.scale.set(0.8, 0.8, 0.8);
+        g.add(leafMesh);
+      }
+    }
+    // 柱头涡卷（volute）- 4个角
+    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(sc){
+      var volute = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.03, 10, 20, Math.PI*1.5), M.marble);
+      volute.position.set(sx+sc[0]*0.35, 6.6, sc[1]*0.35);
+      volute.rotation.set(sc[1]*0.3, 0, sc[0]*0.3);
+      g.add(volute);
+    });
+    // 柱头方块（abacus）
+    var abacus = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.1, 0.95), M.marble);
+    abacus.position.set(sx, 6.75, 0);
+    g.add(abacus);
+    // 柱头金饰
+    var capGold = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.012, 8, 32), M.gold);
+    capGold.rotation.x = Math.PI/2;
+    capGold.position.set(sx, 6.35, 0);
+    g.add(capGold);
   });
 
-  // 拱顶横梁
-  var lintel = new THREE.Mesh(new THREE.BoxGeometry(7, 1.3, 1.2), M.marble);
-  lintel.position.set(0, 7.2, 0);
+  // ====== 拱顶横梁（带装饰线脚） ======
+  // 主梁
+  var lintel = new THREE.Mesh(new THREE.BoxGeometry(7.5, 0.9, 1.3), M.marble);
+  lintel.position.set(0, 7.05, 0);
   g.add(lintel);
+  // 梁上装饰带（frieze）- 带线脚
+  var frieze = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.15, 1.4), M.gold);
+  frieze.position.set(0, 7.55, 0);
+  g.add(frieze);
+  // 檐口（cornice）- 多层
+  var cornice1 = new THREE.Mesh(new THREE.BoxGeometry(8.0, 0.08, 1.5), M.marble);
+  cornice1.position.set(0, 7.65, 0);
+  g.add(cornice1);
+  var cornice2 = new THREE.Mesh(new THREE.BoxGeometry(8.2, 0.06, 1.6), M.marbleD);
+  cornice2.position.set(0, 7.72, 0);
+  g.add(cornice2);
 
-  // 蚌壳装饰
-  var shell = new THREE.Mesh(new THREE.SphereGeometry(1.5, 16, 12, 0, Math.PI*2, 0, Math.PI*0.6), M.marble);
-  shell.position.set(0, 8.2, 0);
-  shell.rotation.x = -0.2;
-  g.add(shell);
+  // ====== 半圆拱券（voussoir楔形石） ======
+  var archRadius = 2.8;
+  var archSegs = 32;
+  var archTube = 0.32;
+  for(var i=0; i<=archSegs; i++){
+    var t = (i/archSegs)*Math.PI;
+    var ax = Math.cos(t)*archRadius;
+    var ay = 7.05 + Math.sin(t)*archRadius*0.85;
+    // 楔形石 - 交替深浅
+    var stoneW = archTube + Math.abs(Math.sin(t))*0.08;
+    var stone = new THREE.Mesh(new THREE.BoxGeometry(stoneW, stoneW, 1.15), (i%3===0)?M.marbleD:M.marble);
+    stone.position.set(ax, ay, 0);
+    stone.rotation.z = t - Math.PI/2;
+    stone.castShadow = true;
+    g.add(stone);
+  }
+  // 拱顶楔石（keystone）- 最顶端
+  var keystone = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.5, 1.2), M.marble);
+  keystone.position.set(0, 7.05+archRadius*0.85, 0);
+  g.add(keystone);
+  // 楔石装饰
+  var keystoneOrnament = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), M.gold);
+  keystoneOrnament.position.set(0, 7.05+archRadius*0.85+0.3, 0.6);
+  g.add(keystoneOrnament);
 
-  // 狮子头喷水口
-  var lionHead = new THREE.Mesh(new THREE.SphereGeometry(0.4, 12, 12), M.bronze);
-  lionHead.position.set(0, 4, 0.6);
+  // ====== 拱顶三角楣饰（pediment） ======
+  var pedimentShape = new THREE.Shape();
+  pedimentShape.moveTo(-2.5, 0);
+  pedimentShape.lineTo(0, 1.3);
+  pedimentShape.lineTo(2.5, 0);
+  pedimentShape.lineTo(2.4, 0);
+  pedimentShape.lineTo(0, 1.15);
+  pedimentShape.lineTo(-2.4, 0);
+  pedimentShape.closePath();
+  var pedimentGeo = new THREE.ExtrudeGeometry(pedimentShape, {depth:0.25, bevelEnabled:true, bevelThickness:0.03, bevelSize:0.03, bevelSegments:3});
+  var pedimentMesh = new THREE.Mesh(pedimentGeo, M.marble);
+  pedimentMesh.position.set(0, 7.85, -0.12);
+  g.add(pedimentMesh);
+  // 檐口装饰
+  var corniceArch = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.15, 0.2), M.gold);
+  corniceArch.position.set(0, 7.8, 0.72);
+  g.add(corniceArch);
+
+  // ====== 狮子头喷水口（巴洛克涡卷装饰） ======
+  // 狮子基座
+  var lionBase = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.42, 0.35, 24), M.bronze);
+  lionBase.position.set(0, 4.2, 0.65);
+  g.add(lionBase);
+  // 狮子头 - 圆形主面
+  var lionHead = new THREE.Mesh(new THREE.SphereGeometry(0.38, 24, 24), M.bronze);
+  lionHead.scale.set(1.0, 0.95, 0.85);
+  lionHead.position.set(0, 4.55, 0.75);
   g.add(lionHead);
+  // 狮鬃 - 用多个小球模拟
+  for(var m=0; m<16; m++){
+    var ma = (m/16)*Math.PI*2;
+    var maneBall = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), M.bronze);
+    maneBall.position.set(Math.cos(ma)*0.32, 4.55+Math.sin(ma)*0.28, 0.65);
+    g.add(maneBall);
+  }
+  // 狮眼
+  [-1,1].forEach(function(side){
+    var eye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), M.gold);
+    eye.position.set(side*0.12, 4.6, 1.05);
+    g.add(eye);
+    var pupil = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), M.bronzeDark);
+    pupil.position.set(side*0.12, 4.6, 1.08);
+    g.add(pupil);
+  });
+  // 狮嘴（喷水口）
+  var lionMouth = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.35, 16), M.bronze);
+  lionMouth.position.set(0, 4.45, 1.08);
+  lionMouth.rotation.x = Math.PI/2;
+  g.add(lionMouth);
+  // 狮鼻
+  var lionNose = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), M.bronzeDark);
+  lionNose.position.set(0, 4.55, 1.12);
+  g.add(lionNose);
 
-  // 水帘
-  for(var i=0; i<7; i++){
-    var wf = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.08), M.water);
-    wf.position.set((i-3)*0.35, 3-i*0.35, 1);
-    g.add(wf);
+  // ====== 水帘（多层瀑布效果） ======
+  for(var row=0; row<3; row++){
+    for(var i=0; i<7; i++){
+      var wfH = 0.9+row*0.35;
+      var wf = new THREE.Mesh(new THREE.BoxGeometry(0.05, wfH, 0.05), M.water);
+      wf.position.set((i-3)*0.35 - row*0.12, 3.5-row*0.95-i*0.12, 0.85+row*0.2);
+      g.add(wf);
+    }
   }
 
-  // 涡卷装饰
+  // ====== 涡卷装饰（巴洛克风格scrolled volutes） ======
   [-1,1].forEach(function(side){
-    var scroll = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 16, Math.PI), M.marble);
-    scroll.position.set(side*3.8, 6.5, 0);
-    scroll.rotation.z = side*Math.PI/2;
-    g.add(scroll);
+    // 主涡卷
+    var scrollPts = [];
+    for(var si=0; si<=20; si++){
+      var st = si/20;
+      var sr = 0.5 - st*0.35;
+      var sa = st*Math.PI*1.2;
+      scrollPts.push(new THREE.Vector3(
+        side*(3.9 + Math.cos(sa)*sr*0.3),
+        6.3 + Math.sin(sa)*sr,
+        0
+      ));
+    }
+    var scrollCurve = new THREE.CatmullRomCurve3(scrollPts);
+    var scrollGeo = new THREE.TubeGeometry(scrollCurve, 20, 0.12, 12, false);
+    g.add(new THREE.Mesh(scrollGeo, M.marble));
+    // 涡卷内旋
+    var innerScrollPts = [];
+    for(var si=0; si<=12; si++){
+      var st = si/12;
+      var sr = 0.2 - st*0.15;
+      var sa = st*Math.PI*0.8;
+      innerScrollPts.push(new THREE.Vector3(
+        side*(4.15 + Math.cos(sa)*sr*0.2),
+        5.95 + Math.sin(sa)*sr,
+        0
+      ));
+    }
+    var innerScrollCurve = new THREE.CatmullRomCurve3(innerScrollPts);
+    var innerScrollGeo = new THREE.TubeGeometry(innerScrollCurve, 14, 0.06, 10, false);
+    g.add(new THREE.Mesh(innerScrollGeo, M.marble));
   });
 
   group.add(g);
@@ -1459,30 +2551,89 @@ function buildBaroqueColumn(group, x, z){
   var g = new THREE.Group();
   g.position.set(x, 0.75, z);
 
-  var base = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.7), M.marble);
-  base.position.y = 0.18;
-  g.add(base);
+  // ====== 柱础（Attic base） ======
+  var basePlinth = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.12, 0.75), M.marble);
+  basePlinth.position.y = 0.06;
+  g.add(basePlinth);
+  var baseTorus1 = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 10, 24), M.marble);
+  baseTorus1.rotation.x = Math.PI/2;
+  baseTorus1.position.y = 0.14;
+  g.add(baseTorus1);
+  var baseScotia = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.28, 0.06, 24), M.marbleD);
+  baseScotia.position.y = 0.18;
+  g.add(baseScotia);
+  var baseTorus2 = new THREE.Mesh(new THREE.TorusGeometry(0.27, 0.03, 8, 24), M.marble);
+  baseTorus2.rotation.x = Math.PI/2;
+  baseTorus2.position.y = 0.22;
+  g.add(baseTorus2);
 
-  var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 5, 12), M.marble);
-  shaft.position.y = 2.85;
-  shaft.castShadow = true;
-  g.add(shaft);
+  // ====== 柱身（带entasis收分） ======
+  var colSegs = 4;
+  for(var seg=0; seg<colSegs; seg++){
+    var t1 = seg/colSegs;
+    var t2 = (seg+1)/colSegs;
+    var y1 = 0.25 + t1*4.7;
+    var y2 = 0.25 + t2*4.7;
+    var h = (y2-y1);
+    var r1 = 0.28 - (0.28-0.22)*t1 + Math.sin(t1*Math.PI)*0.015;
+    var r2 = 0.28 - (0.28-0.22)*t2 + Math.sin(t2*Math.PI)*0.015;
+    var colSeg = new THREE.Mesh(new THREE.CylinderGeometry(r2, r1, h, 28), M.marble);
+    colSeg.position.y = (y1+y2)/2;
+    colSeg.castShadow = true;
+    g.add(colSeg);
+  }
 
-  // 凹槽
-  for(var i=0; i<8; i++){
-    var groove = new THREE.Mesh(new THREE.BoxGeometry(0.02, 4.5, 0.02), M.marbleD);
-    var angle = (i/8)*Math.PI*2;
-    groove.position.set(Math.cos(angle)*0.24, 2.85, Math.sin(angle)*0.24);
+  // 20道凹槽（flutes with fillets between them）
+  for(var i=0; i<20; i++){
+    var angle = (i/20)*Math.PI*2;
+    var groove = new THREE.Mesh(new THREE.BoxGeometry(0.02, 4.6, 0.02), M.marbleD);
+    groove.position.set(Math.cos(angle)*0.26, 2.55, Math.sin(angle)*0.26);
     g.add(groove);
   }
 
-  var capital = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.6), M.marble);
-  capital.position.y = 5.55;
-  g.add(capital);
+  // ====== 科林斯柱头（Corinthian Capital） ======
+  // 底部calyx
+  var capitalBase = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.24, 0.18, 28), M.marble);
+  capitalBase.position.y = 5.2;
+  g.add(capitalBase);
 
-  var volute = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.06, 6, 12), M.marble);
-  volute.position.y = 5.9;
-  g.add(volute);
+  // 阿坎瑟斯叶（Acanthus leaves）- 两层
+  for(var layer=0; layer<2; layer++){
+    for(var leaf=0; leaf<8; leaf++){
+      var la = (leaf/8)*Math.PI*2 + layer*Math.PI/8;
+      var ly = 5.15 + layer*0.14;
+      var leafShape = new THREE.Shape();
+      leafShape.moveTo(0, 0);
+      leafShape.quadraticCurveTo(0.025, 0.05, 0.015, 0.12);
+      leafShape.quadraticCurveTo(0, 0.13, -0.015, 0.12);
+      leafShape.quadraticCurveTo(-0.025, 0.05, 0, 0);
+      var leafGeo = new THREE.ExtrudeGeometry(leafShape, {depth:0.015, bevelEnabled:true, bevelThickness:0.003, bevelSize:0.003, bevelSegments:3});
+      var leafMesh = new THREE.Mesh(leafGeo, M.marble);
+      leafMesh.position.set(Math.cos(la)*(0.26-layer*0.02), ly, Math.sin(la)*(0.26-layer*0.02));
+      leafMesh.rotation.set(-Math.PI/2+0.25, -la, 0);
+      leafMesh.scale.set(0.7, 0.7, 0.7);
+      g.add(leafMesh);
+    }
+  }
+
+  // 柱头涡卷（volute）- 4个角
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(sc){
+    var volute = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.02, 8, 16, Math.PI*1.5), M.marble);
+    volute.position.set(sc[0]*0.22, 5.35, sc[1]*0.22);
+    volute.rotation.set(sc[1]*0.25, 0, sc[0]*0.25);
+    g.add(volute);
+  });
+
+  // abacus方块
+  var abacus = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.08, 0.65), M.marble);
+  abacus.position.y = 5.45;
+  g.add(abacus);
+
+  // 金饰环
+  var capGold = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.008, 8, 24), M.gold);
+  capGold.rotation.x = Math.PI/2;
+  capGold.position.y = 5.12;
+  g.add(capGold);
 
   group.add(g);
 }
@@ -1491,26 +2642,150 @@ function buildFountain(group){
   var g = new THREE.Group();
   g.position.set(0, 0.75, 7);
 
-  var pool = new THREE.Mesh(new THREE.CylinderGeometry(5.5, 6, 0.45, 16), M.marble);
-  pool.position.y = 0.22;
-  g.add(pool);
+  // ====== 多层叠水池（历史准确：外圈大池+内圈小池+中央台） ======
+  // 最外圈池壁
+  var poolOuter = new THREE.Mesh(new THREE.CylinderGeometry(5.8, 6.2, 0.35, 48), M.marble);
+  poolOuter.position.y = 0.18;
+  g.add(poolOuter);
+  // 外池壁装饰线脚（多层）
+  var outerCornice1 = new THREE.Mesh(new THREE.TorusGeometry(5.85, 0.06, 10, 48), M.marbleD);
+  outerCornice1.rotation.x = Math.PI/2;
+  outerCornice1.position.y = 0.36;
+  g.add(outerCornice1);
+  var outerCornice2 = new THREE.Mesh(new THREE.TorusGeometry(5.95, 0.04, 8, 48), M.gold);
+  outerCornice2.rotation.x = Math.PI/2;
+  outerCornice2.position.y = 0.4;
+  g.add(outerCornice2);
+  // 外池壁侧面装饰（每隔一段有浮雕块）
+  for(var d=0; d<16; d++){
+    var da = (d/16)*Math.PI*2;
+    var relief = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.1), M.bronze);
+    relief.position.set(Math.cos(da)*5.8, 0.25, Math.sin(da)*5.8);
+    relief.rotation.y = -da;
+    g.add(relief);
+  }
 
-  var poolInner = new THREE.Mesh(new THREE.CylinderGeometry(5, 5, 0.08, 16), M.marbleD);
-  poolInner.position.y = 0.42;
-  g.add(poolInner);
+  // 内圈池壁（第二层叠水）
+  var poolMid = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.8, 0.45, 48), M.marble);
+  poolMid.position.y = 0.45;
+  g.add(poolMid);
+  // 内池装饰线
+  var midCornice = new THREE.Mesh(new THREE.TorusGeometry(4.55, 0.05, 10, 48), M.gold);
+  midCornice.rotation.x = Math.PI/2;
+  midCornice.position.y = 0.7;
+  g.add(midCornice);
+
+  // 中央台（猎狗逐鹿平台）
+  var centralPlatform = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.5, 0.5, 48), M.marbleD);
+  centralPlatform.position.y = 0.7;
+  g.add(centralPlatform);
+  var centralRim = new THREE.Mesh(new THREE.TorusGeometry(2.25, 0.04, 8, 32), M.gold);
+  centralRim.rotation.x = Math.PI/2;
+  centralRim.position.y = 0.97;
+  g.add(centralRim);
+
+  // ====== 池底水面 ======
+  var poolWaterOuter = new THREE.Mesh(new THREE.CylinderGeometry(5.6, 5.6, 0.06, 48), M.water);
+  poolWaterOuter.position.y = 0.4;
+  g.add(poolWaterOuter);
+  var poolWaterMid = new THREE.Mesh(new THREE.CylinderGeometry(4.3, 4.3, 0.06, 48), M.water);
+  poolWaterMid.position.y = 0.65;
+  g.add(poolWaterMid);
+
+  // 池底装饰（同心圆纹样）
+  for(var r=1; r<=4; r++){
+    var ring = new THREE.Mesh(new THREE.TorusGeometry(r*1.2, 0.03, 8, 32), M.marbleD);
+    ring.rotation.x = Math.PI/2;
+    ring.position.y = 0.43;
+    g.add(ring);
+  }
 
   buildDeer(g);
 
+  // 十只猎狗（扇形分布，在外圈池壁上，面向鹿）
   for(var i=0; i<10; i++){
-    var angle = (i/10)*Math.PI - Math.PI/2;
-    buildHound(g, Math.cos(angle)*4, Math.sin(angle)*4, -angle+Math.PI);
+    var angle = (i/9)*Math.PI*0.8 - Math.PI*0.4;
+    var houndDist = 5.2 + Math.sin(i*0.5)*0.2;
+    buildHound(g, Math.cos(angle)*houndDist, Math.sin(angle)*houndDist+0.5, -angle+Math.PI);
   }
 
+  // ====== 水柱效果（弧线水柱 + 半透明材质） ======
+  var waterMat = new THREE.MeshStandardMaterial({color:0x88ccee, transparent:true, opacity:0.55, roughness:0.05, metalness:0.15, side:THREE.DoubleSide});
+  var waterSplashMat = new THREE.MeshStandardMaterial({color:0xaaddff, transparent:true, opacity:0.4, roughness:0.1});
+  
+  // 鹿身喷水（8道弧线水柱）
   for(var i=0; i<8; i++){
     var angle = (i/8)*Math.PI*2;
-    var water = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, 1.5+Math.random()*0.5, 6), M.water);
-    water.position.set(Math.cos(angle)*0.5, 1.8, Math.sin(angle)*0.5);
-    g.add(water);
+    var pts = [];
+    for(var t=0; t<=12; t++){
+      var tt = t/12;
+      var ry = 1.5 + tt*1.5 - tt*tt*0.5;
+      var rr = 0.4 + tt*0.3;
+      pts.push(new THREE.Vector3(Math.cos(angle)*rr, ry, Math.sin(angle)*rr));
+    }
+    var curve = new THREE.CatmullRomCurve3(pts);
+    var tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 20, 0.02+Math.random()*0.01, 8, false), waterMat);
+    g.add(tube);
+    // 水花顶部（多层球体模拟雾化）
+    for(var s=0; s<3; s++){
+      var splash = new THREE.Mesh(new THREE.SphereGeometry(0.04+s*0.02, 12, 12), waterSplashMat);
+      splash.position.set(Math.cos(angle)*(0.7+s*0.1), 2.8+s*0.15, Math.sin(angle)*(0.7+s*0.1));
+      g.add(splash);
+    }
+  }
+
+  // 狗嘴喷水（10道弧线水柱，从外圈指向中央鹿）
+  for(var i=0; i<10; i++){
+    var angle = (i/9)*Math.PI*0.8 - Math.PI*0.4;
+    var houndDist = 5.2 + Math.sin(i*0.5)*0.2;
+    var wx = Math.cos(angle)*houndDist;
+    var wz = Math.sin(angle)*houndDist+0.5;
+    var pts = [];
+    for(var t=0; t<=16; t++){
+      var tt = t/16;
+      var fx = wx*(1-tt*0.6);
+      var fz = wz*(1-tt*0.6);
+      var fy = 1.2 + tt*2.0 - tt*tt*1.2;
+      pts.push(new THREE.Vector3(fx, fy, fz));
+    }
+    var curve = new THREE.CatmullRomCurve3(pts);
+    var jet = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.012+Math.random()*0.008, 8, false), waterMat);
+    g.add(jet);
+    // 水柱末端飞溅
+    var endSplash = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), waterSplashMat);
+    endSplash.position.set(wx*0.4, 2.5, wz*0.4);
+    g.add(endSplash);
+  }
+
+  // ====== 瀑布水帘（从拱门垂下，弧线水幕） ======
+  for(var i=0; i<8; i++){
+    var pts = [];
+    var startX = (i-3.5)*0.25;
+    for(var t=0; t<=10; t++){
+      var tt = t/10;
+      pts.push(new THREE.Vector3(startX + Math.sin(tt*Math.PI)*0.05, 3.0-tt*2.2, 0.9+tt*0.3));
+    }
+    var curve = new THREE.CatmullRomCurve3(pts);
+    var wf = new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.015, 6, false), waterMat);
+    g.add(wf);
+  }
+
+  // ====== 水花飞溅粒子 ======
+  for(var p=0; p<30; p++){
+    var pa = (p/30)*Math.PI*2;
+    var pr = 0.3 + (p%5)*0.12;
+    var py = 1.5 + (p%7)*0.2;
+    var splashDrop = new THREE.Mesh(new THREE.SphereGeometry(0.012+(p%3)*0.008, 8, 8), waterSplashMat);
+    splashDrop.position.set(Math.cos(pa)*pr, py, Math.sin(pa)*pr);
+    g.add(splashDrop);
+  }
+
+  // ====== 水面涟漪环（多层） ======
+  for(var w=0; w<4; w++){
+    var ripple = new THREE.Mesh(new THREE.TorusGeometry(0.6+w*0.4, 0.012, 8, 32), waterMat);
+    ripple.rotation.x = Math.PI/2;
+    ripple.position.y = 0.44;
+    g.add(ripple);
   }
 
   group.add(g);
@@ -1591,27 +2866,72 @@ function buildWaterTower(group, x, z){
   var g = new THREE.Group();
   g.position.set(x, 0.75, z);
 
+  // 基座
+  var base = new THREE.Mesh(new THREE.BoxGeometry(2, 0.4, 2), M.marbleD);
+  base.position.y = 0.2;
+  g.add(base);
+  // 基座装饰线
+  var baseTrim = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.08, 2.2), M.gold);
+  baseTrim.position.y = 0.44;
+  g.add(baseTrim);
+
+  // 13层塔身（逐层缩小，带栏杆）
   for(var i=0; i<13; i++){
-    var size = 1.4 - i*0.06;
-    var lv = new THREE.Mesh(new THREE.BoxGeometry(size, 0.28, size), M.marble);
-    lv.position.y = 0.5 + i*0.32;
+    var size = 1.5 - i*0.07;
+    var lvH = 0.28;
+    var lvY = 0.5 + i*0.34;
+    
+    // 主体层
+    var lv = new THREE.Mesh(new THREE.BoxGeometry(size, lvH, size), M.marble);
+    lv.position.y = lvY;
     g.add(lv);
+    
+    // 每层栏杆（8根小柱）
+    for(var r=0; r<8; r++){
+      var ra = (r/8)*Math.PI*2;
+      var post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 4), M.marble);
+      post.position.set(Math.cos(ra)*size*0.42, lvY+lvH/2+0.1, Math.sin(ra)*size*0.42);
+      g.add(post);
+    }
+    // 栏杆横条
+    var rail = new THREE.Mesh(new THREE.TorusGeometry(size*0.42, 0.02, 4, 8), M.marble);
+    rail.rotation.x = Math.PI/2;
+    rail.position.y = lvY+lvH/2+0.18;
+    g.add(rail);
+    
+    // 角柱装饰（每3层）
     if(i%3===0){
       [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(sc){
-        var corner = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.12), M.marbleD);
-        corner.position.set(sc[0]*size*0.4, 0.5+i*0.32, sc[1]*size*0.4);
+        var corner = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.15), M.marbleD);
+        corner.position.set(sc[0]*size*0.42, lvY, sc[1]*size*0.42);
         g.add(corner);
       });
     }
   }
 
-  var spout = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), M.bronze);
-  spout.position.y = 4.7;
-  g.add(spout);
+  // 塔顶（金色球+尖针）
+  var topSphere = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 10), M.gold);
+  topSphere.position.y = 5.1;
+  g.add(topSphere);
+  var spire = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.06, 0.4, 6), M.gold);
+  spire.position.y = 5.4;
+  g.add(spire);
 
-  var water = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, 2, 6), M.water);
-  water.position.y = 5.8;
-  g.add(water);
+  // 塔顶喷水（向上水柱）
+  var waterUp = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.06, 1.8, 6), M.water);
+  waterUp.position.y = 5.8;
+  g.add(waterUp);
+  // 水花
+  var splashTop = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), M.water);
+  splashTop.position.y = 6.7;
+  g.add(splashTop);
+  // 四散水滴
+  for(var d=0; d<6; d++){
+    var da = (d/6)*Math.PI*2;
+    var drop = new THREE.Mesh(new THREE.SphereGeometry(0.04, 4, 4), M.water);
+    drop.position.set(Math.cos(da)*0.3, 6.5+Math.random()*0.3, Math.sin(da)*0.3);
+    g.add(drop);
+  }
 
   group.add(g);
 }
@@ -2043,29 +3363,45 @@ function setupUI(){
       var data = SCENES[id];
       if(!data) return;
 
+      // 先记录当前活跃场景（DOM更新前）
+      var prevBtn = document.querySelector('.scene-btn.active');
+      var prevId = prevBtn ? prevBtn.dataset.scene : 'overview';
+
       document.querySelectorAll('.scene-btn').forEach(function(b){ b.classList.remove('active'); });
       this.classList.add('active');
 
-      // 更新详情面板
+      // 详情面板：文字即时更新，时间线单独过渡
+      var detailEl = document.getElementById('detail');
+      var timelineEl = document.getElementById('d-timeline');
+      // 文字即时更新（无延迟）
       document.getElementById('d-title').textContent = data.title;
       document.getElementById('d-year').textContent = data.year;
       document.getElementById('d-desc').textContent = data.desc;
       document.getElementById('d-tags').innerHTML = data.tags.map(function(t){
         return '<span class="tag" onclick="filterTag(this)">'+t+'</span>';
       }).join('');
-
-      // Phase 5: 更新时间线
-      var timelineEl = document.getElementById('d-timeline');
-      if(data.timeline){
-        timelineEl.innerHTML = data.timeline.map(function(item, i){
-          return '<div class="timeline-item" style="position:relative;animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
-        }).join('');
-        timelineEl.style.display = 'block';
+      // 时间线：淡出→更新→淡入
+      var updateTimeline = function(){
+        if(data.timeline){
+          timelineEl.innerHTML = data.timeline.map(function(item, i){
+            return '<div class="timeline-item" style="position:relative;animation:fadeUp 0.35s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
+          }).join('');
+          timelineEl.style.display = 'block';
+        } else {
+          timelineEl.style.display = 'none';
+        }
+      };
+      if(detailEl.classList.contains('show') && timelineEl.style.display !== 'none'){
+        timelineEl.style.transition = 'opacity 0.2s ease';
+        timelineEl.style.opacity = '0';
+        setTimeout(function(){
+          updateTimeline();
+          timelineEl.style.opacity = '1';
+        }, 220);
       } else {
-        timelineEl.style.display = 'none';
+        updateTimeline();
       }
-
-      document.getElementById('detail').classList.add('show');
+      detailEl.classList.add('show');
 
       // 更新左上角景区数据面板（数字滚动动画 + 进度条）
       if(data.stats){
@@ -2094,11 +3430,35 @@ function setupUI(){
         }
       }
 
-      // 飞行动画
-      startPos = camera.position.clone();
-      startLook = controls.target.clone();
-      endPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
-      endLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
+      // 360°圆环轨道动画
+      var fromPos = camera.position.clone();
+      var fromLook = controls.target.clone();
+      var toPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
+      var toLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
+      // prevId 已在点击处理开头捕获
+      var isOverviewTransition = (prevId === 'overview' || id === 'overview');
+      // 起点角度 = 当前相机位置相对轨道中心的角度
+      var fdx = fromPos.x - orbitCenter.x, fdz = fromPos.z - orbitCenter.z;
+      var startAngle = Math.atan2(fdz, fdx);
+      // 终点角度 = 目标景区的固定角度
+      var endAngle = SCENE_ANGLES[id] !== undefined ? SCENE_ANGLES[id] : Math.atan2(toPos.z - orbitCenter.z, toPos.x - orbitCenter.x);
+      // 走最短弧线（≤180°）
+      var angleDiff = endAngle - startAngle;
+      while(angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+      while(angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+      // 起点高度：子景间保持当前高度，全景转换才变
+      var startH = isOverviewTransition ? fromPos.y : ORBIT_HEIGHT;
+      var endH = (id === 'overview') ? OVERVIEW_HEIGHT : ORBIT_HEIGHT;
+      orbitFrom = {
+        angle: startAngle,
+        height: startH,
+        lookAt: fromLook.clone()
+      };
+      orbitTo = {
+        angle: startAngle + angleDiff,
+        height: endH,
+        lookAt: toLook.clone()
+      };
       animStart = Date.now();
       animating = true;
     });
@@ -2147,17 +3507,31 @@ function animate(){
   requestAnimationFrame(animate);
 
   if(animating){
-    var t = Math.min((Date.now() - animStart) / animDuration, 1);
-    var ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; // easeInOutCubic
-
-    camera.position.lerpVectors(startPos, endPos, ease);
-    controls.target.lerpVectors(startLook, endLook, ease);
-
+    var elapsed = Date.now() - animStart;
+    var t = Math.min(elapsed / animDuration, 1);
+    // easeInOutQuart
+    var ease = t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2, 4) / 2;
+    // 沿圆环插值角度
+    var angle = orbitFrom.angle + (orbitTo.angle - orbitFrom.angle) * ease;
+    // 高度平滑过渡（仅全景↔子景有高度差）
+    var height = orbitFrom.height + (orbitTo.height - orbitFrom.height) * ease;
+    // 恒定轨道半径，圆环运动
+    camera.position.set(
+      orbitCenter.x + Math.cos(angle) * ORBIT_RADIUS,
+      height,
+      orbitCenter.z + Math.sin(angle) * ORBIT_RADIUS
+    );
+    controls.target.lerpVectors(orbitFrom.lookAt, orbitTo.lookAt, ease);
     if(t >= 1) animating = false;
   }
 
   controls.update();
   if(sky) sky.position.copy(camera.position);
+  // 指南针：相机朝向角度
+  var dir = new THREE.Vector3().subVectors(controls.target, camera.position);
+  var compassAngle = Math.atan2(dir.x, dir.z) * (180 / Math.PI);
+  var arrow = document.getElementById('compass-arrow');
+  if(arrow) arrow.style.transform = 'translate(-50%,0) rotate('+compassAngle+'deg)';
   renderer.render(scene, camera);
 }
 
@@ -2244,7 +3618,7 @@ function filterTag(el){
 }
 
 // ==================== 键盘快捷键 ====================
-var sceneKeys = ['overview','jiuzhou','dashuifa','fangpu','zhengda'];
+var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa'];
 document.addEventListener('keydown', function(e){
   var num = parseInt(e.key);
   if(num >= 1 && num <= 5){
