@@ -66,16 +66,7 @@ canvas{display:block}
 .stat-extra .extra-num{color:#FFD700;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;font-size:13px}
 .stat-extra .extra-label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px}
 .compass{display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,215,0,0.08)}
-.compass-ring{width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,215,0,0.25);position:relative;background:rgba(255,215,0,0.03)}
-.compass-ring span{position:absolute;font-size:7px;font-family:'ZCOOL QingKe HuangYou',monospace;color:#666;font-weight:600}
-.compass-n{top:2px;left:50%;transform:translateX(-50%);color:#cc2222!important}
-.compass-s{bottom:2px;left:50%;transform:translateX(-50%)}
-.compass-w{left:3px;top:50%;transform:translateY(-50%)}
-.compass-e{right:3px;top:50%;transform:translateY(-50%)}
-.compass-arrow{position:absolute;top:50%;left:50%;width:2px;height:20px;transform-origin:50% 0%;transform:translate(-50%,0) rotate(0deg);transition:transform 0.15s ease-out}
-.compass-arrow::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid #cc2222}
-.compass-arrow::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:2px;height:12px;background:rgba(204,34,34,0.5);border-radius:1px}
-.compass-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;background:#FFD700;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 4px rgba(255,215,0,0.5)}
+.compass-img{width:80px;height:80px;transition:transform 0.15s ease-out;filter:drop-shadow(0 0 6px rgba(255,215,0,0.3))}
 .stat-progress{width:100%;height:2px;background:rgba(255,215,0,0.08);border-radius:2px;overflow:hidden}
 .stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#FFD700 0%,#FFB800 60%,rgba(255,184,0,0.4) 100%);border-radius:2px;transition:width 0.8s ease;width:0}
 .footer{position:absolute;bottom:16px;right:14px;font-size:11px;color:#8B8370;padding:4px 10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:12px;font-family:'Noto Serif SC',serif;letter-spacing:0.3px}
@@ -168,11 +159,7 @@ canvas{display:block}
       </div>
       <div class="stat-extra" id="stat-extra" style="display:none"><span class="extra-num" id="stat-extra-num">-</span><span class="extra-label" id="stat-extra-label">-</span></div>
       <div class="compass" id="compass">
-        <div class="compass-ring">
-          <span class="compass-n">N</span><span class="compass-s">S</span><span class="compass-w">W</span><span class="compass-e">E</span>
-          <div class="compass-arrow" id="compass-arrow"></div>
-          <div class="compass-dot"></div>
-        </div>
+        <img src="compass.svg" alt="compass" class="compass-img" id="compass-img"/>
       </div>
     </div>
   </div>
@@ -3530,8 +3517,8 @@ function animate(){
   // 指南针：相机朝向角度
   var dir = new THREE.Vector3().subVectors(controls.target, camera.position);
   var compassAngle = Math.atan2(dir.x, dir.z) * (180 / Math.PI);
-  var arrow = document.getElementById('compass-arrow');
-  if(arrow) arrow.style.transform = 'translate(-50%,0) rotate('+compassAngle+'deg)';
+  var compassImg = document.getElementById('compass-img');
+  if(compassImg) compassImg.style.transform = 'rotate('+compassAngle+'deg)';
   renderer.render(scene, camera);
 }
 
