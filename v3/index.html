@@ -3,472 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>重生·圆明园 | AI数字文化遗产3D重建</title>
+<title>重生·圆明园 | 数字文化遗产3D重建</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Liu+Jian+Mao+Cao&family=Long+Cang&display=swap" rel="stylesheet">
 <style>
+/* === Ancient Manuscript / 古籍质感 Design System === */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Serif SC','ZCOOL XiaoWei',serif;background:#0a0a1a;overflow:hidden;color:#fff}
+body{font-family:'Noto Serif SC','ZCOOL XiaoWei',serif;background:#1a1816;overflow:hidden;color:#c0b0a0}
 canvas{display:block}
 #ui{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:100}
 #ui>*{pointer-events:auto}
-.header{position:absolute;top:0;left:0;right:0;padding:0;background:linear-gradient(135deg,rgba(180,30,30,0.95) 0%,rgba(140,22,22,0.92) 40%,rgba(100,16,16,0.88) 100%);display:flex;justify-content:center;align-items:center;border-bottom:2px solid rgba(255,215,0,0.3);box-shadow:0 2px 20px rgba(180,30,30,0.4);z-index:102}
-.header h1,.header .slogan{font-size:18px;font-weight:700;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;display:inline-block;overflow:hidden;white-space:nowrap;border-right:none;animation:none;color:#FFD700;letter-spacing:2px;text-shadow:0 0 12px rgba(255,215,0,0.6),0 0 24px rgba(255,215,0,0.3)}
-.header h1 em{color:#FFD700;font-style:normal}
-.slogan-bar{position:relative;display:inline-block}
-.slogan-bar:hover .slogan-popup{opacity:1;visibility:visible}
-.slogan-popup{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:320px;background:rgba(20,10,10,0.96);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:14px 16px;opacity:0;visibility:hidden;transition:all 0.3s ease;pointer-events:none;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
-@keyframes typewriter{from{max-width:0}to{max-width:200px}}
-@keyframes blink{50%{border-color:transparent}}
-.header-left{display:flex;align-items:center;gap:10px}
-.header-right{display:flex;align-items:center;gap:10px}
-.header .info{font-size:11px;color:#FFD700;padding:4px 10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:12px;cursor:default;position:relative;text-shadow:0 0 8px rgba(255,215,0,0.4)}
-.header .info:hover .slogan-popup{opacity:1;visibility:visible;transform:translateY(0)}
-.slogan-popup{position:absolute;top:100%;left:50%;transform:translateX(-50%) translateY(8px);margin-top:8px;background:rgba(20,15,15,0.96);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:12px 14px;width:260px;font-size:11px;color:#ccc;line-height:1.7;opacity:0;visibility:hidden;transition:all 0.25s ease;z-index:10;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
-.slogan-popup::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:rgba(20,15,15,0.96);border-left:1px solid rgba(255,215,0,0.3);border-top:1px solid rgba(255,215,0,0.3)}
-.slogan-popup strong{color:#FFD700}
-.fullscreen-btn{width:30px;height:30px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.15);border-radius:8px;color:#ffd700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease}
-.fullscreen-btn:hover{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.3);transform:scale(1.08);box-shadow:0 0 12px rgba(255,215,0,0.2)}
-.fullscreen-btn:active{transform:scale(0.95)}
-.sidebar{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(255,215,0,0.25);padding:8px 16px;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
-.sidebar.collapsed{padding:6px 10px}
-.sidebar.collapsed .sidebar-title{display:none}
-.sidebar.collapsed .scene-btn span{display:none}
-.sidebar.collapsed .scene-btn h4{display:none}
-.sidebar.collapsed .scene-btn{padding:6px 8px;justify-content:center}
-.sidebar.collapsed .scene-btn .btn-icon{margin:0}
-.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:2}
-.sidebar-toggle:hover{background:rgba(255,215,0,0.2)}
-.sidebar h3,.sidebar .sidebar-title{display:none}
-.scene-btn{padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid transparent;border-bottom:2px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:#fff;font-size:12px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
-.scene-btn:hover{background:rgba(255,215,0,0.1);border-color:rgba(255,215,0,0.3);border-bottom-color:#FFD700;transform:translateY(-2px)}
-.scene-btn.active{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.4);border-bottom-color:#FFD700;box-shadow:0 0 16px rgba(255,215,0,0.3);animation:btnFlash 0.6s ease}
-.scene-btn:not(.active){opacity:0.45;transition:opacity 0.3s ease}
-.scene-btn:not(.active):hover{opacity:0.75}
-@keyframes btnFlash{0%{box-shadow:0 0 0 rgba(255,215,0,0)}30%{box-shadow:0 0 28px rgba(255,215,0,0.6)}100%{box-shadow:0 0 16px rgba(255,215,0,0.3)}}
-.scene-btn h4{margin:0;font-size:12px;font-weight:500}
+
+/* === Header: flat dark red, split layout === */
+.header{position:absolute;top:0;left:0;right:0;height:40px;padding:0 14px;background:#6B1A1A;display:flex;align-items:center;z-index:102;border-bottom:none;box-shadow:none}
+.header-left{position:absolute;left:14px;font-size:13px;color:#c0b0a0;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;letter-spacing:2px}
+.header-right{position:absolute;right:14px;display:flex;align-items:center;gap:8px}
+.fullscreen-btn{width:28px;height:28px;background:transparent;border:1px solid rgba(192,176,160,0.2);border-radius:2px;color:#c0b0a0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s}
+.fullscreen-btn:hover{opacity:0.7}
+
+/* === Sidebar: wood-block navigation === */
+.sidebar{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);width:auto;background:rgba(30,28,25,0.95);border:1px solid rgba(120,100,80,0.2);border-radius:2px;padding:6px 14px;transition:none;overflow:hidden;display:flex;align-items:center;gap:4px}
+.scene-btn{padding:5px 10px;background:transparent;border:none;border-radius:2px;cursor:pointer;text-align:left;color:#8a7a6a;font-size:12px;font-family:'Noto Serif SC',serif;display:flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap;transition:background 0.2s}
+.scene-btn:hover{background:rgba(120,100,80,0.12)}
+.scene-btn.active{color:#c0b0a0;border-bottom:2px solid #3a3a3a}
+.scene-btn:not(.active){opacity:0.55;transition:opacity 0.2s}
+.scene-btn:not(.active):hover{opacity:0.8}
+.scene-btn h4{margin:0;font-size:12px;font-weight:400}
 .scene-btn span{display:none}
-.btn-icon{width:22px;height:22px;border-radius:4px;background:rgba(255,215,0,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
-.scene-btn:hover .btn-icon{background:rgba(255,215,0,0.18)}
-.scene-btn.active .btn-icon{background:rgba(255,215,0,0.25)}
-.detail{position:absolute;top:65px;right:14px;transform:translateX(20px);width:280px;max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;border:1px solid rgba(255,215,0,0.2);padding:16px;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.35s cubic-bezier(0.4,0,0.2,1)}
-.detail.show{opacity:1;transform:translateX(0);pointer-events:auto}
-.detail .close{position:absolute;top:10px;right:10px;width:28px;height:28px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding:0}
-.detail .close:hover{background:rgba(255,215,0,0.15);color:#FFD700;transform:rotate(90deg)}
-.detail .close svg{width:16px;height:16px}
-.detail-content{transition:opacity 0.25s ease,transform 0.25s ease}
-.detail-content.fade-out{opacity:0;transform:translateY(8px)}
-.detail h2{font-size:20px;color:#FFD700;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:1px}
-.detail .year{font-size:11px;color:#888;margin-bottom:8px;transition:color 0.3s}
-.detail p{font-size:12px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif;transition:color 0.3s}
-.detail .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
-.detail .tag{font-size:10px;padding:3px 8px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:10px;color:#FFD700;font-family:'Noto Serif SC',serif;cursor:pointer;transition:all 0.2s}
-.detail .tag:hover{background:rgba(255,215,0,0.25);transform:scale(1.05);box-shadow:0 0 8px rgba(255,215,0,0.2)}
-.detail .tag.active-tag{background:rgba(255,215,0,0.3);border-color:#FFD700}
-.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;border:1px solid rgba(255,215,0,0.2);padding:10px 12px;width:160px;transition:all 0.3s}
-.stats h3{font-size:11px;color:#FFD700;margin-bottom:8px;font-weight:500;letter-spacing:0.5px}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px}
-.stat-item{background:rgba(255,215,0,0.04);border-radius:6px;padding:6px 8px;border:1px solid rgba(255,215,0,0.06)}
-.stat-item .num{background:linear-gradient(180deg,#FFD700,#B8860B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;font-size:15px;line-height:1.1;position:relative}
-.stat-item{position:relative}
-.stat-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(20,15,15,0.96);border:1px solid rgba(255,215,0,0.25);border-radius:8px;padding:6px 10px;font-size:10px;color:#ccc;white-space:nowrap;opacity:0;visibility:hidden;transition:all 0.2s ease;z-index:10;pointer-events:none;box-shadow:0 2px 10px rgba(0,0,0,0.4)}
-.stat-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(255,215,0,0.25)}
-.stat-item:hover .stat-tooltip{opacity:1;visibility:visible}
-.stat-item .label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px;letter-spacing:0.2px;margin-top:2px}
-.stat-item .stat-progress{margin-top:4px}
-.stat-extra{margin-top:6px;display:flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.12);border-radius:10px}
-.stat-extra .extra-num{color:#FFD700;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;font-size:13px}
-.stat-extra .extra-label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px}
-.compass{display:flex;justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,215,0,0.08);position:relative}
-.compass-dir{position:absolute;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#FFD700;cursor:pointer;border-radius:50%;transition:all 0.2s;font-weight:700;z-index:2;font-family:'ZCOOL QingKe HuangYou',monospace}
-.compass-dir:hover{background:rgba(255,215,0,0.2);transform:scale(1.15);box-shadow:0 0 8px rgba(255,215,0,0.3)}
-.compass-dir.active{background:rgba(255,215,0,0.35);box-shadow:0 0 12px rgba(255,215,0,0.5);color:#fff;border:1px solid rgba(255,215,0,0.6)}
-.compass-dir.dir-n{top:-2px;left:50%;transform:translateX(-50%)}
-.compass-dir.dir-s{bottom:-2px;left:50%;transform:translateX(-50%)}
-.compass-dir.dir-e{right:-2px;top:50%;transform:translateY(-50%)}
-.compass-dir.dir-w{left:-2px;top:50%;transform:translateY(-50%)}
-.compass-dir.dir-ne{top:4px;right:4px}
-.compass-dir.dir-nw{top:4px;left:4px}
-.compass-dir.dir-se{bottom:4px;right:4px}
-.compass-dir.dir-sw{bottom:4px;left:4px}
-.compass-img{width:80px;height:80px;transition:transform 0.15s ease-out;filter:drop-shadow(0 0 6px rgba(255,215,0,0.3))}
-.stat-progress{width:100%;height:2px;background:rgba(255,215,0,0.08);border-radius:2px;overflow:hidden}
-.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#FFD700 0%,#FFB800 60%,rgba(255,184,0,0.4) 100%);border-radius:2px;transition:width 0.8s ease;width:0}
-.footer{position:absolute;bottom:16px;right:14px;font-size:11px;color:#8B8370;padding:4px 10px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:12px;font-family:'Noto Serif SC',serif;letter-spacing:0.3px}
-.logo-btn{cursor:pointer;transition:transform 0.2s}
-.logo-btn:hover{transform:scale(1.1)}
-.logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;cursor:pointer}
-.logo-modal.show{display:flex}
-.logo-modal img{max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 0 60px rgba(212,168,75,0.3);border:2px solid rgba(255,215,0,0.3)}
-.logo-modal .hint{position:absolute;bottom:30px;color:#666;font-size:12px}
-.controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:101;padding:4px 14px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:10px;color:#888;display:flex;align-items:center;gap:10px;white-space:nowrap}
-.controls .ctrl-sep{color:#444;font-size:8px}
-.controls svg{width:14px;height:14px;fill:none;stroke:#666;stroke-width:1.5}
-.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.6s ease, transform 0.6s ease}
-.loading.hide{opacity:0;transform:scale(1.05);pointer-events:none}
-#particleCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
-.loading-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
-.loading-content img{animation:logoFloat 2s ease-in-out infinite alternate}
-@keyframes logoFloat{from{transform:translateY(0)}to{transform:translateY(-8px)}}
-.loading-content img{filter:drop-shadow(0 0 20px rgba(255,215,0,0.4));animation:logoFloat 2s ease-in-out infinite alternate,logoPulse 3s ease-in-out infinite}
-@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,215,0,0.4))}50%{filter:drop-shadow(0 0 35px rgba(255,215,0,0.7))}}
-.loading-content h1{font-size:32px;margin-bottom:8px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:3px;opacity:0;transform:translateY(20px);animation:fadeUp 0.8s ease 0.3s forwards;color:#FFD700}
-.loading-content p{color:#666;font-size:13px;opacity:0;animation:fadeUp 0.6s ease 0.5s forwards}
-.loading-status{color:#FFD700;font-size:11px;margin-top:12px;opacity:0;animation:fadeUp 0.4s ease 0.7s forwards;font-family:'ZCOOL QingKe HuangYou',monospace;letter-spacing:1px}
-.loading-version{position:absolute;bottom:20px;color:#333;font-size:10px;font-family:'ZCOOL QingKe HuangYou',monospace}
-@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.loading .bar{width:220px;height:3px;background:rgba(255,215,0,0.1);border-radius:3px;margin-top:16px;overflow:hidden;position:relative}
-.loading .bar span{display:block;height:100%;background:linear-gradient(90deg,#FFD700,#FFB800);width:0;transition:width 0.4s ease;border-radius:3px;box-shadow:0 0 12px rgba(255,215,0,0.5),0 0 24px rgba(255,215,0,0.25)}
-.loading .bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent);animation:barPulse 1.5s ease-in-out infinite}
-@keyframes barPulse{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.scene-btn .btn-icon{display:none}
+.scene-btn .nav-tooltip{display:none}
 
-/* Phase 4: Stats panel */
-.stats{cursor:default}
-.stats-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.stats-header:hover{opacity:0.8}
-.stats-toggle{font-size:10px;color:#666;transition:transform 0.3s}
-.stats.collapsed .stats-toggle{transform:rotate(-90deg)}
-.stats.collapsed .stats-body{max-height:0;opacity:0;padding:0;margin:0;overflow:hidden}
-.stats-body{transition:all 0.3s ease;max-height:300px;opacity:1;overflow:hidden}
-.stats-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid rgba(255,215,0,0.08)}
+/* === Detail panel: ancient fold-out page === */
+.detail{position:absolute;top:50px;right:14px;width:280px;max-height:calc(100vh - 90px);overflow-y:auto;background:rgba(30,28,25,0.95);border:1px solid rgba(120,100,80,0.2);border-radius:8px;padding:16px;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity 0.3s ease, transform 0.3s ease}
+.detail.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.detail .close{position:absolute;top:8px;right:8px;width:24px;height:24px;background:transparent;border:none;color:#6a5a4a;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;padding:0;transition:color 0.2s;font-family:serif}
+.detail .close:hover{color:#c0b0a0}
+.detail h2{font-size:18px;color:#8B7355;margin-bottom:2px;font-family:'Ma Shan Zheng','Noto Serif SC',serif;letter-spacing:1px;text-align:left}
+.detail .year{font-size:10px;color:#5a5040;margin-bottom:8px;font-style:italic}
+.detail p{font-size:12px;color:#8a8070;line-height:1.8;font-family:'Noto Serif SC',serif}
+.detail .tags{margin-top:10px;display:flex;gap:5px;flex-wrap:wrap}
+.detail .tag{font-size:10px;padding:2px 6px;background:#2a2520;border:1px solid #3a3a3a;border-radius:2px;color:#5a5040;font-family:'Noto Serif SC',serif;cursor:default}
+.detail-content{transition:none}
 
-/* Phase 5: Detail timeline */
-.detail-timeline{margin-top:12px;padding-left:12px;border-left:2px solid rgba(255,215,0,0.2);position:relative}
-.timeline-dot{width:8px;height:8px;background:#FFD700;border-radius:50%;position:absolute;left:-5px;top:2px;box-shadow:0 0 6px rgba(255,215,0,0.5)}
-.timeline-item{margin-bottom:8px;padding-left:10px;position:relative}
-.timeline-year{font-size:10px;color:#FFD700;font-weight:600;font-family:'ZCOOL QingKe HuangYou',monospace}
-.timeline-event{font-size:11px;color:#888;line-height:1.5;margin-top:1px}
-.detail-divider{height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.3),transparent);margin:10px 0}
+/* === Timeline: manuscript annotation style === */
+.detail-timeline{margin-top:12px}
+.timeline-item{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(120,100,80,0.12)}
+.timeline-item:last-child{border-bottom:none}
+.timeline-year{font-size:13px;color:#3a3a3a;font-weight:600;font-family:'Noto Serif SC',serif;letter-spacing:1px}
+.timeline-event{font-size:11px;color:#6a5a4a;line-height:1.6;margin-top:2px;padding-left:4px}
+.timeline-item.year-1860 .timeline-year{color:#C23B22}
+.timeline-item.year-1860 .timeline-event{color:#C23B22;opacity:0.8}
+.timeline-item.year-2026 .timeline-year{color:#8B7355}
+.detail-divider{height:1px;background:rgba(120,100,80,0.15);margin:10px 0}
 
-/* ===== 新增UI样式 ===== */
-.scene-btn .btn-icon svg{transition:stroke 0.3s}
-.scene-btn.active .btn-icon svg{stroke:#FFD700}
-.scene-btn .nav-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(20,15,15,0.95);border:1px solid rgba(255,215,0,0.25);border-radius:8px;padding:4px 10px;font-size:10px;color:#ccc;white-space:nowrap;opacity:0;visibility:hidden;transition:all 0.2s ease;pointer-events:none;z-index:10}
-.scene-btn .nav-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(255,215,0,0.25)}
-.scene-btn:hover .nav-tooltip{opacity:1;visibility:visible}
-.timeline-icon{display:inline-block;margin-right:3px;font-size:11px;vertical-align:middle}
-.timeline-item.highlight-2026{border:1px solid rgba(255,215,0,0.4);border-radius:8px;padding:4px 6px;margin:4px 0 8px;background:rgba(255,215,0,0.05)}
-.sanyuan-toggle{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:8px 10px;background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.12);border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:11px;color:#FFD700;font-family:'Noto Serif SC',serif}
-.sanyuan-toggle:hover{background:rgba(255,215,0,0.12)}
-.sanyuan-toggle .toggle-arrow{transition:transform 0.3s;font-size:10px}
-.sanyuan-toggle.expanded .toggle-arrow{transform:rotate(180deg)}
-.sanyuan-content{max-height:0;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease;opacity:0}
-.sanyuan-content.show{max-height:300px;opacity:1}
-.sanyuan-item{padding:6px 0;border-bottom:1px solid rgba(255,215,0,0.06);font-size:10px;color:#999;line-height:1.6}
-.sanyuan-item:last-child{border-bottom:none}
-.sanyuan-item strong{color:#FFD700;font-size:11px}
-.day-night-btn{position:fixed;top:70px;right:14px;width:42px;height:42px;background:rgba(10,10,26,0.88);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
-.day-night-btn:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4);transform:scale(1.08);box-shadow:0 0 16px rgba(255,215,0,0.2)}
-.day-night-btn:active{transform:scale(0.95)}
-.day-night-btn.night-mode{background:rgba(20,20,50,0.9);border-color:rgba(150,150,255,0.3)}
-.day-night-btn.night-mode:hover{border-color:rgba(150,150,255,0.5)}
-.season-btn{position:fixed;top:120px;right:14px;width:42px;height:42px;background:rgba(10,10,26,0.88);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
-.season-btn:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4);transform:scale(1.08);box-shadow:0 0 16px rgba(255,215,0,0.2)}
-.season-btn:active{transform:scale(0.95)}
-.help-btn{position:fixed;bottom:50px;left:14px;width:32px;height:32px;background:rgba(10,10,26,0.85);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;transition:all 0.3s;z-index:101}
-.help-btn:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4);transform:scale(1.1);box-shadow:0 0 12px rgba(255,215,0,0.2)}
-.ai-guide-btn{position:fixed;bottom:90px;left:14px;width:40px;height:40px;background:linear-gradient(135deg,rgba(180,30,30,0.9),rgba(120,20,20,0.85));backdrop-filter:blur(8px);border:1.5px solid rgba(255,215,0,0.4);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.3s;z-index:101;box-shadow:0 2px 12px rgba(180,30,30,0.4);gap:1px}
-.ai-guide-btn:hover{transform:scale(1.12);box-shadow:0 0 20px rgba(255,215,0,0.3);border-color:rgba(255,215,0,0.6)}
-.ai-guide-btn .ai-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 1.5s ease infinite}
-.ai-guide-btn .ai-label{font-size:8px;font-weight:700;font-family:'ZCOOL QingKe HuangYou',monospace;letter-spacing:0.5px}
-.ai-guide-panel{position:fixed;bottom:140px;left:14px;width:260px;background:rgba(10,10,26,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,215,0,0.25);border-radius:14px;padding:0;opacity:0;visibility:hidden;transform:translateY(10px);transition:all 0.3s ease;z-index:101;box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden}
-.ai-guide-panel.show{opacity:1;visibility:visible;transform:translateY(0)}
-.ai-guide-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,215,0,0.12);font-size:12px;color:#FFD700;font-weight:600}
-.ai-guide-content{padding:12px 14px;max-height:200px;overflow-y:auto}
-.ai-msg{font-size:11px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif;padding:6px 0;border-bottom:1px solid rgba(255,215,0,0.06)}
-.ai-msg:last-child{border-bottom:none}
-.ai-msg .ai-highlight{color:#FFD700;font-weight:600}
-.tutorial-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all 0.5s ease;pointer-events:none}
-.tutorial-overlay.show{opacity:1;visibility:visible;pointer-events:auto}
-.tutorial-card{background:rgba(15,12,25,0.97);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:30px 36px;max-width:400px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
-.tutorial-card h3{color:#FFD700;font-size:18px;margin-bottom:16px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:2px}
-.tutorial-card .tutorial-steps{text-align:left;font-size:12px;color:#aaa;line-height:2.2}
-.tutorial-card .tutorial-steps span{color:#FFD700;font-size:14px;margin-right:6px}
-.tutorial-card .tutorial-close{margin-top:18px;padding:8px 24px;background:linear-gradient(135deg,rgba(180,30,30,0.8),rgba(120,20,20,0.9));border:1px solid rgba(255,215,0,0.3);border-radius:10px;color:#FFD700;cursor:pointer;font-size:13px;font-family:'Noto Serif SC',serif;transition:all 0.2s}
-.tutorial-card .tutorial-close:hover{background:linear-gradient(135deg,rgba(200,40,40,0.9),rgba(150,25,25,0.95));box-shadow:0 0 12px rgba(255,215,0,0.2)}
-.first-visit-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,8,20,0.95);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:20px 30px;text-align:center;z-index:400;opacity:0;transition:opacity 0.5s ease;pointer-events:none;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
-.first-visit-hint.show{opacity:1}
-.first-visit-hint h4{color:#FFD700;font-size:16px;margin-bottom:8px;font-family:'Ma Shan Zheng',serif}
-.first-visit-hint p{color:#999;font-size:11px;line-height:1.6}
-.first-visit-hint .hint-keys{display:flex;gap:10px;justify-content:center;margin-top:10px}
-.first-visit-hint .hint-key{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:3px 8px;font-size:10px;color:#FFD700}
-.ink-transition{position:fixed;top:0;left:0;right:0;bottom:0;z-index:95;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, #0a0a1a 0%, #000000 40%, rgba(10,10,26,0.6) 70%, transparent 100%)}
-.ink-transition .ink-texture{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%, rgba(40,30,20,0.15) 0%, transparent 50%),radial-gradient(circle at 70% 60%, rgba(30,25,20,0.1) 0%, transparent 40%),radial-gradient(circle at 50% 50%, rgba(0,0,0,0.1) 0%, transparent 60%);opacity:0.7}
-.detail::-webkit-scrollbar{width:4px}
+/* === Stats panel: scatter/台账 style === */
+.stats{position:absolute;top:50px;left:14px;background:rgba(30,28,25,0.95);border:1px solid rgba(120,100,80,0.2);border-radius:8px;padding:10px 12px;width:200px;transition:none}
+.stat-lines{display:flex;flex-direction:column;gap:8px}
+.stat-line{font-size:11px;color:#6a5a4a;font-family:'Noto Serif SC',serif;line-height:1.6;transition:color 0.3s}
+.stat-line:hover{color:#9a8a7a}
+
+/* === Compass: ancient feng shui decorative === */
+.compass{display:flex;justify-content:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,100,80,0.1);position:relative;height:50px}
+.compass-svg{width:50px;height:50px;opacity:0.25}
+
+/* === Sanyuan fold-out modal === */
+.sanyuan-link{font-size:10px;color:#5a5040;cursor:pointer;margin-top:10px;display:inline-block;font-family:'Noto Serif SC',serif}
+.sanyuan-link:hover{color:#8a7a6a}
+.sanyuan-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:300;display:none;align-items:center;justify-content:center}
+.sanyuan-modal.show{display:flex}
+.sanyuan-foldout{background:#2a2520;border:1px solid #5a4a3a;border-radius:4px;padding:16px 20px;max-width:460px;width:90%;display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0}
+.sanyuan-col{padding:8px 12px}
+.sanyuan-col+.sanyuan-divider{width:1px;background:rgba(120,100,80,0.2);margin:4px 0}
+.sanyuan-col-icon{font-size:14px;margin-bottom:4px}
+.sanyuan-col-name{font-size:12px;color:#8B7355;font-weight:600;font-family:'Noto Serif SC',serif;margin-bottom:4px}
+.sanyuan-col-desc{font-size:10px;color:#6a5a4a;line-height:1.6;font-family:'Noto Serif SC',serif}
+.sanyuan-col.blue{border-left:2px solid #3B6E8F}
+.sanyuan-col.green{border-left:2px solid #4a7a5a}
+.sanyuan-col.purple{border-left:2px solid #6a5a7a}
+.sanyuan-foldout-close{position:absolute;top:8px;right:12px;background:none;border:none;color:#6a5a4a;cursor:pointer;font-size:16px;font-family:serif}
+.sanyuan-foldout-close:hover{color:#c0b0a0}
+
+/* === Bottom controls hint === */
+.controls-hint{position:absolute;bottom:12px;right:14px;font-size:9px;color:#5a5a5a;font-family:'Noto Serif SC',serif;pointer-events:none}
+.footer-credit{position:absolute;bottom:12px;left:14px;font-size:9px;color:#4a4a4a;font-family:'Noto Serif SC',serif;pointer-events:none}
+
+/* === Loading screen: minimal === */
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:#1a1816;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.6s ease}
+.loading.hide{opacity:0;pointer-events:none}
+#particleCanvas{display:none}
+.loading-content{display:flex;flex-direction:column;align-items:center}
+.loading-content img{width:60px;height:60px;margin-bottom:10px;opacity:0.8}
+.loading-content h1{font-size:24px;margin-bottom:6px;font-family:'Ma Shan Zheng','Noto Serif SC',serif;letter-spacing:3px;color:#8B7355;font-weight:400}
+.loading-content p{color:#6a5a4a;font-size:12px}
+.loading .bar{width:180px;height:2px;background:rgba(120,100,80,0.15);border-radius:2px;margin-top:14px;overflow:hidden}
+.loading .bar span{display:block;height:100%;background:#6a5a4a;width:0;transition:width 0.4s ease;border-radius:2px}
+.loading-status{color:#5a5040;font-size:10px;margin-top:10px;font-family:'Noto Serif SC',serif}
+.loading-version{position:absolute;bottom:20px;color:#3a3a3a;font-size:9px}
+
+/* === Ink-wash scene transition === */
+.ink-transition{position:fixed;top:0;left:0;right:0;bottom:0;z-index:95;pointer-events:none;opacity:0;background:#1a1816}
+
+/* === Scrollbar styling === */
+.detail::-webkit-scrollbar{width:3px}
 .detail::-webkit-scrollbar-track{background:transparent}
-.detail::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.2);border-radius:4px}
-.detail::-webkit-scrollbar-thumb:hover{background:rgba(255,215,0,0.35)}
-.season-particles{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;overflow:hidden}
-.season-particle{position:absolute;font-size:14px;opacity:0;animation:seasonFall linear infinite}
-@keyframes seasonFall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}10%{opacity:0.8}90%{opacity:0.7}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
+.detail::-webkit-scrollbar-thumb{background:rgba(120,100,80,0.2);border-radius:2px}
 
-/* === Section 3.1: Timeline expand === */
-.timeline-expand-btn{display:inline-flex;align-items:center;gap:2px;background:none;border:none;color:#666;cursor:pointer;font-size:9px;padding:2px 6px;border-radius:6px;transition:all 0.2s;float:right;margin-top:2px;line-height:1}
-.timeline-expand-btn:hover{color:#FFD700;background:rgba(255,215,0,0.1)}
-.timeline-expand-content{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease, padding 0.3s ease;opacity:0;padding:0 18px}
-.timeline-expand-content.show{max-height:200px;opacity:1;padding:4px 18px 8px 18px}
-.timeline-expand-text{font-size:11px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif}
-.timeline-item.year-1860 .timeline-year{color:#CC4400;text-shadow:0 0 8px rgba(204,68,0,0.5)}
-
-/* === Section 3.2: Tag active state === */
-.detail .tag.active-tag{background:rgba(255,215,0,0.35)!important;border-color:#FFD700!important;color:#fff!important;box-shadow:0 0 8px rgba(255,215,0,0.2)}
-
-/* === Section 3.3: 三园详解 3-column layout === */
-.sanyuan-content .sanyuan-item{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:1px 10px;padding:8px 10px;border-radius:10px;margin-bottom:6px;border-bottom:none;background:rgba(255,215,0,0.03)}
-.sanyuan-item .sanyuan-icon{font-size:18px;grid-row:1/3;display:flex;align-items:center;padding-right:10px;border-right:3px solid transparent}
-.sanyuan-item .sanyuan-name{font-size:12px;color:#FFD700;font-weight:600;font-family:'Noto Serif SC',serif}
-.sanyuan-item .sanyuan-desc{font-size:10px;color:#999;font-family:'Noto Serif SC',serif}
-.sanyuan-item.sanyuan-blue .sanyuan-icon{border-right-color:#4488ff}
-.sanyuan-item.sanyuan-green .sanyuan-icon{border-right-color:#44aa44}
-.sanyuan-item.sanyuan-purple .sanyuan-icon{border-right-color:#aa66dd}
-
-/* === Section 4.1: Scroll arrows for sidebar === */
-.sidebar-scroll-wrap{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px}
-.scroll-arrow{display:none;width:22px;height:22px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:50%;color:#FFD700;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
-.scroll-arrow:hover{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.3)}
-.sidebar::-webkit-scrollbar{display:none}
-
-/* === Section 4.2: Bottom controls divider === */
-.controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:9px;gap:8px}
-.controls::before{content:'';position:absolute;top:-6px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.3),transparent)}
-
-/* === Section 4.3: Footer clickable === */
-.footer{cursor:pointer;transition:all 0.2s;border-radius:12px}
-.footer:hover{background:rgba(255,215,0,0.15)!important;border-color:rgba(255,215,0,0.3)!important;transform:translateY(-1px)}
-
-/* === Project Info Modal === */
-.project-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:300;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease}
-.project-modal.show{display:flex;opacity:1}
-.project-modal-card{background:rgba(15,12,25,0.97);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:30px 36px;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5);position:relative;transform:scale(0.9);transition:transform 0.3s ease}
-.project-modal.show .project-modal-card{transform:scale(1)}
-.project-modal-card h2{color:#FFD700;font-size:22px;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:2px}
-.project-modal-card .pm-subtitle{color:#aaa;font-size:12px;margin-bottom:16px}
-.project-modal-card .pm-desc{color:#999;font-size:12px;line-height:1.8;text-align:left;margin-bottom:12px;font-family:'Noto Serif SC',serif}
-.project-modal-card .pm-sources{font-size:10px;color:#666;padding:8px 12px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.1);border-radius:10px;margin-top:12px}
-.project-modal-card .pm-sources strong{color:#FFD700}
-.project-modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding:0}
-.project-modal-close:hover{background:rgba(255,215,0,0.15);color:#FFD700;transform:rotate(90deg)}
-.project-modal-close svg{stroke-linecap:round;stroke-linejoin:round}
-
-/* === Section 5.1: Building hover card === */
-#buildingCard{position:fixed;z-index:150;background:rgba(10,10,26,0.95);border:1px solid rgba(255,215,0,0.35);border-radius:10px;padding:8px 12px;pointer-events:none;opacity:0;transition:opacity 0.15s ease;max-width:200px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
-#buildingCard .bc-name{color:#FFD700;font-size:12px;font-weight:600;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif}
-#buildingCard .bc-year{color:#888;font-size:10px;margin-top:2px}
-#buildingCard .bc-desc{color:#aaa;font-size:10px;line-height:1.5;margin-top:3px;font-family:'Noto Serif SC',serif}
-
-/* === Section 5.2: 复原/焚毁 toggle === */
-.restore-toggle{position:absolute;bottom:12px;right:14px;padding:4px 12px;background:rgba(10,10,26,0.85);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:10px;font-size:10px;color:#FFD700;cursor:pointer;transition:all 0.3s;z-index:101;font-family:'Noto Serif SC',serif;white-space:nowrap}
-.restore-toggle:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4)}
-.restore-toggle.burnt{color:#FF6633;border-color:rgba(255,100,50,0.4);background:rgba(255,50,20,0.15)}
-
-/* === Section 5.3: Fog toggle === */
-.fog-toggle{position:fixed;top:170px;right:14px;width:42px;height:42px;background:rgba(10,10,26,0.88);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
-.fog-toggle:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4);transform:scale(1.08);box-shadow:0 0 16px rgba(255,215,0,0.2)}
-.fog-toggle:active{transform:scale(0.95)}
-
-/* === Section 6.3: Ink wash transition === */
-.ink-transition{position:fixed;top:0;left:0;right:0;bottom:0;z-index:95;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, #0a0a1a 0%, #000000 40%, rgba(10,10,26,0.6) 70%, transparent 100%)}
-.ink-transition .ink-texture{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%, rgba(40,30,20,0.15) 0%, transparent 50%),radial-gradient(circle at 70% 60%, rgba(30,25,20,0.1) 0%, transparent 40%),radial-gradient(circle at 50% 50%, rgba(0,0,0,0.1) 0%, transparent 60%);opacity:0.7}
+/* === First-visit hint === */
+.first-visit-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(30,28,25,0.95);border:1px solid rgba(120,100,80,0.2);border-radius:4px;padding:16px 24px;text-align:center;z-index:400;opacity:0;transition:opacity 0.5s ease;pointer-events:none}
+.first-visit-hint.show{opacity:1}
+.first-visit-hint h4{color:#8B7355;font-size:14px;margin-bottom:6px;font-family:'Ma Shan Zheng','Noto Serif SC',serif}
+.first-visit-hint p{color:#6a5a4a;font-size:11px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="loading" id="loading">
-    <canvas id="particleCanvas"></canvas>
     <div class="loading-content">
-      <img src="logo.svg" alt="logo" style="width:80px;height:80px;margin-bottom:12px"/>
-      <h1><em>重生·圆明园</em></h1>
-      <p>AI数字文化遗产 3D重建</p>
+      <img src="logo.svg" alt="logo" style="width:60px;height:60px;margin-bottom:10px;opacity:0.8"/>
+      <h1>重生·圆明园</h1>
+      <p>数字文化遗产重建</p>
       <div class="bar"><span id="progress"></span></div>
+      <div class="loading-status" id="loadingStatus">载入中…</div>
     </div>
 </div>
 
 <div id="ui">
   <div class="header">
-    <div class="header-left" style="position:absolute;left:14px">
-      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')" style="height:32px;width:32px;border-radius:50%;border:1px solid rgba(255,215,0,0.4);cursor:pointer"/>
-    </div>
-    <div class="slogan-bar" style="position:relative;text-align:center">
-      <span class="slogan-text" style="font-size:16px;font-weight:700;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;color:#FFD700;letter-spacing:4px;text-shadow:0 0 12px rgba(255,215,0,0.6),0 0 24px rgba(255,215,0,0.3);cursor:default">铭记历史 · 勿忘国耻 · 振兴中华 · 文脉传承</span>
-      <div class="slogan-popup" style="position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:320px;background:rgba(20,10,10,0.96);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:14px 16px;opacity:0;visibility:hidden;transition:all 0.3s ease;pointer-events:none;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
-        <div style="font-size:13px;color:#FFD700;font-weight:700;margin-bottom:6px;font-family:'Ma Shan Zheng',serif">重生·圆明园</div>
-        <div style="font-size:11px;color:#bbb;line-height:1.8;font-family:'Noto Serif SC',serif">
-          圆明园，始建于清康熙四十六年（1707年），被誉为「万园之园」。1860年遭英法联军焚毁，化为废墟。本项目利用AI与WebGL技术，对圆明园进行数字化复原重建，让历史重现光辉。
-        </div>
-        <div style="position:absolute;top:-5px;left:50%;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:rgba(20,10,10,0.96);border-left:1px solid rgba(255,215,0,0.3);border-top:1px solid rgba(255,215,0,0.3)"></div>
-      </div>
-    </div>
-    <div class="header-right" style="position:absolute;right:14px;display:flex;align-items:center;gap:8px">
+    <div class="header-left">铭记历史 勿忘国耻</div>
+    <div class="header-right">
+      <span style="font-size:12px;color:#c0b0a0;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;letter-spacing:2px">振兴中华 文脉传承</span>
       <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <line x1="3" y1="9" x2="21" y2="9"/>
-          <line x1="3" y1="15" x2="21" y2="15"/>
-          <line x1="9" y1="3" x2="9" y2="21"/>
-          <line x1="15" y1="3" x2="15" y2="21"/>
-        </svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4z" rx="2"/><path d="M8 2v4M16 2v4M8 18v4M16 18v4"/></svg>
       </button>
     </div>
   </div>
 
   <div class="stats" id="statsPanel">
-    <div class="stats-header" onclick="toggleStats()">
-      <h3 style="margin:0">📊 景区数据 <span style="font-size:9px;color:#4ade80;font-weight:400;display:inline-flex;align-items:center;gap:3px"><span style="width:5px;height:5px;background:#4ade80;border-radius:50%;animation:pulse 1.5s ease infinite"></span>AI</span></h3>
-      <span class="stats-toggle">▼</span>
+    <div class="stat-lines" id="statLines">
+      <div class="stat-line">现存复原建置：一千二百四十七所</div>
+      <div class="stat-line">园区辖地：三百五十公顷</div>
+      <div class="stat-line">附页存档：八千四百三十二份文献</div>
+      <div class="stat-line">数字模本：两千零四十八套</div>
     </div>
-    <div class="stats-body">
-      <div class="stat-grid">
-        <div class="stat-item"><div class="stat-tooltip">1247 = 已完成3D复原的古建筑数量</div><div class="num" id="stat-1">1,247</div><div class="label">已复原建筑<span style="color:#666;font-size:7px"> 座</span></div><div class="stat-progress"><span id="bar-1"></span></div></div>
-        <div class="stat-item"><div class="stat-tooltip">350公顷 = 圆明园总占地面积</div><div class="num" id="stat-2">350</div><div class="label">景区面积<span style="color:#666;font-size:7px"> 公顷</span></div><div class="stat-progress"><span id="bar-2"></span></div></div>
-        <div class="stat-item"><div class="stat-tooltip">8432 = 收录清宫史料文献数量</div><div class="num" id="stat-3">8,432</div><div class="label">历史文献<span style="color:#666;font-size:7px"> 卷</span></div><div class="stat-progress"><span id="bar-3"></span></div></div>
-        <div class="stat-item"><div class="stat-tooltip">2048 = 3D建模完成的建筑构件数</div><div class="num" id="stat-4">2,048</div><div class="label">数字模型<span style="color:#666;font-size:7px"> 件</span></div><div class="stat-progress"><span id="bar-4"></span></div></div>
-      </div>
-      <div class="stat-extra" id="stat-extra" style="display:none"><span class="extra-num" id="stat-extra-num">-</span><span class="extra-label" id="stat-extra-label">-</span></div>
-      <div class="compass" id="compass">
-        <div class="compass-dir dir-n" onclick="jumpCompass('N')" title="北·大水法">N</div>
-        <div class="compass-dir dir-s" onclick="jumpCompass('S')" title="南·九州清晏">S</div>
-        <div class="compass-dir dir-e" onclick="jumpCompass('E')" title="东·方壶胜境">E</div>
-        <div class="compass-dir dir-w" onclick="jumpCompass('W')" title="西·正大光明">W</div>
-        <div class="compass-dir dir-ne" onclick="jumpCompass('NE')" title="东北">NE</div>
-        <div class="compass-dir dir-nw" onclick="jumpCompass('NW')" title="西北">NW</div>
-        <div class="compass-dir dir-se" onclick="jumpCompass('SE')" title="东南">SE</div>
-        <div class="compass-dir dir-sw" onclick="jumpCompass('SW')" title="西南">SW</div>
-        <img src="compass.svg" alt="compass" class="compass-img" id="compass-img"/>
-      </div>
+    <div class="compass" id="compass">
+      <svg class="compass-svg" viewBox="0 0 60 60" fill="none" stroke="#6a5a4a" stroke-width="0.8">
+        <circle cx="30" cy="30" r="24" opacity="0.3"/>
+        <line x1="30" y1="4" x2="30" y2="12" opacity="0.4"/>
+        <line x1="30" y1="48" x2="30" y2="56" opacity="0.4"/>
+        <line x1="4" y1="30" x2="12" y2="30" opacity="0.4"/>
+        <line x1="48" y1="30" x2="56" y2="30" opacity="0.4"/>
+        <text x="30" y="10" text-anchor="middle" font-size="7" fill="#6a5a4a" font-family="serif" opacity="0.5">北</text>
+        <text x="30" y="58" text-anchor="middle" font-size="7" fill="#6a5a4a" font-family="serif" opacity="0.5">南</text>
+        <text x="60" y="33" text-anchor="middle" font-size="7" fill="#6a5a4a" font-family="serif" opacity="0.5">东</text>
+        <text x="0" y="33" text-anchor="middle" font-size="7" fill="#6a5a4a" font-family="serif" opacity="0.5">西</text>
+      </svg>
     </div>
+    <div style="font-size:8px;color:#4a4a4a;text-align:center;margin-top:4px;font-family:'Noto Serif SC',serif">数字化勘校</div>
   </div>
 
   <div class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开">◀</button>
-    <h3 class="sidebar-title">📍 重点景区</h3>
   <button class="scene-btn active" data-scene="overview">
-    <div class="nav-tooltip">俯瞰全园5200亩皇家园林全貌</div>
-    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
     <div><h4>全景漫游</h4><span>圆明园全景俯瞰</span></div>
   </button>
   <button class="scene-btn" data-scene="fangpu">
-    <div class="nav-tooltip">康熙年间始建，仿蓬莱仙境</div>
-    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
     <div><h4>方壶胜境</h4><span>人间仙境 · 水上楼阁</span></div>
   </button>
   <button class="scene-btn" data-scene="jiuzhou">
-    <div class="nav-tooltip">雍正年间建成，帝王寝宫</div>
-    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
     <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
   </button>
   <button class="scene-btn" data-scene="zhengda">
-    <div class="nav-tooltip">正殿，皇帝举行大典之所</div>
-    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
     <div><h4>正大光明</h4><span>圆明园正殿</span></div>
   </button>
   <button class="scene-btn" data-scene="dashuifa">
-    <div class="nav-tooltip">乾隆年间，郎世宁设计西洋景观</div>
-    <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
     <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
   </button>
   </div>
 
   <div class="detail" id="detail">
-    <button class="close" id="detail-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <button class="close" id="detail-close">×</button>
     <div class="detail-content" id="detail-content">
-      <h2 id="d-title">圆明园全景</h2>
-      <div class="year" id="d-year">1707-1860</div>
+      <div style="position:relative">
+        <h2 id="d-title" style="text-align:left">圆明园全景</h2>
+        <span id="d-year" style="position:absolute;top:2px;right:0;font-size:9px;color:#5a5040;font-style:italic">1707-1860</span>
+      </div>
       <p id="d-desc">圆明园由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林，被誉为"万园之园"。</p>
       <div class="tags" id="d-tags">
-        <span class="tag" onclick="filterTag(this)">皇家园林</span><span class="tag" onclick="filterTag(this)">万园之园</span><span class="tag" onclick="filterTag(this)">文化遗产</span>
+        <span class="tag">皇家园林</span><span class="tag">万园之园</span><span class="tag">文化遗产</span>
       </div>
       <div class="detail-divider"></div>
       <div class="detail-timeline" id="d-timeline">
-        <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">🏛️</span>1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
-        <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">🔥</span>1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
-        <div class="timeline-item highlight-2026" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">🤖</span>2026</div><div class="timeline-event">AI数字重建，重现辉煌</div></div>
+        <div class="timeline-item"><div class="timeline-year">1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
+        <div class="timeline-item year-1860"><div class="timeline-year">1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
+        <div class="timeline-item year-2026"><div class="timeline-year">2026</div><div class="timeline-event">数字重建，重现辉煌</div></div>
       </div>
-      <div class="sanyuan-toggle" id="sanyuanToggle" onclick="toggleSanyuan()">
-        <span>三园详解</span><span class="toggle-arrow">▼</span>
-      </div>
-      <div class="sanyuan-content" id="sanyuanContent">
-        <div class="sanyuan-item sanyuan-blue"><span class="sanyuan-icon">🏛️</span><span class="sanyuan-name">圆明园</span><span class="sanyuan-desc">核心区域，帝王理政起居之所</span></div>
-        <div class="sanyuan-item sanyuan-green"><span class="sanyuan-icon">🏯</span><span class="sanyuan-name">长春园</span><span class="sanyuan-desc">东侧附园，西洋楼景区所在</span></div>
-        <div class="sanyuan-item sanyuan-purple"><span class="sanyuan-icon">🏰</span><span class="sanyuan-name">绮春园</span><span class="sanyuan-desc">南侧附园，宫廷画院与佛堂</span></div>
-      </div>
+      <div class="sanyuan-link" onclick="toggleSanyuanModal()">笺注 ▶</div>
     </div>
   </div>
 
-  <div class="controls">
-    <span>🌀旋转</span>
-    <span class="ctrl-sep">·</span>
-    <span>🔍缩放</span>
-    <span class="ctrl-sep">·</span>
-    <span>✋平移</span>
-    <span class="ctrl-sep">·</span>
-    <span>🔄切换</span>
-  </div>
-  <button class="restore-toggle" id="restoreBtn" onclick="toggleRestore()">🏛️复原</button>
-  <div class="footer" onclick="document.getElementById('projectModal').classList.add('show')">重生·圆明园 · AI数字文化遗产3D重建</div>
+  <div class="controls-hint">左键旋景 · 滚轮缩放 · 右键平移 · 1-5换景</div>
+  <div class="footer-credit">重生·圆明园 · 数字文化遗产重建</div>
 </div>
 
-<button class="day-night-btn" id="dayNightBtn" onclick="toggleDayNight()" title="日夜切换">🕐</button>
-<button class="season-btn" id="seasonBtn" onclick="cycleSeason()" title="季节切换">🌸</button>
-<button class="fog-toggle" id="fogBtn" onclick="toggleFog()" title="天气切换">☀️</button>
-<button class="help-btn" id="helpBtn" onclick="showTutorial()" title="帮助">?</button>
-<button class="ai-guide-btn" id="aiGuideBtn" onclick="toggleAIGuide()" title="AI智能导览">
-  <span class="ai-dot"></span>
-  <span class="ai-label">AI</span>
-</button>
-<div class="ai-guide-panel" id="aiGuidePanel">
-  <div class="ai-guide-header">
-    <span>🤖 AI智能导览</span>
-    <button onclick="toggleAIGuide()" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px;padding:0;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-  </div>
-  <div class="ai-guide-content" id="aiGuideContent">
-    <div class="ai-msg">点击景区按钮或罗盘方位，AI将为您播报该区域的历史典故与建筑特色。</div>
-  </div>
-</div>
-
-<div class="ink-transition" id="inkTransition"><div class="ink-texture"></div></div>
-<div id="buildingCard"><div class="bc-name" id="bc-name"></div><div class="bc-year" id="bc-year"></div><div class="bc-desc" id="bc-desc"></div></div>
-<div class="season-particles" id="seasonParticles"></div>
-
-<div class="tutorial-overlay" id="tutorialOverlay">
-  <div class="tutorial-card">
-    <h3>重生·圆明园 操作指南</h3>
-    <div class="tutorial-steps">
-      <div><span>🖱️</span>鼠标左键拖拽 — 旋转视角</div>
-      <div><span>🔍</span>鼠标滚轮 — 缩放远近</div>
-      <div><span>✋</span>鼠标右键拖拽 — 平移画面</div>
-      <div><span>⌨️</span>数字键 1-5 — 快速切换景区</div>
-      <div><span>🧭</span>指南针 N/S/E/W — 跳转对应方位</div>
-      <div><span>🕐</span>日夜按钮 — 切换白天/夜晚</div>
-      <div><span>🌸</span>季节按钮 — 切换春夏秋冬</div>
+<!-- 三园详解折页模态框 -->
+<div class="sanyuan-modal" id="sanyuanModal" onclick="if(event.target===this)toggleSanyuanModal()">
+  <div class="sanyuan-foldout" style="position:relative">
+    <button class="sanyuan-foldout-close" onclick="toggleSanyuanModal()">×</button>
+    <div class="sanyuan-col blue">
+      <div class="sanyuan-col-icon">◆</div>
+      <div class="sanyuan-col-name">圆明园</div>
+      <div class="sanyuan-col-desc">核心区域，帝王理政起居之所。始建于康熙四十六年（1707年），历经五朝营建，为三园之首。</div>
     </div>
-    <button class="tutorial-close" onclick="hideTutorial()">我知道了</button>
+    <div class="sanyuan-divider"></div>
+    <div class="sanyuan-col green">
+      <div class="sanyuan-col-icon">◆</div>
+      <div class="sanyuan-col-name">长春园</div>
+      <div class="sanyuan-col-desc">东侧附园，西洋楼景区所在。乾隆年间增建，融合巴洛克与中式园林风格。</div>
+    </div>
+    <div class="sanyuan-divider"></div>
+    <div class="sanyuan-col purple">
+      <div class="sanyuan-col-icon">◆</div>
+      <div class="sanyuan-col-name">绮春园</div>
+      <div class="sanyuan-col-desc">南侧附园，宫廷画院与佛堂。嘉庆年间改建，以小景幽境著称。</div>
+    </div>
   </div>
 </div>
 
+<div class="ink-transition" id="inkTransition"></div>
 <div class="first-visit-hint" id="firstVisitHint">
   <h4>欢迎来到重生·圆明园</h4>
-  <p>拖拽旋转 · 滚轮缩放 · 右键平移</p>
-  <div class="hint-keys">
-    <span class="hint-key">🖱️ 旋转</span>
-    <span class="hint-key">🔍 缩放</span>
-    <span class="hint-key">✋ 平移</span>
-  </div>
-</div>
-
-<div class="logo-modal" id="logoModal" onclick="this.classList.remove('show')">
-  <img src="ico.jpg" alt="复原圆明园"/>
-  <div class="hint">点击任意处关闭</div>
-</div>
-
-<div class="project-modal" id="projectModal">
-  <div class="project-modal-card">
-    <button class="project-modal-close" onclick="document.getElementById('projectModal').classList.remove('show')">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-    <h2>重生·圆明园</h2>
-    <div class="pm-subtitle">AI数字文化遗产3D重建</div>
-    <div class="pm-desc">圆明园，始建于清康熙四十六年（1707年），被誉为「万园之园」。1860年遭英法联军焚毁，化为废墟。本项目利用AI与WebGL技术，对圆明园进行数字化3D复原重建，让历史重现光辉。</div>
-    <div class="pm-sources"><strong>数据来源：</strong>清宫档案、样式雷图档、考古报告</div>
-  </div>
+  <p>拖拽旋转 · 滚轮缩放 · 右键平移 · 数字键1-5切换景区</p>
 </div>
 
 <script src="three.min.js"></script>
@@ -793,13 +554,10 @@ function init(){
   buildWorld();
   setProgress(85);
   setupUI();
-  setupBuildingHover();
   setProgress(100);
 
   setTimeout(function(){
     document.getElementById('loading').classList.add('hide');
-    if(particleAnimId){ cancelAnimationFrame(particleAnimId); particleAnimId = null; }
-    setTimeout(function(){ if(particleCanvas) particleCanvas.style.display = 'none'; }, 700);
     // 默认切换到方壶胜境场景
     setTimeout(function(){ 
       var btn = document.querySelector('.scene-btn[data-scene="fangpu"]');
@@ -3598,139 +3356,70 @@ function setupUI(){
       var data = SCENES[id];
       if(!data) return;
 
-      // 先记录当前活跃场景（DOM更新前）
       var prevBtn = document.querySelector('.scene-btn.active');
       var prevId = prevBtn ? prevBtn.dataset.scene : 'overview';
 
       document.querySelectorAll('.scene-btn').forEach(function(b){ b.classList.remove('active'); });
       this.classList.add('active');
-      // AI导览自动更新
-      if(typeof updateAIGuideContent === 'function') updateAIGuideContent(id);
 
-      // 详情面板：文字即时更新，时间线单独过渡
+      // Update detail panel text
       var detailEl = document.getElementById('detail');
       var timelineEl = document.getElementById('d-timeline');
-      // 文字即时更新（无延迟）
       document.getElementById('d-title').textContent = data.title;
       document.getElementById('d-year').textContent = data.year;
       document.getElementById('d-desc').textContent = data.desc;
       document.getElementById('d-tags').innerHTML = data.tags.map(function(t){
-        return '<span class="tag" onclick="filterTag(this)">'+t+'</span>';
+        return '<span class="tag">'+t+'</span>';
       }).join('');
-      // 时间线：淡出→更新→淡入
-      var timelineIcons = {'1707':'🏛️','1723':'🏛️','1747':'🏛️','1750':'🏛️','1755':'🏛️','1759':'🏛️','1860':'🔥','2026':'🤖'};
-      var timelineExpandTexts = {
-        '1707':'康熙帝将畅春园之北一座园林赐予皇四子胤禛，取名「圆明园」。',
-        '1860':'英法联军攻入北京，纵火焚毁圆明园，大火三日不灭，万园之园化为灰烬。',
-        '2026':'利用AI与WebGL技术对圆明园进行数字化3D重建，让历史重现光辉。',
-        '1723':'雍正帝即位后大规模扩建圆明园，奠定四十景格局。',
-        '1747':'乾隆帝命郎世宁设计西洋楼景区，融合中西建筑艺术。',
-        '1750':'仿古代神仙仙境建造方壶胜境，九桥连阁。',
-        '1755':'方壶胜境九桥连阁落成，水上仙境初现。',
-        '1759':'西洋楼全部建成，大水法喷泉群壮观非凡。',
-        '1822':'嘉庆帝改建绮春园，后改名万春园。'
-      };
+
+      // Timeline: manuscript annotation style
       var updateTimeline = function(){
         if(data.timeline){
-          timelineEl.innerHTML = data.timeline.map(function(item, i){
-            var icon = timelineIcons[item.y] || '📌';
-            var highlight = item.y === '2026' ? ' highlight-2026' : '';
-            var yearClass = item.y === '1860' ? ' year-1860' : '';
-            var expandText = timelineExpandTexts[item.y] || '';
-            var expandBtn = expandText ? '<button class="timeline-expand-btn" onclick="toggleTimelineExpand(this, event)">展开▸</button>' : '';
-            var expandDiv = expandText ? '<div class="timeline-expand-content"><div class="timeline-expand-text">'+expandText+'</div></div>' : '';
-            return '<div class="timeline-item'+highlight+yearClass+'" style="position:relative;animation:fadeUp 0.35s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">'+icon+'</span>'+item.y+' '+expandBtn+'</div><div class="timeline-event">'+item.e+'</div>'+expandDiv+'</div>';
+          timelineEl.innerHTML = data.timeline.map(function(item){
+            var yearClass = item.y === '1860' ? ' year-1860' : (item.y === '2026' ? ' year-2026' : '');
+            return '<div class="timeline-item'+yearClass+'"><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
           }).join('');
           timelineEl.style.display = 'block';
         } else {
           timelineEl.style.display = 'none';
         }
       };
-      if(detailEl.classList.contains('show') && timelineEl.style.display !== 'none'){
-        timelineEl.style.transition = 'opacity 0.2s ease';
-        timelineEl.style.opacity = '0';
-        setTimeout(function(){
-          updateTimeline();
-          timelineEl.style.opacity = '1';
-        }, 220);
-      } else {
-        updateTimeline();
-      }
+      updateTimeline();
       detailEl.classList.add('show');
 
-      // 更新左上角景区数据面板（数字滚动动画 + 进度条）
-      if(data.stats){
-        var s = data.stats;
-        animateNumber(document.getElementById('stat-1'), s.buildings, 900);
-        animateNumber(document.getElementById('stat-2'), s.area, 700);
-        animateNumber(document.getElementById('stat-3'), s.docs, 1000);
-        animateNumber(document.getElementById('stat-4'), s.models, 800);
-        var extraEl = document.getElementById('stat-extra');
-        if(s.extra){
-          animateNumber(document.getElementById('stat-extra-num'), s.extra.num, 600);
-          document.getElementById('stat-extra-label').textContent = s.extra.label;
-          extraEl.style.display = 'flex';
-        } else {
-          extraEl.style.display = 'none';
-        }
-        // Phase 4: 进度条动画
-        if(data.barWidths){
-          setTimeout(function(){
-            var bars = ['bar-1','bar-2','bar-3','bar-4'];
-            data.barWidths.forEach(function(w, i){
-              var el = document.getElementById(bars[i]);
-              if(el) el.style.width = w + '%';
-            });
-          }, 100);
-        }
-      }
-
-      // 360°圆环轨道动画
+      // 360° orbital animation (unchanged)
       var fromPos = camera.position.clone();
       var fromLook = controls.target.clone();
       var toPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
       var toLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
-      // prevId 已在点击处理开头捕获
       var isOverviewTransition = (prevId === 'overview' || id === 'overview');
-      // 起点角度 = 当前相机位置相对轨道中心的角度
       var fdx = fromPos.x - orbitCenter.x, fdz = fromPos.z - orbitCenter.z;
       var startAngle = Math.atan2(fdz, fdx);
-      // 终点角度 = 目标景区的固定角度
       var endAngle = SCENE_ANGLES[id] !== undefined ? SCENE_ANGLES[id] : Math.atan2(toPos.z - orbitCenter.z, toPos.x - orbitCenter.x);
-      // 走最短弧线（≤180°）
       var angleDiff = endAngle - startAngle;
       while(angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
       while(angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-      // 起点高度：子景间保持当前高度，全景转换才变
       var startH = isOverviewTransition ? fromPos.y : ORBIT_HEIGHT;
       var endH = (id === 'overview') ? OVERVIEW_HEIGHT : ORBIT_HEIGHT;
-      orbitFrom = {
-        angle: startAngle,
-        height: startH,
-        lookAt: fromLook.clone()
-      };
-      orbitTo = {
-        angle: startAngle + angleDiff,
-        height: endH,
-        lookAt: toLook.clone()
-      };
+      orbitFrom = { angle: startAngle, height: startH, lookAt: fromLook.clone() };
+      orbitTo = { angle: startAngle + angleDiff, height: endH, lookAt: toLook.clone() };
       animStart = Date.now();
       animating = true;
-      // 场景切换水墨转场
+
+      // Ink-wash scene transition
       var inkEl = document.getElementById('inkTransition');
       if(inkEl){
         inkEl.style.opacity = '0';
         inkEl.style.transition = 'none';
-        // Force reflow
         void inkEl.offsetWidth;
-        inkEl.style.transition = 'opacity 0.8s ease-in';
+        inkEl.style.transition = 'opacity 0.6s ease-in';
         inkEl.style.opacity = '1';
         setTimeout(function(){
           inkEl.style.transition = 'none';
           void inkEl.offsetWidth;
           inkEl.style.transition = 'opacity 0.5s ease-out';
           inkEl.style.opacity = '0';
-        }, 1100);
+        }, 900);
       }
     });
   });
@@ -3738,124 +3427,12 @@ function setupUI(){
   document.getElementById('detail-close').addEventListener('click', function(){
     document.getElementById('detail').classList.remove('show');
   });
-
-  // Phase 4: 初始进度条动画（全景默认数据）
-  setTimeout(function(){
-    var defaultBars = [100,100,100,100];
-    var bars = ['bar-1','bar-2','bar-3','bar-4'];
-    defaultBars.forEach(function(w, i){
-      var el = document.getElementById(bars[i]);
-      if(el) el.style.width = w + '%';
-    });
-  }, 1200);
 }
 
-// 数字滚动动画
-function animateNumber(el, targetStr, duration){
-  duration = duration || 800;
-  var target = parseInt(targetStr.replace(/,/g, ''), 10);
-  if(isNaN(target)) { el.textContent = targetStr; return; }
-  var startVal = parseInt(el.textContent.replace(/,/g, ''), 10) || 0;
-  var startTime = Date.now();
-  var startStr = el.textContent;
-  // 保持千分位格式
-  function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-  function tick(){
-    var elapsed = Date.now() - startTime;
-    var progress = Math.min(elapsed / duration, 1);
-    // easeOutCubic
-    var ease = 1 - Math.pow(1 - progress, 3);
-    var current = Math.round(startVal + (target - startVal) * ease);
-    el.textContent = fmt(current);
-    if(progress < 1) requestAnimationFrame(tick);
-    else el.textContent = fmt(target);
-  }
-  requestAnimationFrame(tick);
-}
-
-// ==================== 动画循环 ====================
-function animate(){
-  requestAnimationFrame(animate);
-
-  if(animating){
-    var elapsed = Date.now() - animStart;
-    var t = Math.min(elapsed / animDuration, 1);
-    // easeInOutQuart
-    var ease = t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2, 4) / 2;
-    // 沿圆环插值角度
-    var angle = orbitFrom.angle + (orbitTo.angle - orbitFrom.angle) * ease;
-    // 高度平滑过渡（仅全景↔子景有高度差）
-    var height = orbitFrom.height + (orbitTo.height - orbitFrom.height) * ease;
-    // 恒定轨道半径，圆环运动
-    camera.position.set(
-      orbitCenter.x + Math.cos(angle) * ORBIT_RADIUS,
-      height,
-      orbitCenter.z + Math.sin(angle) * ORBIT_RADIUS
-    );
-    controls.target.lerpVectors(orbitFrom.lookAt, orbitTo.lookAt, ease);
-    if(t >= 1) animating = false;
-  }
-
-  controls.update();
-  if(sky) sky.position.copy(camera.position);
-  // 指南针：相机朝向角度
-  var dir = new THREE.Vector3().subVectors(controls.target, camera.position);
-  var compassAngle = Math.atan2(dir.x, dir.z) * (180 / Math.PI);
-  var compassImg = document.getElementById('compass-img');
-  if(compassImg) compassImg.style.transform = 'rotate('+compassAngle+'deg)';
-  renderer.render(scene, camera);
-}
-
-// ==================== 窗口大小 ====================
-window.addEventListener('resize', function(){
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-// ==================== 粒子系统 ====================
-var particleCanvas = document.getElementById('particleCanvas');
-var pCtx = particleCanvas ? particleCanvas.getContext('2d') : null;
-var particles = [];
-
-function initParticles(){
-  if(!pCtx) return;
-  particleCanvas.width = innerWidth;
-  particleCanvas.height = innerHeight;
-  particles = [];
-  for(var i=0; i<60; i++){
-    particles.push({
-      x: Math.random() * innerWidth,
-      y: Math.random() * innerHeight,
-      r: Math.random() * 2 + 0.5,
-      dx: (Math.random()-0.5) * 0.5,
-      dy: -Math.random() * 0.4 - 0.1,
-      alpha: Math.random() * 0.4 + 0.1,
-      color: Math.random() > 0.6 ? '255,215,0' : '200,200,220'
-    });
-  }
-}
-
-function drawParticles(){
-  if(!pCtx) return;
-  pCtx.clearRect(0,0,innerWidth,innerHeight);
-  particles.forEach(function(p){
-    p.x += p.dx;
-    p.y += p.dy;
-    if(p.y < -10) { p.y = innerHeight + 10; p.x = Math.random() * innerWidth; }
-    if(p.x < -10 || p.x > innerWidth + 10) p.x = Math.random() * innerWidth;
-    pCtx.beginPath();
-    pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    pCtx.fillStyle = 'rgba(' + p.color + ',' + p.alpha + ')';
-    pCtx.fill();
-  });
-}
-
-// 粒子动画循环（仅loading时运行）
-var particleAnimId = null;
-function animateParticles(){
-  drawParticles();
-  particleAnimId = requestAnimationFrame(animateParticles);
+// ==================== 三园详解折页模态框 ====================
+function toggleSanyuanModal(){
+  var modal = document.getElementById('sanyuanModal');
+  if(modal) modal.classList.toggle('show');
 }
 
 // ==================== 全屏切换 ====================
@@ -3868,407 +3445,36 @@ function toggleFullscreen(){
   }
 }
 
-// ==================== 侧栏折叠 ====================
-function toggleSidebar(){
-  var sb = document.getElementById('sidebar');
-  sb.classList.toggle('collapsed');
-  var btn = sb.querySelector('.sidebar-toggle');
-  btn.textContent = sb.classList.contains('collapsed') ? '▶' : '◀';
-}
+// ==================== 动画循环 ====================
+function animate(){
+  requestAnimationFrame(animate);
 
-// ==================== 数据面板折叠 ====================
-function toggleStats(){
-  var sp = document.getElementById('statsPanel');
-  sp.classList.toggle('collapsed');
-}
-
-// ==================== 标签点击交互（跳转对应景区） ====================
-var tagSceneMap = {
-  '皇家园林':'overview','万园之园':'overview','40景':'overview','文化遗产':'overview',
-  '核心景区':'jiuzhou','岛屿群':'jiuzhou','皇帝寝宫':'jiuzhou','后湖':'jiuzhou',
-  '仙境':'fangpu','湖上建筑':'fangpu','道家':'fangpu','九桥':'fangpu',
-  '正殿':'zhengda','朝政':'zhengda','雍正御笔':'zhengda','华表':'zhengda',
-  '西洋楼':'dashuifa','巴洛克':'dashuifa','喷泉群':'dashuifa','铜雕':'dashuifa'
-};
-function filterTag(el){
-  var tagText = el.textContent.trim();
-  var targetScene = tagSceneMap[tagText];
-  if(targetScene){
-    var btn = document.querySelector('.scene-btn[data-scene="'+targetScene+'"]');
-    if(btn) btn.click();
+  if(animating){
+    var elapsed = Date.now() - animStart;
+    var t = Math.min(elapsed / animDuration, 1);
+    var ease = t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2, 4) / 2;
+    var angle = orbitFrom.angle + (orbitTo.angle - orbitFrom.angle) * ease;
+    var height = orbitFrom.height + (orbitTo.height - orbitFrom.height) * ease;
+    camera.position.set(
+      orbitCenter.x + Math.cos(angle) * ORBIT_RADIUS,
+      height,
+      orbitCenter.z + Math.sin(angle) * ORBIT_RADIUS
+    );
+    controls.target.lerpVectors(orbitFrom.lookAt, orbitTo.lookAt, ease);
+    if(t >= 1) animating = false;
   }
+
+  controls.update();
+  if(sky) sky.position.copy(camera.position);
+  renderer.render(scene, camera);
 }
 
-// ==================== 指南针跳转 ====================
-function jumpCompass(dir){
-  var compassMap = {
-    'N':'dashuifa', 'S':'jiuzhou', 'E':'fangpu', 'W':'zhengda',
-    'NE':'dashuifa', 'NW':'jiuzhou', 'SE':'fangpu', 'SW':'zhengda'
-  };
-  document.querySelectorAll('.compass-dir').forEach(function(el){ el.classList.remove('active'); });
-  var activeEl = document.querySelector('.compass-dir.dir-' + dir.toLowerCase());
-  if(activeEl) activeEl.classList.add('active');
-  var scene = compassMap[dir];
-  if(scene){
-    var btn = document.querySelector('.scene-btn[data-scene="'+scene+'"]');
-    if(btn) btn.click();
-  }
-}
-
-// ==================== 日夜切换 ====================
-var isNightMode = false;
-function toggleDayNight(){
-  isNightMode = !isNightMode;
-  var btn = document.getElementById('dayNightBtn');
-  if(isNightMode){
-    btn.textContent = '🌙';
-    btn.classList.add('night-mode');
-    // 夜间模式：降低环境光，改变背景色
-    scene.background = new THREE.Color(0x0a0a2a);
-    scene.fog = new THREE.Fog(0x0a0a2a, 60, 280);
-    scene.children.forEach(function(child){
-      if(child instanceof THREE.AmbientLight){ child.intensity = 0.2; child.color.setHex(0x4466aa); }
-      if(child instanceof THREE.HemisphereLight){ child.intensity = 0.15; }
-      if(child instanceof THREE.DirectionalLight && child !== scene.children[0]){
-        if(child.position.y > 50){ child.intensity = 0.4; child.color.setHex(0x8899cc); }
-      }
-    });
-    if(renderer) renderer.toneMappingExposure = 0.6;
-    // 更新天空着色器
-    if(sky && sky.material && sky.material.fragmentShader){
-      sky.material.fragmentShader = [
-        'varying vec3 vWorldPos;',
-        'void main(){',
-        '  float h = normalize(vWorldPos).y;',
-        '  vec3 top    = vec3(0.02, 0.02, 0.08);',
-        '  vec3 mid    = vec3(0.04, 0.04, 0.12);',
-        '  vec3 horizon= vec3(0.06, 0.06, 0.15);',
-        '  vec3 col;',
-        '  if(h > 0.3){ col = mix(mid, top, smoothstep(0.3, 0.8, h)); }',
-        '  else { col = mix(horizon, mid, smoothstep(-0.05, 0.3, h)); }',
-        '  gl_FragColor = vec4(col, 1.0);',
-        '}'
-      ].join('\n');
-      sky.material.needsUpdate = true;
-    }
-  } else {
-    btn.textContent = '🕐';
-    btn.classList.remove('night-mode');
-    // 恢复日间模式
-    scene.background = new THREE.Color(0x8eaec8);
-    scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
-    scene.children.forEach(function(child){
-      if(child instanceof THREE.AmbientLight){ child.intensity = 0.7; child.color.setHex(0x9aafcc); }
-      if(child instanceof THREE.HemisphereLight){ child.intensity = 0.5; }
-      if(child instanceof THREE.DirectionalLight && child !== scene.children[0]){
-        if(child.position.y > 50){ child.intensity = 1.6; child.color.setHex(0xe8eeff); }
-      }
-    });
-    if(renderer) renderer.toneMappingExposure = 1.35;
-    if(sky && sky.material && sky.material.fragmentShader){
-      sky.material.fragmentShader = [
-        'varying vec3 vWorldPos;',
-        'void main(){',
-        '  float h = normalize(vWorldPos).y;',
-        '  vec3 top    = vec3(0.42, 0.58, 0.78);',
-        '  vec3 mid    = vec3(0.62, 0.72, 0.82);',
-        '  vec3 horizon= vec3(0.82, 0.86, 0.90);',
-        '  vec3 col;',
-        '  if(h > 0.3){ col = mix(mid, top, smoothstep(0.3, 0.8, h)); }',
-        '  else { col = mix(horizon, mid, smoothstep(-0.05, 0.3, h)); }',
-        '  gl_FragColor = vec4(col, 1.0);',
-        '}'
-      ].join('\n');
-      sky.material.needsUpdate = true;
-    }
-  }
-}
-
-// ==================== 季节切换 ====================
-var currentSeason = 0;
-var seasonNames = ['春','夏','秋','冬'];
-var seasonEmojis = ['🌸','☀️','🍁','❄️'];
-var seasonGroundColors = [0x5a8a3a, 0x3a6a3a, 0x8a6a2a, 0xccccdd];
-var seasonParticleTypes = ['🌸','🪷','🍂','❄️'];
-
-function cycleSeason(){
-  currentSeason = (currentSeason + 1) % 4;
-  var btn = document.getElementById('seasonBtn');
-  btn.textContent = seasonEmojis[currentSeason];
-  btn.title = seasonNames[currentSeason] + '季';
-  // 更新地面颜色
-  scene.children.forEach(function(child){
-    if(child instanceof THREE.Mesh && child.geometry && child.geometry.type === 'PlaneGeometry'){
-      var pos = child.position;
-      if(pos.y < 0 && pos.y > -0.5 && child.material && child.material.color){
-        child.material.color.setHex(seasonGroundColors[currentSeason]);
-      }
-    }
-  });
-  // 生成季节粒子
-  spawnSeasonParticles();
-}
-
-function spawnSeasonParticles(){
-  var container = document.getElementById('seasonParticles');
-  if(!container) return;
-  container.innerHTML = '';
-  var emoji = seasonParticleTypes[currentSeason];
-  for(var i = 0; i < 20; i++){
-    var p = document.createElement('div');
-    p.className = 'season-particle';
-    p.textContent = emoji;
-    p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (4 + Math.random() * 6) + 's';
-    p.style.animationDelay = Math.random() * 5 + 's';
-    p.style.fontSize = (10 + Math.random() * 10) + 'px';
-    p.style.opacity = '0';
-    container.appendChild(p);
-  }
-}
-
-// ==================== 三园详解展开/收起 ====================
-function toggleSanyuan(){
-  var toggle = document.getElementById('sanyuanToggle');
-  var content = document.getElementById('sanyuanContent');
-  toggle.classList.toggle('expanded');
-  content.classList.toggle('show');
-}
-
-// ==================== 时间线展开/收起 ====================
-function toggleTimelineExpand(btn, e){
-  e.stopPropagation();
-  var item = btn.closest('.timeline-item');
-  if(!item) return;
-  var content = item.querySelector('.timeline-expand-content');
-  if(!content) return;
-  var isOpen = content.classList.contains('show');
-  // Close all other expanded items first
-  document.querySelectorAll('.timeline-expand-content.show').forEach(function(c){
-    c.classList.remove('show');
-    var prevBtn = c.closest('.timeline-item');
-    if(prevBtn){
-      var pb = prevBtn.querySelector('.timeline-expand-btn');
-      if(pb) pb.textContent = '展开▸';
-    }
-  });
-  if(!isOpen){
-    content.classList.add('show');
-    btn.textContent = '收起▾';
-  } else {
-    btn.textContent = '展开▸';
-  }
-}
-
-// ==================== 标签活跃状态 ====================
-function updateActiveTags(sceneId){
-  document.querySelectorAll('#d-tags .tag').forEach(function(t){
-    t.classList.remove('active-tag');
-  });
-}
-
-// ==================== 复原/焚毁对比切换 ====================
-var isBurntMode = false;
-function toggleRestore(){
-  isBurntMode = !isBurntMode;
-  var btn = document.getElementById('restoreBtn');
-  if(isBurntMode){
-    btn.textContent = '🔥焚毁';
-    btn.classList.add('burnt');
-    // Dense orange-red fog
-    scene.fog = new THREE.Fog(0x883311, 30, 180);
-    scene.background = new THREE.Color(0x331100);
-    // Reduce building opacity
-    scene.traverse(function(child){
-      if(child.isMesh && child.material){
-        if(Array.isArray(child.material)){
-          child.material.forEach(function(m){
-            if(m.opacity !== undefined && m.opacity < 1){
-              m._origOpacity = m.opacity;
-              m.opacity = m.opacity * 0.6;
-            }
-          });
-        } else {
-          if(child.material.opacity !== undefined && child.material.opacity < 1){
-            child.material._origOpacity = child.material.opacity;
-            child.material.opacity = child.material.opacity * 0.6;
-          }
-        }
-      }
-    });
-    // Spawn ember particles
-    spawnEmberParticles();
-  } else {
-    btn.textContent = '🏛️复原';
-    btn.classList.remove('burnt');
-    // Restore normal fog
-    scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
-    scene.background = new THREE.Color(0x8eaec8);
-    // Restore opacity
-    scene.traverse(function(child){
-      if(child.isMesh && child.material){
-        if(Array.isArray(child.material)){
-          child.material.forEach(function(m){
-            if(m._origOpacity !== undefined){
-              m.opacity = m._origOpacity;
-              delete m._origOpacity;
-            }
-          });
-        } else {
-          if(child.material._origOpacity !== undefined){
-            child.material.opacity = child.material._origOpacity;
-            delete child.material._origOpacity;
-          }
-        }
-      }
-    });
-    // Remove ember particles
-    clearEmberParticles();
-  }
-}
-
-var emberParticles = [];
-function spawnEmberParticles(){
-  clearEmberParticles();
-  var container = document.createElement('div');
-  container.id = 'emberContainer';
-  container.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;overflow:hidden';
-  document.body.appendChild(container);
-  for(var i = 0; i < 30; i++){
-    var p = document.createElement('div');
-    p.textContent = '🔥';
-    p.style.cssText = 'position:absolute;font-size:'+(8+Math.random()*8)+'px;opacity:0;animation:emberFloat '+(3+Math.random()*4)+'s linear infinite;animation-delay:'+Math.random()*3+'s;left:'+Math.random()*100+'%';
-    container.appendChild(p);
-    emberParticles.push(p);
-  }
-  // Add CSS animation if not present
-  if(!document.getElementById('emberStyle')){
-    var style = document.createElement('style');
-    style.id = 'emberStyle';
-    style.textContent = '@keyframes emberFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:0.8}80%{opacity:0.6}100%{transform:translateY(-20px) rotate(360deg);opacity:0}}';
-    document.head.appendChild(style);
-  }
-}
-function clearEmberParticles(){
-  var c = document.getElementById('emberContainer');
-  if(c) c.remove();
-  emberParticles = [];
-}
-
-// ==================== 天气/雾气切换 ====================
-var isFogMode = false;
-function toggleFog(){
-  isFogMode = !isFogMode;
-  var btn = document.getElementById('fogBtn');
-  if(isFogMode){
-    btn.textContent = '🌫️';
-    btn.title = '雾天模式';
-    // Volumetric fog effect
-    scene.fog = new THREE.Fog(0x99aacc, 20, 120);
-  } else {
-    btn.textContent = '☀️';
-    btn.title = '晴天模式';
-    scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
-  }
-}
-
-// ==================== 建筑悬浮卡片 ====================
-var buildingData = {
-  '正大光明殿': {year:'1723年', desc:'圆明园正殿，皇帝举行朝会大典之所'},
-  '九州清晏': {year:'1723年', desc:'皇帝寝宫，九岛环水象征华夏九州'},
-  '方壶胜境': {year:'1750年', desc:'仿蓬莱仙境建造的水上楼阁群'},
-  '大水法': {year:'1747年', desc:'西洋楼核心，郎世宁设计的喷泉景观'},
-  '远瀛观': {year:'1759年', desc:'西洋楼建筑，巴洛克风格石龛'},
-  '海晏堂': {year:'1759年', desc:'十二生肖铜首人身像报时喷泉'},
-  '养雀笼': {year:'1759年', desc:'西洋楼建筑，养鸟观赏之所'},
-  '谐奇趣': {year:'1751年', desc:'西洋楼最早建成的建筑之一'}
-};
-var raycaster = null;
-var mouseVec = null;
-var buildingCard = null;
-var buildingCardVisible = false;
-
-function setupBuildingHover(){
-  raycaster = new THREE.Raycaster();
-  mouseVec = new THREE.Vector2();
-  buildingCard = document.getElementById('buildingCard');
-
-  renderer.domElement.addEventListener('mousemove', function(e){
-    mouseVec.x = (e.clientX / innerWidth) * 2 - 1;
-    mouseVec.y = -(e.clientY / innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouseVec, camera);
-    var intersects = raycaster.intersectObjects(scene.children, true);
-    var found = false;
-    for(var i = 0; i < intersects.length; i++){
-      var obj = intersects[i].object;
-      var name = obj.name || '';
-      if(!name && obj.parent) name = obj.parent.name || '';
-      if(name && buildingData[name]){
-        var data = buildingData[name];
-        document.getElementById('bc-name').textContent = name;
-        document.getElementById('bc-year').textContent = '📅 ' + data.year;
-        document.getElementById('bc-desc').textContent = data.desc;
-        buildingCard.style.left = (e.clientX + 16) + 'px';
-        buildingCard.style.top = (e.clientY - 10) + 'px';
-        buildingCard.style.opacity = '1';
-        buildingCardVisible = true;
-        found = true;
-        break;
-      }
-    }
-    if(!found && buildingCardVisible){
-      buildingCard.style.opacity = '0';
-      buildingCardVisible = false;
-    }
-  });
-
-  renderer.domElement.addEventListener('mouseleave', function(){
-    if(buildingCard) buildingCard.style.opacity = '0';
-    buildingCardVisible = false;
-  });
-}
-
-// ==================== 教程 ====================
-function showTutorial(){
-  var overlay = document.getElementById('tutorialOverlay');
-  overlay.classList.add('show');
-}
-function hideTutorial(){
-  var overlay = document.getElementById('tutorialOverlay');
-  overlay.classList.remove('show');
-}
-
-// ==================== AI智能导览 ====================
-var aiGuideOpen = false;
-var aiGuideData = {
-  'overview': '圆明园占地面积350公顷，由圆明园、长春园、绮春园三园组成，始建于康熙四十六年（1707年），历经雍正、乾隆、嘉庆、道光五朝150余年营建，被誉为「万园之园」。',
-  'fangpu': '方壶胜境是圆明园中最宏伟的建筑群，仿古代神话「蓬莱仙境」而建。主体建筑为三座两层楼阁，左右对称排列七层八角楼阁式塔，前方九曲桥通向水面亭台，体现了「仙山琼阁」的意境。',
-  'jiuzhou': '九州清晏位于后湖核心，由九个岛屿环绕后湖而建，象征华夏「九州」。每岛各具特色，是皇帝日常起居和处理政务的重要区域，也是圆明园中最早建成的景区之一。',
-  'zhengda': '正大光明殿是圆明园的正殿，仿紫禁城太和殿而建，为皇帝举行重大典礼的场所。殿前设有华表、石狮，气势恢宏，体现了皇家园林的庄严与气派。',
-  'dashuifa': '大水法是圆明园西洋楼景区的核心景观，由意大利传教士郎世宁设计。十二生肖铜首人身像分列水池两侧，每两小时轮流喷水报时，是中西建筑艺术交融的杰出代表。'
-};
-
-function toggleAIGuide(){
-  aiGuideOpen = !aiGuideOpen;
-  var panel = document.getElementById('aiGuidePanel');
-  if(aiGuideOpen){
-    panel.classList.add('show');
-    updateAIGuideContent('overview');
-  } else {
-    panel.classList.remove('show');
-  }
-}
-
-function updateAIGuideContent(sceneId){
-  var content = document.getElementById('aiGuideContent');
-  var text = aiGuideData[sceneId] || '请选择一个景区查看历史典故。';
-  content.innerHTML = '<div class="ai-msg"><span class="ai-highlight">📍 ' + {
-    'overview':'圆明园全景','fangpu':'方壶胜境','jiuzhou':'九州清晏','zhengda':'正大光明','dashuifa':'大水法'
-  }[sceneId] + '</span><br>' + text + '</div>';
-}
-
-// 在场景切换时自动更新AI导览内容
-var origSceneClick = null;
+// ==================== 窗口大小 ====================
+window.addEventListener('resize', function(){
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
 
 // ==================== 键盘快捷键 ====================
 var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa'];
@@ -4281,19 +3487,14 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
     var dl = document.getElementById('detail');
     if(dl.classList.contains('show')) dl.classList.remove('show');
-    var lm = document.getElementById('logoModal');
-    if(lm.classList.contains('show')) lm.classList.remove('show');
-    var pm = document.getElementById('projectModal');
-    if(pm.classList.contains('show')) pm.classList.remove('show');
+    var sm = document.getElementById('sanyuanModal');
+    if(sm && sm.classList.contains('show')) sm.classList.remove('show');
   }
 });
 
 // ==================== 启动 ====================
 try {
-  initParticles();
-  animateParticles();
   init();
-  // 首次访问教程提示
   if(!localStorage.getItem('ymy_visited')){
     setTimeout(function(){
       var hint = document.getElementById('firstVisitHint');
@@ -4306,7 +3507,7 @@ try {
   }
 } catch(e) {
   console.error('INIT ERROR:', e);
-  document.getElementById('loading').innerHTML = '<div style="color:red;font-size:14px;padding:20px">加载出错: ' + e.message + '</div>';
+  document.getElementById('loading').innerHTML = '<div style="color:#8a6040;font-size:14px;padding:20px">加载出错: ' + e.message + '</div>';
 }
 })();
 </script>
