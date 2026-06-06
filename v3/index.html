@@ -192,8 +192,8 @@ canvas{display:block}
 .first-visit-hint p{color:#999;font-size:11px;line-height:1.6}
 .first-visit-hint .hint-keys{display:flex;gap:10px;justify-content:center;margin-top:10px}
 .first-visit-hint .hint-key{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:3px 8px;font-size:10px;color:#FFD700}
-.scene-fade-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a1a;z-index:90;pointer-events:none;opacity:0;transition:opacity 0.3s ease}
-.scene-fade-overlay.active{opacity:0.15}
+.ink-transition{position:fixed;top:0;left:0;right:0;bottom:0;z-index:95;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, #0a0a1a 0%, #000000 40%, rgba(10,10,26,0.6) 70%, transparent 100%)}
+.ink-transition .ink-texture{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%, rgba(40,30,20,0.15) 0%, transparent 50%),radial-gradient(circle at 70% 60%, rgba(30,25,20,0.1) 0%, transparent 40%),radial-gradient(circle at 50% 50%, rgba(0,0,0,0.1) 0%, transparent 60%);opacity:0.7}
 .detail::-webkit-scrollbar{width:4px}
 .detail::-webkit-scrollbar-track{background:transparent}
 .detail::-webkit-scrollbar-thumb{background:rgba(255,215,0,0.2);border-radius:4px}
@@ -201,6 +201,74 @@ canvas{display:block}
 .season-particles{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;overflow:hidden}
 .season-particle{position:absolute;font-size:14px;opacity:0;animation:seasonFall linear infinite}
 @keyframes seasonFall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}10%{opacity:0.8}90%{opacity:0.7}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
+
+/* === Section 3.1: Timeline expand === */
+.timeline-expand-btn{display:inline-flex;align-items:center;gap:2px;background:none;border:none;color:#666;cursor:pointer;font-size:9px;padding:2px 6px;border-radius:6px;transition:all 0.2s;float:right;margin-top:2px;line-height:1}
+.timeline-expand-btn:hover{color:#FFD700;background:rgba(255,215,0,0.1)}
+.timeline-expand-content{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease, padding 0.3s ease;opacity:0;padding:0 18px}
+.timeline-expand-content.show{max-height:200px;opacity:1;padding:4px 18px 8px 18px}
+.timeline-expand-text{font-size:11px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif}
+.timeline-item.year-1860 .timeline-year{color:#CC4400;text-shadow:0 0 8px rgba(204,68,0,0.5)}
+
+/* === Section 3.2: Tag active state === */
+.detail .tag.active-tag{background:rgba(255,215,0,0.35)!important;border-color:#FFD700!important;color:#fff!important;box-shadow:0 0 8px rgba(255,215,0,0.2)}
+
+/* === Section 3.3: 三园详解 3-column layout === */
+.sanyuan-content .sanyuan-item{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:1px 10px;padding:8px 10px;border-radius:10px;margin-bottom:6px;border-bottom:none;background:rgba(255,215,0,0.03)}
+.sanyuan-item .sanyuan-icon{font-size:18px;grid-row:1/3;display:flex;align-items:center;padding-right:10px;border-right:3px solid transparent}
+.sanyuan-item .sanyuan-name{font-size:12px;color:#FFD700;font-weight:600;font-family:'Noto Serif SC',serif}
+.sanyuan-item .sanyuan-desc{font-size:10px;color:#999;font-family:'Noto Serif SC',serif}
+.sanyuan-item.sanyuan-blue .sanyuan-icon{border-right-color:#4488ff}
+.sanyuan-item.sanyuan-green .sanyuan-icon{border-right-color:#44aa44}
+.sanyuan-item.sanyuan-purple .sanyuan-icon{border-right-color:#aa66dd}
+
+/* === Section 4.1: Scroll arrows for sidebar === */
+.sidebar-scroll-wrap{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px}
+.scroll-arrow{display:none;width:22px;height:22px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.15);border-radius:50%;color:#FFD700;cursor:pointer;font-size:10px;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.scroll-arrow:hover{background:rgba(255,215,0,0.2);border-color:rgba(255,215,0,0.3)}
+.sidebar::-webkit-scrollbar{display:none}
+
+/* === Section 4.2: Bottom controls divider === */
+.controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:9px;gap:8px}
+.controls::before{content:'';position:absolute;top:-6px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.3),transparent)}
+
+/* === Section 4.3: Footer clickable === */
+.footer{cursor:pointer;transition:all 0.2s;border-radius:12px}
+.footer:hover{background:rgba(255,215,0,0.15)!important;border-color:rgba(255,215,0,0.3)!important;transform:translateY(-1px)}
+
+/* === Project Info Modal === */
+.project-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:300;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease}
+.project-modal.show{display:flex;opacity:1}
+.project-modal-card{background:rgba(15,12,25,0.97);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:30px 36px;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5);position:relative;transform:scale(0.9);transition:transform 0.3s ease}
+.project-modal.show .project-modal-card{transform:scale(1)}
+.project-modal-card h2{color:#FFD700;font-size:22px;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:2px}
+.project-modal-card .pm-subtitle{color:#aaa;font-size:12px;margin-bottom:16px}
+.project-modal-card .pm-desc{color:#999;font-size:12px;line-height:1.8;text-align:left;margin-bottom:12px;font-family:'Noto Serif SC',serif}
+.project-modal-card .pm-sources{font-size:10px;color:#666;padding:8px 12px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.1);border-radius:10px;margin-top:12px}
+.project-modal-card .pm-sources strong{color:#FFD700}
+.project-modal-close{position:absolute;top:12px;right:12px;width:28px;height:28px;background:rgba(255,255,255,0.08);border:none;border-radius:50%;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding:0}
+.project-modal-close:hover{background:rgba(255,215,0,0.15);color:#FFD700;transform:rotate(90deg)}
+.project-modal-close svg{stroke-linecap:round;stroke-linejoin:round}
+
+/* === Section 5.1: Building hover card === */
+#buildingCard{position:fixed;z-index:150;background:rgba(10,10,26,0.95);border:1px solid rgba(255,215,0,0.35);border-radius:10px;padding:8px 12px;pointer-events:none;opacity:0;transition:opacity 0.15s ease;max-width:200px;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+#buildingCard .bc-name{color:#FFD700;font-size:12px;font-weight:600;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif}
+#buildingCard .bc-year{color:#888;font-size:10px;margin-top:2px}
+#buildingCard .bc-desc{color:#aaa;font-size:10px;line-height:1.5;margin-top:3px;font-family:'Noto Serif SC',serif}
+
+/* === Section 5.2: 复原/焚毁 toggle === */
+.restore-toggle{position:absolute;bottom:12px;right:14px;padding:4px 12px;background:rgba(10,10,26,0.85);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:10px;font-size:10px;color:#FFD700;cursor:pointer;transition:all 0.3s;z-index:101;font-family:'Noto Serif SC',serif;white-space:nowrap}
+.restore-toggle:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4)}
+.restore-toggle.burnt{color:#FF6633;border-color:rgba(255,100,50,0.4);background:rgba(255,50,20,0.15)}
+
+/* === Section 5.3: Fog toggle === */
+.fog-toggle{position:fixed;top:170px;right:14px;width:42px;height:42px;background:rgba(10,10,26,0.88);backdrop-filter:blur(8px);border:1px solid rgba(255,215,0,0.2);border-radius:50%;color:#FFD700;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.3s;z-index:101;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+.fog-toggle:hover{background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.4);transform:scale(1.08);box-shadow:0 0 16px rgba(255,215,0,0.2)}
+.fog-toggle:active{transform:scale(0.95)}
+
+/* === Section 6.3: Ink wash transition === */
+.ink-transition{position:fixed;top:0;left:0;right:0;bottom:0;z-index:95;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, #0a0a1a 0%, #000000 40%, rgba(10,10,26,0.6) 70%, transparent 100%)}
+.ink-transition .ink-texture{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 40%, rgba(40,30,20,0.15) 0%, transparent 50%),radial-gradient(circle at 70% 60%, rgba(30,25,20,0.1) 0%, transparent 40%),radial-gradient(circle at 50% 50%, rgba(0,0,0,0.1) 0%, transparent 60%);opacity:0.7}
 </style>
 </head>
 <body>
@@ -273,34 +341,34 @@ canvas{display:block}
     <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开">◀</button>
     <h3 class="sidebar-title">📍 重点景区</h3>
   <button class="scene-btn active" data-scene="overview">
-    <div class="nav-tooltip">全景俯瞰圆明园全貌</div>
+    <div class="nav-tooltip">俯瞰全园5200亩皇家园林全貌</div>
     <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
     <div><h4>全景漫游</h4><span>圆明园全景俯瞰</span></div>
   </button>
   <button class="scene-btn" data-scene="fangpu">
-    <div class="nav-tooltip">仿蓬莱仙境的水上楼阁群</div>
+    <div class="nav-tooltip">康熙年间始建，仿蓬莱仙境</div>
     <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
     <div><h4>方壶胜境</h4><span>人间仙境 · 水上楼阁</span></div>
   </button>
   <button class="scene-btn" data-scene="jiuzhou">
-    <div class="nav-tooltip">九岛仙山，皇帝寝宫所在</div>
+    <div class="nav-tooltip">雍正年间建成，帝王寝宫</div>
     <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
     <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
   </button>
   <button class="scene-btn" data-scene="zhengda">
-    <div class="nav-tooltip">圆明园正殿，朝会接见之地</div>
+    <div class="nav-tooltip">正殿，皇帝举行大典之所</div>
     <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
     <div><h4>正大光明</h4><span>圆明园正殿</span></div>
   </button>
   <button class="scene-btn" data-scene="dashuifa">
-    <div class="nav-tooltip">西洋楼遗址，猎狗逐鹿喷泉</div>
+    <div class="nav-tooltip">乾隆年间，郎世宁设计西洋景观</div>
     <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
     <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
   </button>
   </div>
 
   <div class="detail" id="detail">
-    <button class="close" id="detail-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6C13.5 10.5 6 10.5 6 6M18 18c-4.5-4.5-12-4.5-12 0"/><circle cx="12" cy="12" r="1"/></svg></button>
+    <button class="close" id="detail-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     <div class="detail-content" id="detail-content">
       <h2 id="d-title">圆明园全景</h2>
       <div class="year" id="d-year">1707-1860</div>
@@ -318,9 +386,9 @@ canvas{display:block}
         <span>三园详解</span><span class="toggle-arrow">▼</span>
       </div>
       <div class="sanyuan-content" id="sanyuanContent">
-        <div class="sanyuan-item"><strong>圆明园</strong>｜主体园林，康熙帝始建，雍正帝扩建，含四十景，九岛环水</div>
-        <div class="sanyuan-item"><strong>长春园</strong>｜东侧副园，乾隆帝营建，含大水法西洋楼景区，中西合璧</div>
-        <div class="sanyuan-item"><strong>绮春园</strong>｜南侧小园，嘉庆帝改建，后改名万春园，花木繁盛</div>
+        <div class="sanyuan-item sanyuan-blue"><span class="sanyuan-icon">🏛️</span><span class="sanyuan-name">圆明园</span><span class="sanyuan-desc">核心区域，帝王理政起居之所</span></div>
+        <div class="sanyuan-item sanyuan-green"><span class="sanyuan-icon">🏯</span><span class="sanyuan-name">长春园</span><span class="sanyuan-desc">东侧附园，西洋楼景区所在</span></div>
+        <div class="sanyuan-item sanyuan-purple"><span class="sanyuan-icon">🏰</span><span class="sanyuan-name">绮春园</span><span class="sanyuan-desc">南侧附园，宫廷画院与佛堂</span></div>
       </div>
     </div>
   </div>
@@ -332,13 +400,15 @@ canvas{display:block}
     <span class="ctrl-sep">·</span>
     <span>✋平移</span>
     <span class="ctrl-sep">·</span>
-    <span>1-5 切换景区</span>
+    <span>🔄切换</span>
   </div>
-  <div class="footer">重生·圆明园 · AI数字文化遗产3D重建</div>
+  <button class="restore-toggle" id="restoreBtn" onclick="toggleRestore()">🏛️复原</button>
+  <div class="footer" onclick="document.getElementById('projectModal').classList.add('show')">重生·圆明园 · AI数字文化遗产3D重建</div>
 </div>
 
 <button class="day-night-btn" id="dayNightBtn" onclick="toggleDayNight()" title="日夜切换">🕐</button>
 <button class="season-btn" id="seasonBtn" onclick="cycleSeason()" title="季节切换">🌸</button>
+<button class="fog-toggle" id="fogBtn" onclick="toggleFog()" title="天气切换">☀️</button>
 <button class="help-btn" id="helpBtn" onclick="showTutorial()" title="帮助">?</button>
 <button class="ai-guide-btn" id="aiGuideBtn" onclick="toggleAIGuide()" title="AI智能导览">
   <span class="ai-dot"></span>
@@ -347,14 +417,15 @@ canvas{display:block}
 <div class="ai-guide-panel" id="aiGuidePanel">
   <div class="ai-guide-header">
     <span>🤖 AI智能导览</span>
-    <button onclick="toggleAIGuide()" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px">×</button>
+    <button onclick="toggleAIGuide()" style="background:none;border:none;color:#888;cursor:pointer;font-size:16px;padding:0;display:flex;align-items:center;justify-content:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="ai-guide-content" id="aiGuideContent">
     <div class="ai-msg">点击景区按钮或罗盘方位，AI将为您播报该区域的历史典故与建筑特色。</div>
   </div>
 </div>
 
-<div class="scene-fade-overlay" id="sceneFade"></div>
+<div class="ink-transition" id="inkTransition"><div class="ink-texture"></div></div>
+<div id="buildingCard"><div class="bc-name" id="bc-name"></div><div class="bc-year" id="bc-year"></div><div class="bc-desc" id="bc-desc"></div></div>
 <div class="season-particles" id="seasonParticles"></div>
 
 <div class="tutorial-overlay" id="tutorialOverlay">
@@ -386,6 +457,18 @@ canvas{display:block}
 <div class="logo-modal" id="logoModal" onclick="this.classList.remove('show')">
   <img src="ico.jpg" alt="复原圆明园"/>
   <div class="hint">点击任意处关闭</div>
+</div>
+
+<div class="project-modal" id="projectModal">
+  <div class="project-modal-card">
+    <button class="project-modal-close" onclick="document.getElementById('projectModal').classList.remove('show')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <h2>重生·圆明园</h2>
+    <div class="pm-subtitle">AI数字文化遗产3D重建</div>
+    <div class="pm-desc">圆明园，始建于清康熙四十六年（1707年），被誉为「万园之园」。1860年遭英法联军焚毁，化为废墟。本项目利用AI与WebGL技术，对圆明园进行数字化3D复原重建，让历史重现光辉。</div>
+    <div class="pm-sources"><strong>数据来源：</strong>清宫档案、样式雷图档、考古报告</div>
+  </div>
 </div>
 
 <script src="three.min.js"></script>
@@ -710,6 +793,7 @@ function init(){
   buildWorld();
   setProgress(85);
   setupUI();
+  setupBuildingHover();
   setProgress(100);
 
   setTimeout(function(){
@@ -3535,12 +3619,27 @@ function setupUI(){
       }).join('');
       // 时间线：淡出→更新→淡入
       var timelineIcons = {'1707':'🏛️','1723':'🏛️','1747':'🏛️','1750':'🏛️','1755':'🏛️','1759':'🏛️','1860':'🔥','2026':'🤖'};
+      var timelineExpandTexts = {
+        '1707':'康熙帝将畅春园之北一座园林赐予皇四子胤禛，取名「圆明园」。',
+        '1860':'英法联军攻入北京，纵火焚毁圆明园，大火三日不灭，万园之园化为灰烬。',
+        '2026':'利用AI与WebGL技术对圆明园进行数字化3D重建，让历史重现光辉。',
+        '1723':'雍正帝即位后大规模扩建圆明园，奠定四十景格局。',
+        '1747':'乾隆帝命郎世宁设计西洋楼景区，融合中西建筑艺术。',
+        '1750':'仿古代神仙仙境建造方壶胜境，九桥连阁。',
+        '1755':'方壶胜境九桥连阁落成，水上仙境初现。',
+        '1759':'西洋楼全部建成，大水法喷泉群壮观非凡。',
+        '1822':'嘉庆帝改建绮春园，后改名万春园。'
+      };
       var updateTimeline = function(){
         if(data.timeline){
           timelineEl.innerHTML = data.timeline.map(function(item, i){
             var icon = timelineIcons[item.y] || '📌';
             var highlight = item.y === '2026' ? ' highlight-2026' : '';
-            return '<div class="timeline-item'+highlight+'" style="position:relative;animation:fadeUp 0.35s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">'+icon+'</span>'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
+            var yearClass = item.y === '1860' ? ' year-1860' : '';
+            var expandText = timelineExpandTexts[item.y] || '';
+            var expandBtn = expandText ? '<button class="timeline-expand-btn" onclick="toggleTimelineExpand(this, event)">展开▸</button>' : '';
+            var expandDiv = expandText ? '<div class="timeline-expand-content"><div class="timeline-expand-text">'+expandText+'</div></div>' : '';
+            return '<div class="timeline-item'+highlight+yearClass+'" style="position:relative;animation:fadeUp 0.35s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year"><span class="timeline-icon">'+icon+'</span>'+item.y+' '+expandBtn+'</div><div class="timeline-event">'+item.e+'</div>'+expandDiv+'</div>';
           }).join('');
           timelineEl.style.display = 'block';
         } else {
@@ -3617,11 +3716,21 @@ function setupUI(){
       };
       animStart = Date.now();
       animating = true;
-      // 场景切换淡入淡出
-      var fadeEl = document.getElementById('sceneFade');
-      if(fadeEl){
-        fadeEl.classList.add('active');
-        setTimeout(function(){ fadeEl.classList.remove('active'); }, 600);
+      // 场景切换水墨转场
+      var inkEl = document.getElementById('inkTransition');
+      if(inkEl){
+        inkEl.style.opacity = '0';
+        inkEl.style.transition = 'none';
+        // Force reflow
+        void inkEl.offsetWidth;
+        inkEl.style.transition = 'opacity 0.8s ease-in';
+        inkEl.style.opacity = '1';
+        setTimeout(function(){
+          inkEl.style.transition = 'none';
+          void inkEl.offsetWidth;
+          inkEl.style.transition = 'opacity 0.5s ease-out';
+          inkEl.style.opacity = '0';
+        }, 1100);
       }
     });
   });
@@ -3926,6 +4035,199 @@ function toggleSanyuan(){
   content.classList.toggle('show');
 }
 
+// ==================== 时间线展开/收起 ====================
+function toggleTimelineExpand(btn, e){
+  e.stopPropagation();
+  var item = btn.closest('.timeline-item');
+  if(!item) return;
+  var content = item.querySelector('.timeline-expand-content');
+  if(!content) return;
+  var isOpen = content.classList.contains('show');
+  // Close all other expanded items first
+  document.querySelectorAll('.timeline-expand-content.show').forEach(function(c){
+    c.classList.remove('show');
+    var prevBtn = c.closest('.timeline-item');
+    if(prevBtn){
+      var pb = prevBtn.querySelector('.timeline-expand-btn');
+      if(pb) pb.textContent = '展开▸';
+    }
+  });
+  if(!isOpen){
+    content.classList.add('show');
+    btn.textContent = '收起▾';
+  } else {
+    btn.textContent = '展开▸';
+  }
+}
+
+// ==================== 标签活跃状态 ====================
+function updateActiveTags(sceneId){
+  document.querySelectorAll('#d-tags .tag').forEach(function(t){
+    t.classList.remove('active-tag');
+  });
+}
+
+// ==================== 复原/焚毁对比切换 ====================
+var isBurntMode = false;
+function toggleRestore(){
+  isBurntMode = !isBurntMode;
+  var btn = document.getElementById('restoreBtn');
+  if(isBurntMode){
+    btn.textContent = '🔥焚毁';
+    btn.classList.add('burnt');
+    // Dense orange-red fog
+    scene.fog = new THREE.Fog(0x883311, 30, 180);
+    scene.background = new THREE.Color(0x331100);
+    // Reduce building opacity
+    scene.traverse(function(child){
+      if(child.isMesh && child.material){
+        if(Array.isArray(child.material)){
+          child.material.forEach(function(m){
+            if(m.opacity !== undefined && m.opacity < 1){
+              m._origOpacity = m.opacity;
+              m.opacity = m.opacity * 0.6;
+            }
+          });
+        } else {
+          if(child.material.opacity !== undefined && child.material.opacity < 1){
+            child.material._origOpacity = child.material.opacity;
+            child.material.opacity = child.material.opacity * 0.6;
+          }
+        }
+      }
+    });
+    // Spawn ember particles
+    spawnEmberParticles();
+  } else {
+    btn.textContent = '🏛️复原';
+    btn.classList.remove('burnt');
+    // Restore normal fog
+    scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
+    scene.background = new THREE.Color(0x8eaec8);
+    // Restore opacity
+    scene.traverse(function(child){
+      if(child.isMesh && child.material){
+        if(Array.isArray(child.material)){
+          child.material.forEach(function(m){
+            if(m._origOpacity !== undefined){
+              m.opacity = m._origOpacity;
+              delete m._origOpacity;
+            }
+          });
+        } else {
+          if(child.material._origOpacity !== undefined){
+            child.material.opacity = child.material._origOpacity;
+            delete child.material._origOpacity;
+          }
+        }
+      }
+    });
+    // Remove ember particles
+    clearEmberParticles();
+  }
+}
+
+var emberParticles = [];
+function spawnEmberParticles(){
+  clearEmberParticles();
+  var container = document.createElement('div');
+  container.id = 'emberContainer';
+  container.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5;overflow:hidden';
+  document.body.appendChild(container);
+  for(var i = 0; i < 30; i++){
+    var p = document.createElement('div');
+    p.textContent = '🔥';
+    p.style.cssText = 'position:absolute;font-size:'+(8+Math.random()*8)+'px;opacity:0;animation:emberFloat '+(3+Math.random()*4)+'s linear infinite;animation-delay:'+Math.random()*3+'s;left:'+Math.random()*100+'%';
+    container.appendChild(p);
+    emberParticles.push(p);
+  }
+  // Add CSS animation if not present
+  if(!document.getElementById('emberStyle')){
+    var style = document.createElement('style');
+    style.id = 'emberStyle';
+    style.textContent = '@keyframes emberFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:0.8}80%{opacity:0.6}100%{transform:translateY(-20px) rotate(360deg);opacity:0}}';
+    document.head.appendChild(style);
+  }
+}
+function clearEmberParticles(){
+  var c = document.getElementById('emberContainer');
+  if(c) c.remove();
+  emberParticles = [];
+}
+
+// ==================== 天气/雾气切换 ====================
+var isFogMode = false;
+function toggleFog(){
+  isFogMode = !isFogMode;
+  var btn = document.getElementById('fogBtn');
+  if(isFogMode){
+    btn.textContent = '🌫️';
+    btn.title = '雾天模式';
+    // Volumetric fog effect
+    scene.fog = new THREE.Fog(0x99aacc, 20, 120);
+  } else {
+    btn.textContent = '☀️';
+    btn.title = '晴天模式';
+    scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
+  }
+}
+
+// ==================== 建筑悬浮卡片 ====================
+var buildingData = {
+  '正大光明殿': {year:'1723年', desc:'圆明园正殿，皇帝举行朝会大典之所'},
+  '九州清晏': {year:'1723年', desc:'皇帝寝宫，九岛环水象征华夏九州'},
+  '方壶胜境': {year:'1750年', desc:'仿蓬莱仙境建造的水上楼阁群'},
+  '大水法': {year:'1747年', desc:'西洋楼核心，郎世宁设计的喷泉景观'},
+  '远瀛观': {year:'1759年', desc:'西洋楼建筑，巴洛克风格石龛'},
+  '海晏堂': {year:'1759年', desc:'十二生肖铜首人身像报时喷泉'},
+  '养雀笼': {year:'1759年', desc:'西洋楼建筑，养鸟观赏之所'},
+  '谐奇趣': {year:'1751年', desc:'西洋楼最早建成的建筑之一'}
+};
+var raycaster = null;
+var mouseVec = null;
+var buildingCard = null;
+var buildingCardVisible = false;
+
+function setupBuildingHover(){
+  raycaster = new THREE.Raycaster();
+  mouseVec = new THREE.Vector2();
+  buildingCard = document.getElementById('buildingCard');
+
+  renderer.domElement.addEventListener('mousemove', function(e){
+    mouseVec.x = (e.clientX / innerWidth) * 2 - 1;
+    mouseVec.y = -(e.clientY / innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouseVec, camera);
+    var intersects = raycaster.intersectObjects(scene.children, true);
+    var found = false;
+    for(var i = 0; i < intersects.length; i++){
+      var obj = intersects[i].object;
+      var name = obj.name || '';
+      if(!name && obj.parent) name = obj.parent.name || '';
+      if(name && buildingData[name]){
+        var data = buildingData[name];
+        document.getElementById('bc-name').textContent = name;
+        document.getElementById('bc-year').textContent = '📅 ' + data.year;
+        document.getElementById('bc-desc').textContent = data.desc;
+        buildingCard.style.left = (e.clientX + 16) + 'px';
+        buildingCard.style.top = (e.clientY - 10) + 'px';
+        buildingCard.style.opacity = '1';
+        buildingCardVisible = true;
+        found = true;
+        break;
+      }
+    }
+    if(!found && buildingCardVisible){
+      buildingCard.style.opacity = '0';
+      buildingCardVisible = false;
+    }
+  });
+
+  renderer.domElement.addEventListener('mouseleave', function(){
+    if(buildingCard) buildingCard.style.opacity = '0';
+    buildingCardVisible = false;
+  });
+}
+
 // ==================== 教程 ====================
 function showTutorial(){
   var overlay = document.getElementById('tutorialOverlay');
@@ -3981,6 +4283,8 @@ document.addEventListener('keydown', function(e){
     if(dl.classList.contains('show')) dl.classList.remove('show');
     var lm = document.getElementById('logoModal');
     if(lm.classList.contains('show')) lm.classList.remove('show');
+    var pm = document.getElementById('projectModal');
+    if(pm.classList.contains('show')) pm.classList.remove('show');
   }
 });
 
