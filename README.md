@@ -1,76 +1,226 @@
-# 🏛️ 重生·圆明园 — AI驱动的数字文化遗产3D重建
+# 🏯 重生·圆明园 — AI数字文化遗产3D重建
 
-> 2026第19届全国3D大赛 参赛作品
+> 2026第19届全国3D大赛 · 方案C：数字文化遗产3D重生
 
-## 项目简介
+---
 
-利用AI技术从《圆明园四十景图》等历史资料中重建圆明园三维数字模型，通过Web3D技术实现沉浸式浏览体验。
+## 📋 参赛信息
 
-## 核心功能
-
-- 🤖 AI图像→3D重建（TripoSR / Meshy）
-- 🎨 AI纹理修复与增强
-- 🌐 Web3D交互式展示（Three.js）
-- 🥽 VR沉浸式漫游
-- ⏰ 新旧对比时间轴
-
-## 技术栈
-
-| 模块 | 技术 |
+| 项目 | 内容 |
 |------|------|
-| AI重建 | TripoSR / Meshy API |
-| 3D建模 | Blender + Python |
-| 后端 | FastAPI |
-| 前端 | React + Three.js |
-| 部署 | Docker |
+| **比赛** | 2026第19届全国3D数字化创新设计大赛 |
+| **方案** | 方案C：数字文化遗产3D重建 |
+| **主题** | 重生·圆明园 — AI数字文化遗产3D重建 |
+| **报名截止** | 2026年6月30日 |
+| **作品提交** | 2026年7月20日 |
+| **报名平台** | 微信小程序「3D大赛」/ https://ds.3ddl.net |
 
-## 快速开始
+---
 
-```bash
-# 1. 安装依赖
-pip install -r requirements.txt
+## 🎨 项目简介
 
-# 2. 下载AI模型（TripoSR）
-python src/ai_rebuild/download_model.py
+圆明园，始建于康熙四十六年（1707年），由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林，被誉为"万园之园"。1860年遭英法联军焚毁后，仅余残垣断壁。
 
-# 3. 运行AI重建
-python src/ai_rebuild/rebuild.py --input data/raw/images/ --output data/processed/models/
+本项目以**AI辅助3D重建**为核心技术手段，通过历史文献研究、古画参考、AI图像生成与3D建模相结合的方式，对圆明园4大核心景区进行数字复原，并以**Web端实时3D交互展示**的形式，让观者身临其境感受这座"万园之园"的辉煌盛景。
 
-# 4. Blender场景组装
-blender --background --python src/blender_scripts/assemble.py
+---
 
-# 5. 启动后端
-uvicorn src.backend.main:app --reload
+## ✨ 功能特性
 
-# 6. 启动前端
-cd src/frontend && npm run dev
-```
+### 🏞️ 四大核心景区
 
-## 项目结构
+| 景区 | 说明 | 特色 |
+|------|------|------|
+| **九州清晏** | 后湖核心，九岛环水，象征华夏九州 | 黄琉璃瓦主殿、九岛桥梁系统 |
+| **大水法** | 西洋楼核心，巴洛克+洛可可风格 | 三拱门+十二生肖铜首喷泉群 |
+| **方壶胜境** | 仿神仙仙境，水上楼阁 | 七层宝塔、九座桥梁、假山群 |
+| **正大光明** | 圆明园正殿，朝政举行地 | 重檐庑殿顶、华表、石狮 |
+
+### 🎮 交互体验
+- 🖱️ **鼠标左键旋转** — 360°全景浏览
+- 🔄 **滚轮缩放** — 远近细节切换
+- 🖐️ **右键平移** — 自由视角探索
+- ✈️ **飞行动画** — 景区切换平滑过渡（easeInOutCubic缓动）
+- 📊 **数字滚动** — 景区数据动态展示
+- 🏷️ **详情面板** — 点击景区查看历史介绍与标签
+
+### 🌤️ 视觉效果
+- **自定义天空穹顶** — GLSL着色器渐变天空（深蓝→蓝灰→地平线白灰）
+- **体积云层** — 半透明球体模拟积云（15组云团散布）
+- **ACES色调映射** — 电影级色彩表现
+- **PCFSoft阴影** — 柔和自然的光影效果
+- **四光源系统** — 环境光+半球光+主光源+补光+背光
+- **固定屋顶颜色** — 按历史等级严格区分（黄色/绿色/灰色/红色/蓝色/黑色）
+
+### 🏗️ 程序化建筑建模
+- **歇山顶** — 完整八面屋顶+山花+屋脊+脊兽
+- **庑殿顶** — 四坡攒尖+正脊+垂脊
+- **攒尖顶** — 宝塔顶部结构
+- **桥/廊/亭** — 程序化生成辅助建筑
+- **植被系统** — 8种树木类型+多层叶簇+花圃+荷花
+
+---
+
+## 📊 技术栈
+
+| 模块 | 技术 | 说明 |
+|------|------|------|
+| **Web 3D渲染** | Three.js (内联OrbitControls) | 浏览器端实时渲染，无外部依赖 |
+| **3D建模** | Blender 5.1 + Python | Cycles渲染引擎，程序化场景构建 |
+| **AI图像转3D** | TripoSR / Meshy API | 图片驱动的3D模型生成 |
+| **AI纹理生成** | Stable Diffusion | 建筑材质与纹理辅助生成 |
+| **着色器** | GLSL (自定义) | 天空穹顶渐变效果 |
+| **色彩管理** | AgX (ACES替代) | Blender端自然色彩转换 |
+| **降噪** | OpenImageDenoise | 双重降噪（渲染时+后期） |
+| **模型格式** | GLB/GLTF | Web端高效3D模型格式 |
+
+---
+
+## 📁 项目结构
 
 ```
 yuanmingyuan-3d/
-├── data/                    # 数据目录
-│   ├── raw/images/         # 原始图片
-│   ├── raw/references/     # 参考资料
-│   └── processed/          # 处理后的模型
-├── src/                     # 源代码
-│   ├── ai_rebuild/         # AI重建模块
-│   ├── blender_scripts/    # Blender脚本
-│   ├── backend/            # FastAPI后端
-│   └── frontend/           # React前端
-├── configs/                 # 配置文件
-├── docs/                    # 文档
-└── output/                  # 输出文件
+├── v3/
+│   ├── index.html          # 🌟 主展示页面（Three.js 完整交互，2048行）
+│   ├── three.min.js        # Three.js 运行时
+│   ├── OrbitControls.js    # 轨道控制器（备用）
+│   ├── logo.svg            # 项目Logo
+│   └── ico.jpg             # 图标
+├── src/
+│   └── blender_scripts/
+│       ├── create_yuanmingyuan.py      # 基础场景创建
+│       ├── build_dashuifa_detailed.py  # 大水法精细建模
+│       ├── build_dashuifa_ultra.py     # 大水法超级建模
+│       ├── build_scene_ultra.py        # 完整场景超级建模
+│       └── setup_render_scene.py       # 渲染场景配置
+├── output/
+│   ├── yuanmingyuan_complete.glb       # 完整场景模型（7.4MB）
+│   ├── dashuifa_zodiac_ultra.glb       # 大水法十二生肖模型
+│   ├── index.html                      # 备用展示页
+│   └── *.png                           # 渲染输出图片
+├── scenes/
+│   ├── dashuifa_render.blend           # 大水法Blender场景
+│   └── dashuifa_render.blend1          # 场景备份
+├── data/
+│   └── raw/images/                     # 历史图片素材（40景图等）
+├── build_complete_scene.py             # 完整场景构建脚本
+├── render_*.py                         # 各版本渲染脚本
+├── PROGRESS.md                         # 项目进度
+├── WORKFLOW.md                         # 工作流程
+├── README.md                           # 📖 本文件
+└── tech_doc.md                         # 📘 技术文档
 ```
 
-## 团队
+---
 
-- 项目负责人
-- 3D建模师
-- AI算法工程师
-- 前端开发
+## 🚀 使用方法
 
-## 许可
+### 方式一：直接打开（推荐）
 
-MIT License
+```bash
+# 直接用浏览器打开主展示页
+open v3/index.html
+```
+
+### 方式二：本地服务器
+
+```bash
+cd "v3"
+python3 -m http.server 8080
+# 访问 http://localhost:8080
+```
+
+### 方式三：Blender场景构建
+
+```bash
+# 在Blender中运行完整场景构建
+blender --background --python build_complete_scene.py
+
+# 渲染大水法竞赛版
+blender --background --python render_dashuifa_competition.py
+```
+
+### 操作指南
+
+| 操作 | 效果 |
+|------|------|
+| 🖱️ 鼠标左键拖动 | 旋转视角 |
+| 🔄 滚轮 | 缩放远近 |
+| 🖐️ 鼠标右键拖动 | 平移视角 |
+| 📍 点击右侧景区按钮 | 切换景区（带飞行动画） |
+| 📖 点击详情面板 | 查看景区历史介绍 |
+| 🖼️ 点击顶部Logo | 查看高清大图 |
+
+---
+
+## 🔧 自定义配置
+
+### 调整场景参数
+
+在 `v3/index.html` 中修改配置：
+
+```javascript
+// 修改相机初始位置
+camera.position.set(80, 55, 80);
+
+// 修改场景雾效
+scene.fog = new THREE.Fog(0x9bb8cc, 60, 280);
+
+// 修改色调映射曝光
+renderer.toneMappingExposure = 1.35;
+```
+
+### 添加新景区
+
+在 `SCENES` 配置对象中添加：
+
+```javascript
+SCENES['newScene'] = {
+  cam: [x, y, z],       // 相机位置
+  look: [x, y, z],       // 注视点
+  title: '景区名称',
+  year: '历史年代',
+  desc: '景区描述',
+  tags: ['标签1', '标签2'],
+  stats: { buildings: '100', area: '20', docs: '500', models: '100', extra: null }
+};
+```
+
+---
+
+## 📝 设计说明（200字以内）
+
+本作品以"重生·圆明园"为主题，运用AI辅助3D重建技术，对圆明园九州清晏、大水法、方壶胜境、正大光明四大核心景区进行数字复原。通过TripoSR/Meshy实现图片转3D，Blender完成场景组装与精细建模，Three.js打造Web端实时交互展示。作品包含程序化生成的歇山顶、庑殿顶等传统建筑结构，自定义GLSL天空穹顶着色器，以及完整的植被、水体、假山环境系统。以数字化方式重现"万园之园"的辉煌盛景，探索AI技术在文化遗产保护与传承中的创新应用。
+
+---
+
+## ⚠️ AIGC使用声明
+
+本作品在以下环节使用了AIGC技术：
+1. **图片转3D模型** — TripoSR / Meshy API
+2. **建筑纹理生成** — Stable Diffusion
+3. **代码辅助开发** — 大语言模型（Three.js/Python代码生成）
+4. **历史文献整理** — 大语言模型辅助归纳
+
+**人机参与比例：** 人工创意与构架 65%，AI辅助生成 35%
+
+---
+
+## 📚 参考资料
+
+- 《圆明园四十景图》— 乾隆九年(1744年)宫廷画师唐岱、沈源绘制
+- 清华大学数字圆明园项目 — 郭黛姮教授团队
+- 《圆明园的故事》— 刘阳著，故宫出版社
+- 《远逝的辉煌》— 郭黛姮编
+
+---
+
+## 👥 作者信息
+
+- **作者**：[待填写]
+- **学校**：[待填写]
+- **指导教师**：[待填写]
+
+---
+
+*重生·圆明园 · AI数字文化遗产3D重建 · 2026全国3D大赛参赛作品*

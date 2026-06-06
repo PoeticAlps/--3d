@@ -97,26 +97,94 @@ def create_materials():
         roughness=0.8
     )
     
-    # 水面
-    mat_water = bpy.data.materials.new(name="Water")
+    # 水面 - 高级材质（菲涅尔 + 动态波纹 + 边缘泡沫）
+    mat_water = bpy.data.materials.new(name="Water_Advanced")
     mat_water.use_nodes = True
     nodes = mat_water.node_tree.nodes
-    # 找到或创建 Principled BSDF 节点
-    bsdf = None
-    for node in nodes:
-        if node.type == 'BSDF_PRINCIPLED':
-            bsdf = node
-            break
-    if bsdf is None:
-        bsdf = nodes.new("ShaderNodeBsdfPrincipled")
-    bsdf.inputs['Base Color'].default_value = (0.1, 0.3, 0.4, 1.0)
+    links = mat_water.node_tree.links
+    nodes.clear()
+    
+    # 创建输出节点
+    output = nodes.new(type='ShaderNodeOutputMaterial')
+    output.location = (600, 0)
+    
+    # 创建原理化BSDF
+    bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
+    bsdf.location = (0, 0)
+    bsdf.inputs['Base Color'].default_value = (0.0, 0.2, 0.4, 1.0)
     bsdf.inputs['Roughness'].default_value = 0.1
     if 'IOR' in bsdf.inputs:
-        bsdf.inputs['IOR'].default_value = 1.33
+        bsdf.inputs['IOR'].default_value = 1.333
     if 'Transmission Weight' in bsdf.inputs:
         bsdf.inputs['Transmission Weight'].default_value = 0.9
     elif 'Transmission' in bsdf.inputs:
         bsdf.inputs['Transmission'].default_value = 0.9
+    
+    # 创建菲涅尔节点
+    fresnel = nodes.new(type='ShaderNodeFresnel')
+    fresnel.location = (-300, 100)
+    fresnel.inputs['IOR'].default_value = 1.333
+    
+    # 创建混合着色器节点
+    mix_shader = nodes.new(type='ShaderNodeMixShader')
+    mix_shader.location = (300, 0)
+    
+    # 创建透明BSDF（用于菲涅尔效果）
+    transparent = nodes.new(type='ShaderNodeBsdfTransparent')
+    transparent.location = (0, -150)
+    transparent.inputs['Color'].default_value = (0.0, 0.2, 0.4, 1.0)
+    
+    # 创建波纹纹理（动态）
+    wave_texture = nodes.new(type='ShaderNodeTexWave')
+    wave_texture.location = (-600, -100)
+    wave_texture.wave_type = 'RINGS'
+    wave_texture.inputs['Scale'].default_value = 10.0
+    wave_texture.inputs['Distortion'].default_value = 2.0
+    wave_texture.inputs['Detail'].default_value = 5.0
+    wave_texture.inputs['Phase Offset'].default_value = 1.0  # 动画
+    
+    # 创建凹凸节点（用于波纹）
+    bump = nodes.new(type='ShaderNodeBump')
+    bump.location = (-300, -100)
+    bump.inputs['Strength'].default_value = 0.1
+    bump.inputs['Distance'].default_value = 0.1
+    
+    # 创建边缘泡沫（基于法线）
+    layer_weight = nodes.new(type='ShaderNodeLayerWeight')
+    layer_weight.location = (-600, 100)
+    layer_weight.inputs['Blend'].default_value = 0.5
+    
+    # 创建颜色渐变控制泡沫
+    foam_ramp = nodes.new(type='ShaderNodeValToRGB')
+    foam_ramp.location = (-300, 200)
+    color_ramp = foam_ramp.color_ramp
+    color_ramp.elements[0].position = 0.8
+    color_ramp.elements[0].color = (0.0, 0.0, 0.0, 1.0)  # 无泡沫
+    color_ramp.elements[1].position = 1.0
+    color_ramp.elements[1].color = (0.9, 0.9, 0.9, 1.0)  # 白色泡沫
+    
+    # 创建混合节点（将泡沫与水体颜色混合）
+    mix_color = nodes.new(type='ShaderNodeMixRGB')
+    mix_color.location = (0, 200)
+    mix_color.inputs['Fac'].default_value = 0.3
+    
+    # 连接节点
+    # 菲涅尔效果
+    links.new(fresnel.outputs['Fac'], mix_shader.inputs['Fac'])
+    links.new(bsdf.outputs['BSDF'], mix_shader.inputs[1])
+    links.new(transparent.outputs['BSDF'], mix_shader.inputs[2])
+    links.new(mix_shader.outputs['Shader'], output.inputs['Surface'])
+    
+    # 波纹凹凸
+    links.new(wave_texture.outputs['Fac'], bump.inputs['Height'])
+    links.new(bump.outputs['Normal'], bsdf.inputs['Normal'])
+    
+    # 边缘泡沫
+    links.new(layer_weight.outputs['Facing'], foam_ramp.inputs['Fac'])
+    links.new(foam_ramp.outputs['Color'], mix_color.inputs['Color2'])
+    links.new(bsdf.outputs['Base Color'], mix_color.inputs['Color1'])
+    links.new(mix_color.outputs['Color'], bsdf.inputs['Base Color'])
+    
     materials['water'] = mat_water
     
     # 草地
@@ -501,7 +569,7 @@ def setup_camera():
     return camera
 
 def setup_world():
-    """设置世界环境"""
+    """设置世界环境 - 包含体积云和体积雾"""
     world = bpy.context.scene.world
     if not world:
         world = bpy.data.worlds.new("World")
@@ -509,6 +577,7 @@ def setup_world():
     
     world.use_nodes = True
     nodes = world.node_tree.nodes
+    links = world.node_tree.links
     nodes.clear()
     
     # 天空
@@ -521,10 +590,66 @@ def setup_world():
         sky.sun_azimuth = math.radians(45)
     
     background = nodes.new('ShaderNodeBackground')
-    output = nodes.new('ShaderNodeOutputWorld')
+    background.location = (0, 0)
+    background.inputs['Strength'].default_value = 1.0
     
-    world.node_tree.links.new(sky.outputs['Color'], background.inputs['Color'])
-    world.node_tree.links.new(background.outputs['Background'], output.inputs['Surface'])
+    output = nodes.new('ShaderNodeOutputWorld')
+    output.location = (300, 0)
+    
+    # 连接天空到背景
+    links.new(sky.outputs['Color'], background.inputs['Color'])
+    links.new(background.outputs['Background'], output.inputs['Surface'])
+    
+    # 体积雾（体积散射）
+    volume_scatter = nodes.new('ShaderNodeVolumeScatter')
+    volume_scatter.location = (0, -200)
+    volume_scatter.inputs['Color'].default_value = (0.9, 0.9, 0.9, 1.0)
+    volume_scatter.inputs['Density'].default_value = 0.001  # 低密度雾
+    volume_scatter.inputs['Anisotropy'].default_value = 0.0
+    
+    # 将体积散射连接到世界的体积输出
+    links.new(volume_scatter.outputs['Volume'], output.inputs['Volume'])
+    
+    # 体积云着色器组（作为节点组）
+    cloud_shader = bpy.data.node_groups.new("VolumeCloudShader", 'ShaderNodeTree')
+    cloud_nodes = cloud_shader.nodes
+    cloud_links = cloud_shader.links
+    cloud_nodes.clear()
+    
+    # 创建云着色器节点
+    cloud_noise = cloud_nodes.new(type='ShaderNodeTexNoise')
+    cloud_noise.location = (-400, 0)
+    cloud_noise.inputs['Scale'].default_value = 2.0
+    cloud_noise.inputs['Detail'].default_value = 8.0
+    cloud_noise.inputs['Roughness'].default_value = 0.5
+    
+    # 创建颜色渐变节点控制云密度
+    cloud_ramp = cloud_nodes.new(type='ShaderNodeValToRGB')
+    cloud_ramp.location = (-200, 0)
+    # 设置颜色渐变（底部更密，顶部更透明）
+    color_ramp = cloud_ramp.color_ramp
+    color_ramp.elements[0].position = 0.4
+    color_ramp.elements[0].color = (0.0, 0.0, 0.0, 0.0)  # 透明
+    color_ramp.elements[1].position = 0.6
+    color_ramp.elements[1].color = (1.0, 1.0, 1.0, 0.8)  # 半透明白色
+    
+    # 创建体积散射节点
+    cloud_scatter = cloud_nodes.new(type='ShaderNodeVolumeScatter')
+    cloud_scatter.location = (0, 0)
+    cloud_scatter.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+    cloud_scatter.inputs['Density'].default_value = 0.1
+    cloud_scatter.inputs['Anisotropy'].default_value = 0.7
+    
+    # 创建输出节点
+    cloud_output = cloud_nodes.new(type='ShaderNodeOutputMaterial')
+    cloud_output.location = (200, 0)
+    
+    # 连接节点
+    cloud_links.new(cloud_noise.outputs['Fac'], cloud_ramp.inputs['Fac'])
+    cloud_links.new(cloud_ramp.outputs['Color'], cloud_scatter.inputs['Color'])
+    cloud_links.new(cloud_scatter.outputs['Volume'], cloud_output.inputs['Volume'])
+    
+    # 注意：体积云着色器组已创建，可以通过材质节点添加到场景中
 
 # ============================================================
 # 主函数
