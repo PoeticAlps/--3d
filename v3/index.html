@@ -260,6 +260,10 @@ canvas{display:block}
     <button class="scene-btn" data-scene="jiuzhou"><h4>九州清晏</h4></button>
     <button class="scene-btn" data-scene="zhengda"><h4>正大光明</h4></button>
     <button class="scene-btn" data-scene="dashuifa"><h4>大水法</h4></button>
+    <button class="scene-btn" data-scene="louyue"><h4>镂月开云</h4></button>
+    <button class="scene-btn" data-scene="bitong"><h4>碧桐书院</h4></button>
+    <button class="scene-btn" data-scene="haiyan"><h4>海晏堂</h4></button>
+    <button class="scene-btn" data-scene="wenyinge"><h4>文源阁</h4></button>
   </div>
 
   <div class="detail" id="detail">
@@ -533,7 +537,31 @@ var SCENES = {
     tags:['正殿','朝政','雍正御笔','华表'],
     stats:{buildings:'67',area:'15',docs:'1,080',models:'189',extra:{num:'2',label:'华表'}},
     timeline:[{y:'1723',e:'雍正御笔题匾'},{y:'1725',e:'朝政大殿启用'},{y:'1860',e:'正殿焚毁，匾额失踪'},{y:'2026',e:'重檐庑殿顶数字重建'}],
-    barWidths:[5,11,13,9]}
+    barWidths:[5,11,13,9]},
+  louyue:{cam:[-20,16,55],look:[-40,3,30],title:'镂月开云',year:'康熙四十八年 (1709)',
+    desc:'牡丹台，康熙帝赏花处。三层圆形月台遍植牡丹，乾隆赞"国色天香"。圆亭攒尖顶，曲桥连接岸边，为圆明园最早建成的景点之一。',
+    tags:['牡丹台','圆形月台','康熙御赏','国色天香'],
+    stats:{buildings:'48',area:'12',docs:'560',models:'134',extra:{num:'3',label:'月台层'}},
+    timeline:[{y:'1709',e:'康熙帝赐名"镂月开云"'},{y:'1723',e:'遍植牡丹千余株'},{y:'1860',e:'亭台花圃焚毁殆尽'},{y:'2026',e:'牡丹台三层圆台重生'}],
+    barWidths:[4,6,5,6]},
+  bitong:{cam:[30,16,-25],look:[40,3,-20],title:'碧桐书院',year:'雍正年间 (1723-1735)',
+    desc:'乾隆读书处，仿宁波天一阁"天一生水"理念。方形院落四面回廊，中庭碧桐掩映，假山水池相伴，尽显书卷气息。',
+    tags:['书院','碧桐','读书处','回廊院落'],
+    stats:{buildings:'56',area:'8',docs:'2,340',models:'167',extra:{num:'2',label:'碧桐'}},
+    timeline:[{y:'1723',e:'雍正年间始建'},{y:'1750',e:'乾隆在此读书修身'},{y:'1860',e:'书院付之一炬'},{y:'2026',e:'碧桐书声数字重现'}],
+    barWidths:[4,8,6,5]},
+  haiyan:{cam:[45,16,25],look:[60,3,15],title:'海晏堂',year:'乾隆二十四年 (1759)',
+    desc:'西洋楼景区核心，巴洛克风格殿堂。前方大型喷泉池环绕十二生肖铜首人身像，每日按时辰轮流喷水报时，为中西合璧之杰作。',
+    tags:['西洋楼','巴洛克','十二生肖','铜首喷泉'],
+    stats:{buildings:'53',area:'18',docs:'680',models:'156',extra:{num:'12',label:'铜首'}},
+    timeline:[{y:'1747',e:'郎世宁设计始建'},{y:'1759',e:'十二生肖铜首建成'},{y:'1860',e:'铜首被掠，建筑焚毁'},{y:'2026',e:'数字重生海晏堂全貌'}],
+    barWidths:[4,13,8,8]},
+  wenyinge:{cam:[-45,16,-25],look:[-60,3,-15],title:'文源阁',year:'乾隆三十九年 (1774)',
+    desc:'仿宁波天一阁建造的藏书楼，珍藏《四库全书》。前有方池"天一生水"用于防火，两层硬山顶楼阁，是圆明园最大的图书馆。',
+    tags:['藏书楼','四库全书','天一阁','防火方池'],
+    stats:{buildings:'24',area:'6',docs:'36,000',models:'89',extra:{num:'36K',label:'册藏书'}},
+    timeline:[{y:'1774',e:'仿天一阁建成'},{y:'1782',e:'《四库全书》入藏'},{y:'1860',e:'藏书焚毁，万卷成灰'},{y:'2026',e:'文源阁藏书楼数字重建'}],
+    barWidths:[2,3,4,3]}
 };
 
 // ==================== 材质库 ====================
@@ -599,7 +627,11 @@ var SCENE_ANGLES = {
   fangpu:  -Math.PI/3,       // 300° 东南（方壶胜境，可看到九州+水法）
   jiuzhou: -Math.PI/2,       // 270° 正南（九州清晏中心）
   zhengda: -2*Math.PI/3,     // 240° 西南（正大光明，可看到九州+水法）
-  dashuifa: Math.PI/2        // 90°  正北（大水法）
+  dashuifa: Math.PI/2,       // 90°  正北（大水法）
+  louyue:  2*Math.PI/3,      // 120° 西北（镂月开云，牡丹台）
+  bitong:  Math.PI/5,        // 36°  东偏北（碧桐书院）
+  haiyan:  Math.PI/6,        // 30°  东（海晏堂，十二生肖）
+  wenyinge:-Math.PI*0.75     // 135° 西南偏南（文源阁）
 };
 
 // ==================== 初始化 ====================
@@ -803,6 +835,10 @@ function buildWorld(){
   buildDashuifaScene();
   buildFangpuScene();
   buildZhengdaScene();
+  buildLouyueScene();
+  buildBitongScene();
+  buildHaiyanScene();
+  buildWenyingeScene();
 }
 
 // ==================== 天空穹顶 + 云层 ====================
@@ -3941,6 +3977,291 @@ function buildStoneLion(x, z){
   scene.add(g);
 }
 
+// ==================== 镂月开云 3D ====================
+function buildLouyueScene(){
+  var g = new THREE.Group();
+  var cx = -8, cz = 30;
+
+  // 三层圆形月台
+  var radii = [6, 4, 2.2];
+  var heights = [0.4, 0.35, 0.3];
+  var bases = [0, 0.4, 0.75];
+  for(var i=0;i<3;i++){
+    var tier = new THREE.Mesh(new THREE.CylinderGeometry(radii[i],radii[i],heights[i],32), M.marble);
+    tier.position.set(cx, bases[i]+heights[i]/2, cz);
+    g.add(tier);
+    // 栏杆
+    var rails = i===0?24:(i===1?16:10);
+    for(var r=0;r<rails;r++){
+      var a = r*Math.PI*2/rails;
+      var rr = radii[i]-0.2;
+      var pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.5,6), M.marble);
+      pillar.position.set(cx+Math.cos(a)*rr, bases[i]+heights[i]+0.25, cz+Math.sin(a)*rr);
+      g.add(pillar);
+    }
+  }
+
+  // 中心圆亭（6柱+攒尖顶）
+  for(var i=0;i<6;i++){
+    var a = i*Math.PI*2/6;
+    var px = cx+Math.cos(a)*1.5, pz = cz+Math.sin(a)*1.5;
+    var col = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,2.5,8), M.pillar);
+    col.position.set(px, 1.4+1.25, pz);
+    g.add(col);
+  }
+  // 攒尖顶
+  var roof = new THREE.Mesh(new THREE.ConeGeometry(2,1.5,16), M.roofY);
+  roof.position.set(cx, 3.9+0.75, cz);
+  g.add(roof);
+  // 宝顶
+  var finial = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), M.gold);
+  finial.position.set(cx, 5.6, cz);
+  g.add(finial);
+
+  // 牡丹花圃（粉色球体）
+  var flowerMats = [M.peonyPink, M.plumPink];
+  for(var i=0;i<12;i++){
+    var a = i*Math.PI*2/12;
+    var fx = cx+Math.cos(a)*5, fz = cz+Math.sin(a)*5;
+    var flower = new THREE.Mesh(new THREE.SphereGeometry(0.25,8,8), flowerMats[i%2]);
+    flower.position.set(fx, 0.8, fz);
+    g.add(flower);
+  }
+
+  // 水面
+  var waterMesh = new THREE.Mesh(new THREE.PlaneGeometry(20,16), M.water);
+  waterMesh.rotation.x = -Math.PI/2;
+  waterMesh.position.set(cx+3, -0.05, cz-3);
+  g.add(waterMesh);
+
+  scene.add(g);
+}
+
+// ==================== 碧桐书院 3D ====================
+function buildBitongScene(){
+  var g = new THREE.Group();
+  var cx = 40, cz = -20;
+
+  // 台基
+  var base = new THREE.Mesh(new THREE.BoxGeometry(9,0.5,6), M.marble);
+  base.position.set(cx, 0.25, cz);
+  g.add(base);
+
+  // 柱网 5×3
+  for(var col=0;col<5;col++){
+    for(var row=0;row<3;row++){
+      var px = cx+(col-2)*1.8, pz = cz+(row-1)*1.8;
+      var pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,2.8,8), M.pillar);
+      pillar.position.set(px, 0.5+1.4, pz);
+      g.add(pillar);
+    }
+  }
+
+  // 墙壁（三面）
+  var wallMat = M.wall;
+  // 后墙
+  var bw = new THREE.Mesh(new THREE.BoxGeometry(8,2.5,0.15), wallMat);
+  bw.position.set(cx, 1.75, cz-2.5);
+  g.add(bw);
+  // 左右墙
+  for(var side=-1;side<=1;side+=2){
+    var sw = new THREE.Mesh(new THREE.BoxGeometry(0.15,2.5,5), wallMat);
+    sw.position.set(cx+side*4, 1.75, cz);
+    g.add(sw);
+  }
+
+  // 歇山顶
+  var roof = new THREE.Mesh(new THREE.BoxGeometry(10,0.3,7), M.roofGray);
+  roof.position.set(cx, 3.3+0.15, cz);
+  g.add(roof);
+  var roofTop = new THREE.Mesh(new THREE.ConeGeometry(5,1,4), M.roofGray);
+  roofTop.position.set(cx, 3.6+0.5, cz);
+  roofTop.rotation.y = Math.PI/4;
+  g.add(roofTop);
+
+  // 碧桐树（两棵）
+  for(var tx=-1.5;tx<=1.5;tx+=3){
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.15,3.5,8), M.wood);
+    trunk.position.set(cx+tx, 0.5+1.75, cz);
+    g.add(trunk);
+    var crown = new THREE.Mesh(new THREE.SphereGeometry(1.8,10,10), M.pineLight);
+    crown.position.set(cx+tx, 0.5+3.5+1.2, cz);
+    crown.scale.y = 0.7;
+    g.add(crown);
+  }
+
+  // 假山水池
+  var pool = new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.15,16), M.marble);
+  pool.position.set(cx, 0.05, cz+4);
+  g.add(pool);
+  var poolW = new THREE.Mesh(new THREE.CircleGeometry(1.1,16), M.water);
+  poolW.rotation.x = -Math.PI/2;
+  poolW.position.set(cx, 0.15, cz+4);
+  g.add(poolW);
+  // 假山石
+  var rockMats = [[0.3,0.3],[-0.2,0.4],[0.1,-0.15]];
+  rockMats.forEach(function(p){
+    var s = new THREE.Mesh(new THREE.IcosahedronGeometry(0.25,1), M.rock);
+    s.position.set(cx+p[0], 0.35, cz+4+p[1]);
+    g.add(s);
+  });
+
+  scene.add(g);
+}
+
+// ==================== 海晏堂 3D ====================
+function buildHaiyanScene(){
+  var g = new THREE.Group();
+  var cx = 60, cz = 15;
+
+  // 前殿
+  var fb = new THREE.Mesh(new THREE.BoxGeometry(8,0.6,4), M.marble);
+  fb.position.set(cx, 0.3, cz-4);
+  g.add(fb);
+  for(var col=0;col<5;col++){
+    for(var row=0;row<2;row++){
+      var px = cx+(col-2)*1.8, pz = cz-4+(row-0.5)*2.5;
+      var p = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,3,8), M.wall);
+      p.position.set(px, 0.6+1.5, pz);
+      g.add(p);
+    }
+  }
+  var fr = new THREE.Mesh(new THREE.BoxGeometry(9,0.3,5), M.roofGray);
+  fr.position.set(cx, 3.6+0.15, cz-4);
+  g.add(fr);
+
+  // 后殿
+  var bb = new THREE.Mesh(new THREE.BoxGeometry(8,0.6,4), M.marble);
+  bb.position.set(cx, 0.3, cz+4);
+  g.add(bb);
+  for(var col=0;col<5;col++){
+    for(var row=0;row<2;row++){
+      var px = cx+(col-2)*1.8, pz = cz+4+(row-0.5)*2.5;
+      var p = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,3,8), M.wall);
+      p.position.set(px, 0.6+1.5, pz);
+      g.add(p);
+    }
+  }
+  var br = new THREE.Mesh(new THREE.BoxGeometry(9,0.3,5), M.roofGray);
+  br.position.set(cx, 3.6+0.15, cz+4);
+  g.add(br);
+
+  // 连廊
+  var corridor = new THREE.Mesh(new THREE.BoxGeometry(3,0.4,6), M.marble);
+  corridor.position.set(cx, 0.2, cz);
+  g.add(corridor);
+
+  // 喷泉池
+  var outerPool = new THREE.Mesh(new THREE.CylinderGeometry(5,5,0.3,24), M.marble);
+  outerPool.position.set(cx, 0.15, cz);
+  g.add(outerPool);
+  var waterSurf = new THREE.Mesh(new THREE.CircleGeometry(4.8,24), M.water);
+  waterSurf.rotation.x = -Math.PI/2;
+  waterSurf.position.set(cx, 0.3, cz);
+  g.add(waterSurf);
+
+  // 十二生肖铜首（12个铜柱+球头）
+  for(var i=0;i<12;i++){
+    var a = i*Math.PI*2/12;
+    var zx = cx+Math.cos(a)*4.2, zz = cz+Math.sin(a)*4.2;
+    var body = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,1.2,8), M.bronze);
+    body.position.set(zx, 0.3+0.6, zz);
+    g.add(body);
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), M.bronze);
+    head.position.set(zx, 0.3+1.4, zz);
+    g.add(head);
+    var base = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.25,0.15,8), M.marble);
+    base.position.set(zx, 0.075, zz);
+    g.add(base);
+  }
+
+  // 中央石屏
+  var screen = new THREE.Mesh(new THREE.BoxGeometry(1.5,2,0.3), M.wall);
+  screen.position.set(cx, 1.3, cz);
+  g.add(screen);
+
+  scene.add(g);
+}
+
+// ==================== 文源阁 3D ====================
+function buildWenyingeScene(){
+  var g = new THREE.Group();
+  var cx = -60, cz = -15;
+
+  // 台基
+  var base = new THREE.Mesh(new THREE.BoxGeometry(7,0.5,5), M.marble);
+  base.position.set(cx, 0.25, cz);
+  g.add(base);
+
+  // 第一层柱
+  for(var col=0;col<4;col++){
+    for(var row=0;row<3;row++){
+      var px = cx+(col-1.5)*1.8, pz = cz+(row-1)*1.8;
+      var p = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,2.5,8), M.pillar);
+      p.position.set(px, 0.5+1.25, pz);
+      g.add(p);
+    }
+  }
+  // 第一层墙壁
+  for(var side=-1;side<=1;side+=2){
+    var w = new THREE.Mesh(new THREE.BoxGeometry(0.12,2.5,4), M.wall);
+    w.position.set(cx+side*3, 1.75, cz);
+    g.add(w);
+  }
+  var backW = new THREE.Mesh(new THREE.BoxGeometry(6,2.5,0.12), M.wall);
+  backW.position.set(cx, 1.75, cz-2);
+  g.add(backW);
+
+  // 第一层屋顶
+  var r1 = new THREE.Mesh(new THREE.BoxGeometry(6.5,0.3,4.5), M.roofDark);
+  r1.position.set(cx, 3+0.15, cz);
+  g.add(r1);
+  var r1top = new THREE.Mesh(new THREE.ConeGeometry(4,0.8,4), M.roofDark);
+  r1top.position.set(cx, 3.3+0.4, cz);
+  r1top.rotation.y = Math.PI/4;
+  g.add(r1top);
+
+  // 第二层
+  var b2 = new THREE.Mesh(new THREE.BoxGeometry(5.5,0.3,3.5), M.wall);
+  b2.position.set(cx, 3.8+0.15, cz);
+  g.add(b2);
+  for(var col=0;col<3;col++){
+    for(var row=0;row<2;row++){
+      var px = cx+(col-1)*1.6, pz = cz+(row-0.5)*1.5;
+      var p = new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,2,8), M.pillar);
+      p.position.set(px, 4.1+1, pz);
+      g.add(p);
+    }
+  }
+  // 第二层屋顶
+  var r2 = new THREE.Mesh(new THREE.BoxGeometry(6,0.3,4), M.roofDark);
+  r2.position.set(cx, 6.1+0.15, cz);
+  g.add(r2);
+  var r2top = new THREE.Mesh(new THREE.ConeGeometry(3.5,0.7,4), M.roofDark);
+  r2top.position.set(cx, 6.25+0.35, cz);
+  r2top.rotation.y = Math.PI/4;
+  g.add(r2top);
+
+  // 方池（天一生水）
+  var pool = new THREE.Mesh(new THREE.BoxGeometry(3,0.15,3), M.marble);
+  pool.position.set(cx, 0.05, cz+4);
+  pool.rotation.y = Math.PI/4;
+  g.add(pool);
+  var poolW = new THREE.Mesh(new THREE.PlaneGeometry(2.8,2.8), M.water);
+  poolW.rotation.x = -Math.PI/2;
+  poolW.position.set(cx, 0.15, cz+4);
+  g.add(poolW);
+
+  // 前方假山
+  [[-0.8,5,0.4],[0.5,5.5,0.3],[0,4.5,0.25]].forEach(function(p){
+    var s = new THREE.Mesh(new THREE.IcosahedronGeometry(p[2],1), M.rock);
+    s.position.set(cx+p[0], p[2]*0.5, cz+p[1]);
+    g.add(s);
+  });
+
+  scene.add(g);
+}
+
 // ==================== UI交互 ====================
 function setupUI(){
   document.querySelectorAll('.scene-btn').forEach(function(btn){
@@ -4069,10 +4390,10 @@ window.addEventListener('resize', function(){
 });
 
 // ==================== 键盘快捷键 ====================
-var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa'];
+var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa','louyue','bitong','haiyan','wenyinge'];
 document.addEventListener('keydown', function(e){
   var num = parseInt(e.key);
-  if(num >= 1 && num <= 5){
+  if(num >= 1 && num <= 9){
     var btn = document.querySelector('.scene-btn[data-scene="'+sceneKeys[num-1]+'"]');
     if(btn) btn.click();
   }
