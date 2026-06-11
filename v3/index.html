@@ -91,8 +91,8 @@ canvas{display:block}
 .loading.hide{opacity:0;pointer-events:none}
 
 /* 魔盒3D容器 */
-.magic-box{position:absolute;top:0;left:0;right:0;bottom:0;perspective:900px;transform-style:preserve-3d}
-.box-lid{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;backface-visibility:hidden;transition:transform 1.8s cubic-bezier(0.25,0.46,0.45,0.94)}
+.magic-box{position:absolute;top:0;left:0;right:0;bottom:0;perspective:900px;transform-style:preserve-3d;z-index:1}
+.box-lid{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;backface-visibility:hidden;transition:transform 1.8s cubic-bezier(0.25,0.46,0.45,0.94);z-index:1}
 .box-lid-left{left:0;transform-origin:left center;background:linear-gradient(135deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-right:none}
 .box-lid-right{right:0;transform-origin:right center;background:linear-gradient(225deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-left:none}
 .box-lid-left.open{transform:rotateY(-78deg)}
@@ -128,13 +128,13 @@ canvas{display:block}
 .garden-buildings{height:55%;background:linear-gradient(180deg,transparent 0%,rgba(145,92,46,0.15) 60%,rgba(145,92,46,0.25) 100%);clip-path:polygon(15% 100%,18% 50%,22% 55%,25% 45%,30% 50%,35% 30%,40% 35%,45% 25%,50% 30%,55% 20%,60% 25%,65% 30%,70% 35%,75% 28%,80% 35%,82% 50%,85% 100%)}
 
 /* 加载文字+进度 */
-.loading-text{position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);text-align:center;z-index:20}
+.loading-text{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);text-align:center;z-index:1001}
 .loading-text h1{font-size:28px;margin-bottom:8px;font-family:'Ma Shan Zheng','Noto Serif SC',serif;letter-spacing:6px;color:#c8b070;font-weight:400;white-space:nowrap}
 .loading-text p{color:#8a7a68;font-size:13px;letter-spacing:2px;margin-bottom:12px}
 .loading-bar{width:180px;height:2px;background:rgba(145,92,46,0.15);border-radius:2px;margin:0 auto;overflow:hidden}
 .loading-bar span{display:block;height:100%;background:linear-gradient(90deg,#915C2E,#c8b070);width:0;transition:width 0.4s ease;border-radius:2px}
 .loading-status{color:#6a5a48;font-size:11px;margin-top:8px;font-family:'Noto Serif SC',serif}
-.loading-version{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#3a3020;font-size:10px;z-index:20}
+.loading-version{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:#3a3020;font-size:10px;z-index:1001}
 
 /* 侧边栏入场动画 */
 .stats.drop-in{animation:sidebarDropLeft 0.8s cubic-bezier(0.25,0.46,0.45,0.94) forwards}
