@@ -91,10 +91,10 @@ canvas{display:block}
 .loading.hide{opacity:0;pointer-events:none}
 
 /* 魔盒3D容器 */
-.magic-box{position:relative;width:340px;height:260px;perspective:900px;transform-style:preserve-3d}
+.magic-box{position:absolute;top:0;left:0;right:0;bottom:0;perspective:900px;transform-style:preserve-3d}
 .box-lid{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;backface-visibility:hidden;transition:transform 1.8s cubic-bezier(0.25,0.46,0.45,0.94)}
-.box-lid-left{left:0;transform-origin:left center;background:linear-gradient(135deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-right:none;border-radius:4px 0 0 4px}
-.box-lid-right{right:0;transform-origin:right center;background:linear-gradient(225deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-left:none;border-radius:0 4px 4px 0}
+.box-lid-left{left:0;transform-origin:left center;background:linear-gradient(135deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-right:none}
+.box-lid-right{right:0;transform-origin:right center;background:linear-gradient(225deg,#1a1510 0%,#0f0d0a 50%,#1a1510 100%);border:1px solid rgba(145,92,46,0.2);border-left:none}
 .box-lid-left.open{transform:rotateY(-78deg)}
 .box-lid-right.open{transform:rotateY(78deg)}
 
@@ -105,7 +105,7 @@ canvas{display:block}
 .box-lid-right::before{left:-10px}
 
 /* 盒心区域 */
-.box-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:visible}
+.box-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:visible;z-index:6}
 
 /* LOGO圆形锚点 */
 .logo-circle{width:80px;height:80px;position:relative;z-index:10;display:flex;align-items:center;justify-content:center;animation:logoRotate 3.5s cubic-bezier(0.4,0,0.2,1) forwards,logoBreathe 2s ease-in-out infinite}
@@ -260,10 +260,13 @@ canvas{display:block}
     <button class="scene-btn" data-scene="jiuzhou"><h4>九州清晏</h4></button>
     <button class="scene-btn" data-scene="zhengda"><h4>正大光明</h4></button>
     <button class="scene-btn" data-scene="dashuifa"><h4>大水法</h4></button>
+<<<<<<< HEAD
     <button class="scene-btn" data-scene="louyue"><h4>镂月开云</h4></button>
     <button class="scene-btn" data-scene="bitong"><h4>碧桐书院</h4></button>
     <button class="scene-btn" data-scene="haiyan"><h4>海晏堂</h4></button>
     <button class="scene-btn" data-scene="wenyinge"><h4>文源阁</h4></button>
+=======
+>>>>>>> origin/main
   </div>
 
   <div class="detail" id="detail">
@@ -627,11 +630,15 @@ var SCENE_ANGLES = {
   fangpu:  -Math.PI/3,       // 300° 东南（方壶胜境，可看到九州+水法）
   jiuzhou: -Math.PI/2,       // 270° 正南（九州清晏中心）
   zhengda: -2*Math.PI/3,     // 240° 西南（正大光明，可看到九州+水法）
+<<<<<<< HEAD
   dashuifa: Math.PI/2,       // 90°  正北（大水法）
   louyue:  2*Math.PI/3,      // 120° 西北（镂月开云，牡丹台）
   bitong:  Math.PI/5,        // 36°  东偏北（碧桐书院）
   haiyan:  Math.PI/6,        // 30°  东（海晏堂，十二生肖）
   wenyinge:-Math.PI*0.75     // 135° 西南偏南（文源阁）
+=======
+  dashuifa: Math.PI/2        // 90°  正北（大水法）
+>>>>>>> origin/main
 };
 
 // ==================== 初始化 ====================
@@ -4390,7 +4397,11 @@ window.addEventListener('resize', function(){
 });
 
 // ==================== 键盘快捷键 ====================
+<<<<<<< HEAD
 var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa','louyue','bitong','haiyan','wenyinge'];
+=======
+var sceneKeys = ['overview','fangpu','jiuzhou','zhengda','dashuifa'];
+>>>>>>> origin/main
 document.addEventListener('keydown', function(e){
   var num = parseInt(e.key);
   if(num >= 1 && num <= 9){
