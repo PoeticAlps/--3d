@@ -6,12 +6,17 @@
 <title>重生·圆明园 | AI数字文化遗产3D重建</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Liu+Jian+Mao+Cao&family=Long+Cang&display=swap" rel="stylesheet">
 <style>
+:root{
+  /* z-index 系统 */
+  --z-canvas:0;--z-ui:100;--z-controls:110;--z-detail:120;--z-header:130;--z-modal:200;--z-loading:1000;
+}
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{font-family:'Noto Serif SC','ZCOOL XiaoWei',serif;background:#0a0a1a;overflow:hidden;color:#fff}
 canvas{display:block}
-#ui{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:100}
+#ui{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:var(--z-ui)}
 #ui>*{pointer-events:auto}
-.header{position:absolute;top:0;left:0;right:0;padding:14px 24px;background:linear-gradient(180deg,rgba(10,10,26,0.92) 0%,rgba(10,10,26,0.6) 60%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(232,168,0,0.15)}
+.header{position:absolute;top:0;left:0;right:0;padding:0.875rem 1.5rem;background:linear-gradient(180deg,rgba(10,10,26,0.92) 0%,rgba(10,10,26,0.6) 60%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(232,168,0,0.15)}
 .header h1,.header .slogan{font-size:18px;font-weight:700;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;display:inline-block;overflow:hidden;white-space:nowrap;border-right:none;animation:none;color:#cc2222;letter-spacing:2px;text-shadow:0 0 8px rgba(200,30,30,0.3)}
 .header h1 em{color:#E8A800;font-style:normal}
 @keyframes typewriter{from{max-width:0}to{max-width:200px}}
@@ -22,14 +27,14 @@ canvas{display:block}
 .fullscreen-btn{width:30px;height:30px;background:rgba(232,168,0,0.06);border:1px solid rgba(232,168,0,0.15);border-radius:8px;color:#ffd700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease}
 .fullscreen-btn:hover{background:rgba(232,168,0,0.15);border-color:rgba(232,168,0,0.3);transform:scale(1.08);box-shadow:0 0 12px rgba(232,168,0,0.2)}
 .fullscreen-btn:active{transform:scale(0.95)}
-.sidebar{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(232,168,0,0.25);padding:8px 16px;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
+.sidebar{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(232,168,0,0.25);padding:0.5rem 1rem;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
 .sidebar.collapsed{padding:6px 10px}
 .sidebar.collapsed .sidebar-title{display:none}
 .sidebar.collapsed .scene-btn span{display:none}
 .sidebar.collapsed .scene-btn h4{display:none}
 .sidebar.collapsed .scene-btn{padding:6px 8px;justify-content:center}
 .sidebar.collapsed .scene-btn .btn-icon{margin:0}
-.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(232,168,0,0.08);border:1px solid rgba(232,168,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:2}
+.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(232,168,0,0.08);border:1px solid rgba(232,168,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:calc(var(--z-ui) - 98)}
 .sidebar-toggle:hover{background:rgba(232,168,0,0.2)}
 .sidebar h3,.sidebar .sidebar-title{display:none}
 .scene-btn{padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid transparent;border-bottom:2px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:#fff;font-size:12px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
@@ -43,7 +48,7 @@ canvas{display:block}
 .btn-icon{width:22px;height:22px;border-radius:4px;background:rgba(232,168,0,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
 .scene-btn:hover .btn-icon{background:rgba(232,168,0,0.18)}
 .scene-btn.active .btn-icon{background:rgba(232,168,0,0.25)}
-.detail{position:absolute;top:65px;right:14px;transform:translateX(20px);width:280px;max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:16px;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+.detail{position:absolute;top:65px;right:14px;transform:translateX(20px);width:min(280px,40vw);max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:1rem;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
 .detail.show{opacity:1;transform:translateX(0);pointer-events:auto}
 .detail .close{position:absolute;top:10px;right:10px;width:26px;height:26px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:#aaa;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
 .detail .close:hover{background:rgba(255,255,255,0.2);color:#fff}
@@ -53,8 +58,10 @@ canvas{display:block}
 .detail .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
 .detail .tag{font-size:10px;padding:3px 8px;background:rgba(232,168,0,0.1);border:1px solid rgba(232,168,0,0.2);border-radius:10px;color:#E8A800;font-family:'Noto Serif SC',serif;cursor:default;transition:all 0.2s}
 .detail .tag:hover{background:rgba(232,168,0,0.2)}
-.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.15);padding:14px 16px 12px;width:210px;transition:all 0.3s;cursor:default}
+.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.15);padding:0.875rem 1rem 0.75rem;width:clamp(180px,22vw,220px);transition:all 0.3s;cursor:default}
 .stats-title{font-size:16px;font-weight:700;font-family:'Noto Serif SC','STSong','SimSun',serif;color:#E8A800;text-align:center;margin:0 0 14px;letter-spacing:2px}
+.stats-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.stats-toggle{font-size:10px;color:#999;transition:transform 0.3s}
 
 /* ========== 流光线（双层结构） ========== */
 /* 底层：静态基线，常驻 */
@@ -93,23 +100,24 @@ canvas{display:block}
 .stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#8B6E3E 0%,#B89F7A 60%,rgba(255,215,0,0.4) 100%);border-radius:1px;transition:width 0.3s ease;width:0}
 .footer{position:absolute;bottom:16px;left:14px;font-size:10px;color:#777}
 .logo-btn{cursor:pointer;transition:transform 0.2s}
+.logo-btn img,.logo-header{height:36px;width:36px;border-radius:50%;border:1px solid rgba(200,30,30,0.4)}
 .logo-btn:hover{transform:scale(1.1)}
-.logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;cursor:pointer}
+.logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:var(--z-modal);display:none;align-items:center;justify-content:center;cursor:pointer}
 .logo-modal.show{display:flex}
 .logo-modal img{max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 0 60px rgba(212,168,75,0.3);border:2px solid rgba(255,215,0,0.3)}
 .logo-modal .hint{position:absolute;bottom:30px;color:#888;font-size:12px}
-.controls{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:101;padding:4px 14px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:11px;color:#999;display:flex;align-items:center;gap:12px}
+.controls{position:absolute;bottom:12px;left:14px;z-index:var(--z-controls);padding:4px 14px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:11px;color:#999;display:flex;align-items:center;gap:12px}
 .controls svg{width:14px;height:14px;fill:none;stroke:#999;stroke-width:1.5}
 /* ========== 潘多拉魔盒加载动画 ========== */
-.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,#0f0f2a 0%,#0a0a1a 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.8s ease, transform 0.8s ease;perspective:1000px}
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,#0f0f2a 0%,#0a0a1a 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:var(--z-loading);transition:opacity 0.8s ease, transform 0.8s ease;perspective:1000px}
 .loading.hide{opacity:0;transform:scale(1.1);pointer-events:none}
 #particleCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
 
 /* 潘多拉魔盒容器 */
-.pandora-scene{position:relative;width:220px;height:240px;perspective:900px;z-index:1}
+.pandora-scene{position:relative;width:13.75rem;height:15rem;perspective:900px;z-index:1}
 
 /* 盒身 */
-.pandora-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:160px;height:100px;
+.pandora-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:10rem;height:6.25rem;
   background:linear-gradient(180deg,#C9A028 0%,#8B6914 40%,#6B4F10 100%);
   border:2px solid #DAA520;border-radius:4px 4px 8px 8px;
   box-shadow:0 8px 40px rgba(218,165,32,0.25),0 0 60px rgba(218,165,32,0.1),inset 0 2px 20px rgba(0,0,0,0.4);
@@ -122,7 +130,7 @@ canvas{display:block}
   box-shadow:0 0 20px rgba(255,215,0,0.8)}
 
 /* 盒盖 - 向外打开（向后翻转） */
-.pandora-lid{position:absolute;bottom:100px;left:50%;width:172px;height:24px;
+.pandora-lid{position:absolute;bottom:6.25rem;left:50%;width:10.75rem;height:1.5rem;
   background:linear-gradient(180deg,#DAA520 0%,#B8860B 50%,#8B6914 100%);
   border:2px solid #DAA520;border-radius:8px 8px 2px 2px;
   transform-origin:50% 100%;transform:translateX(-50%) rotateX(0deg);
@@ -182,7 +190,7 @@ canvas{display:block}
 
 @keyframes contentReveal{from{opacity:0;transform:translateY(15px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-.loading .bar{width:220px;height:3px;background:rgba(255,215,0,0.08);border-radius:3px;margin-top:14px;overflow:hidden;position:relative;opacity:0;animation:contentReveal 0.6s ease 3s forwards}
+.loading .bar{width:clamp(180px,22vw,220px);height:3px;background:rgba(255,215,0,0.08);border-radius:3px;margin-top:0.875rem;overflow:hidden;position:relative;opacity:0;animation:contentReveal 0.6s ease 3s forwards}
 .loading .bar span{display:block;height:100%;background:linear-gradient(90deg,#E8A800,#FFB800);width:0;transition:width 0.3s ease;border-radius:3px;box-shadow:0 0 12px rgba(232,168,0,0.5),0 0 24px rgba(232,168,0,0.25)}
 .loading .bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent);animation:barPulse 1.5s ease-in-out infinite}
 @keyframes barPulse{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
@@ -281,7 +289,7 @@ canvas{display:block}
 <div id="ui">
   <div class="header">
     <div class="header-left">
-      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')" style="height:36px;width:36px;border-radius:50%;border:1px solid rgba(200,30,30,0.4)"/>
+      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')"/>
       <h1 class="slogan">铭记历史 勿忘国耻 振兴中华 文传撄锋</h1>
     </div>
     <div class="header-right">
@@ -298,9 +306,9 @@ canvas{display:block}
   </div>
 
   <div class="stats" id="statsPanel" aria-label="景区数据面板" role="region">
-    <div class="stats-header" onclick="toggleStats()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+    <div class="stats-header" onclick="toggleStats()">
       <span class="stats-title">数字复原项目</span>
-      <span class="stats-toggle" style="font-size:10px;color:#999;transition:transform 0.3s">▼</span>
+      <span class="stats-toggle">▼</span>
     </div>
     <div class="stats-line" id="statsLine"></div>
     <div class="stats-body">
@@ -347,9 +355,9 @@ canvas{display:block}
     </div>
     <div class="detail-divider"></div>
     <div class="detail-timeline" id="d-timeline">
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
-      <div class="timeline-item" style="position:relative"><div class="timeline-dot"></div><div class="timeline-year">2026</div><div class="timeline-event">AI数字重建，重现辉煌</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-year">1707</div><div class="timeline-event">始建，康熙帝赐名"圆明园"</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-year">1860</div><div class="timeline-event">英法联军焚毁，万园成灰</div></div>
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-year">2026</div><div class="timeline-event">AI数字重建，重现辉煌</div></div>
     </div>
   </div>
 
@@ -2646,7 +2654,7 @@ function setupUI(){
         var timelineEl = document.getElementById('d-timeline');
         if(data.timeline){
           timelineEl.innerHTML = data.timeline.map(function(item, i){
-            return '<div class="timeline-item" style="position:relative;animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
+            return '<div class="timeline-item" style="animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
           }).join('');
           timelineEl.style.display = 'block';
         } else {
@@ -2701,6 +2709,15 @@ function setupUI(){
 
   document.getElementById('detail-close').addEventListener('click', function(){
     document.getElementById('detail').classList.remove('show');
+  });
+
+  // 点击详情面板外部关闭
+  document.addEventListener('click', function(e){
+    var dl = document.getElementById('detail');
+    if(!dl.classList.contains('show')) return;
+    if(dl.contains(e.target)) return;
+    if(e.target.closest('.scene-btn') || e.target.closest('.stats-header')) return;
+    dl.classList.remove('show');
   });
 
   // Phase 4: 初始进度条动画（全景默认数据）
