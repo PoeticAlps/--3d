@@ -821,82 +821,243 @@ function buildTerrain(){
     r.castShadow = true;
     scene.add(r);
   });
-  // 树木（三色：绿/黄/红，带枝干+多层叶簇）
+  // ==================== 植被系统 ====================
+  // 12种树木类型，含松/柳/竹/银杏/枫/樟等
+  var M_trunk = new THREE.MeshStandardMaterial({color:0x3a2a1a,roughness:0.95});
+  var M_bark = new THREE.MeshStandardMaterial({color:0x4a3520,roughness:0.9});
+  var M_bamboo = new THREE.MeshStandardMaterial({color:0x5a8a3a,roughness:0.7,metalness:0.05});
+
   var treeTypes = [
-    {leaf:new THREE.MeshStandardMaterial({color:0x1a5a1a,roughness:0.9}), h:5, r:1.8, weight:20}, // 深绿松
-    {leaf:new THREE.MeshStandardMaterial({color:0x2a7a2a,roughness:0.9}), h:4.5, r:1.6, weight:12}, // 浅绿
-    {leaf:new THREE.MeshStandardMaterial({color:0x4a8a2a,roughness:0.9}), h:4, r:1.5, weight:8},   // 嫩绿
-    {leaf:new THREE.MeshStandardMaterial({color:0x8aaa2a,roughness:0.9}), h:4.5, r:1.7, weight:10}, // 黄绿柳
-    {leaf:new THREE.MeshStandardMaterial({color:0xc9a227,roughness:0.85}),h:5, r:1.9, weight:8},   // 金黄落叶松
-    {leaf:new THREE.MeshStandardMaterial({color:0xdaa520,roughness:0.85}),h:4, r:1.5, weight:6},   // 金黄
-    {leaf:new THREE.MeshStandardMaterial({color:0x8a3a1a,roughness:0.9}), h:4.5, r:2.0, weight:6}, // 红褐
-    {leaf:new THREE.MeshStandardMaterial({color:0xa04020,roughness:0.9}), h:4, r:1.8, weight:5},   // 红
+    // 松树类（锥形树冠，层叠枝叶）
+    {name:'pine', leaf:new THREE.MeshStandardMaterial({color:0x1a4a1a,roughness:0.9}), h:6, r:1.5, weight:15, crown:'cone'},
+    {name:'pine2',leaf:new THREE.MeshStandardMaterial({color:0x2a5a2a,roughness:0.9}), h:5, r:1.3, weight:10, crown:'cone'},
+    // 柳树（下垂枝条）
+    {name:'willow',leaf:new THREE.MeshStandardMaterial({color:0x5a9a3a,roughness:0.85}), h:5.5, r:2.2, weight:12, crown:'weeping'},
+    {name:'willow2',leaf:new THREE.MeshStandardMaterial({color:0x6aaa4a,roughness:0.85}), h:5, r:2.0, weight:8, crown:'weeping'},
+    // 阔叶树（球形多层叶簇）
+    {name:'oak',  leaf:new THREE.MeshStandardMaterial({color:0x2a6a2a,roughness:0.9}), h:5, r:2.0, weight:12, crown:'round'},
+    {name:'oak2', leaf:new THREE.MeshStandardMaterial({color:0x3a7a3a,roughness:0.9}), h:4.5, r:1.8, weight:8, crown:'round'},
+    // 银杏（扇形金黄）
+    {name:'ginkgo',leaf:new THREE.MeshStandardMaterial({color:0xc9a227,roughness:0.85}), h:5.5, r:2.2, weight:8, crown:'round'},
+    // 枫树（红/橙秋色）
+    {name:'maple', leaf:new THREE.MeshStandardMaterial({color:0xc04020,roughness:0.85}), h:5, r:1.8, weight:7, crown:'round'},
+    {name:'maple2',leaf:new THREE.MeshStandardMaterial({color:0xe06030,roughness:0.85}), h:4.5, r:1.6, weight:5, crown:'round'},
+    // 樟树（常绿大冠）
+    {name:'camphor',leaf:new THREE.MeshStandardMaterial({color:0x2a5a2a,roughness:0.9}), h:6, r:2.5, weight:8, crown:'dome'},
+    // 竹子（细高，簇生）
+    {name:'bamboo',leaf:M_bamboo, h:7, r:0.8, weight:5, crown:'bamboo'},
+    // 灌木（低矮）
+    {name:'shrub',leaf:new THREE.MeshStandardMaterial({color:0x3a6a2a,roughness:0.9}), h:1.5, r:1.2, weight:4, crown:'shrub'},
   ];
   var totalWeight = 0;
   treeTypes.forEach(function(t){ totalWeight += t.weight; });
   function pickTreeType(){
-    var r = Math.random() * totalWeight, acc = 0;
-    for(var i=0; i<treeTypes.length; i++){ acc += treeTypes[i].weight; if(r<=acc) return treeTypes[i]; }
+    var r = Math.random()*totalWeight, acc = 0;
+    for(var i=0;i<treeTypes.length;i++){ acc+=treeTypes[i].weight; if(r<=acc) return treeTypes[i]; }
     return treeTypes[0];
   }
-  function buildTree(x, z, type){
-    var g = new THREE.Group();
-    g.position.set(x, 0, z);
-    var h = type.h * (0.7+Math.random()*0.6);
-    // 主干
-    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, h, 8), M.wood);
-    trunk.position.y = h/2;
+
+  // --- 松树：锥形层叠 ---
+  function buildPineTree(g, h, r, mat){
+    var layers = 4+Math.floor(Math.random()*2);
+    for(var i=0;i<layers;i++){
+      var ly = h*0.35 + i*h*0.16;
+      var lr = r*(1-i*0.2)*(0.8+Math.random()*0.4);
+      var lh = h*0.22;
+      var cone = new THREE.Mesh(new THREE.ConeGeometry(lr, lh, 7), mat);
+      cone.position.y = ly;
+      cone.castShadow = true;
+      g.add(cone);
+    }
+    // 树干（顶部略细）
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.2, h*0.65, 7), M_bark);
+    trunk.position.y = h*0.32;
     trunk.castShadow = true;
     g.add(trunk);
-    // 主分枝 4-6根
-    var numBranches = 4+Math.floor(Math.random()*3);
-    for(var i=0; i<numBranches; i++){
-      var angle = (i/numBranches)*Math.PI*2 + (Math.random()-0.5)*0.6;
-      var bLen = h*0.55;
-      var bStart = h*0.4 + Math.random()*h*0.15;
-      var branch = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.1, bLen, 6), M.wood);
-      branch.position.set(Math.cos(angle)*bLen*0.3, bStart+bLen*0.3, Math.sin(angle)*bLen*0.3);
-      branch.rotation.z = Math.cos(angle)*1.1;
-      branch.rotation.x = Math.sin(angle)*1.1;
-      g.add(branch);
-      // 小分枝 2-3根
-      for(var j=0; j<2+Math.floor(Math.random()*2); j++){
-        var sAngle = angle + (Math.random()-0.5)*0.8;
-        var sLen = bLen*0.4;
-        var sub = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, sLen, 5), M.wood);
-        var sx = Math.cos(angle)*bLen*0.5+Math.cos(sAngle)*sLen*0.3;
-        var sy = bStart+bLen*0.5+sLen*0.3;
-        var sz = Math.sin(angle)*bLen*0.5+Math.sin(sAngle)*sLen*0.3;
-        sub.position.set(sx, sy, sz);
-        sub.rotation.z = Math.cos(sAngle)*1.2;
-        sub.rotation.x = Math.sin(sAngle)*1.2;
-        g.add(sub);
+  }
+
+  // --- 柳树：垂枝效果 ---
+  function buildWillowTree(g, h, r, mat){
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.22, h*0.7, 8), M_bark);
+    trunk.position.y = h*0.35;
+    trunk.castShadow = true;
+    g.add(trunk);
+    // 主分枝向上展开
+    var numMain = 5+Math.floor(Math.random()*3);
+    for(var i=0;i<numMain;i++){
+      var ang = (i/numMain)*Math.PI*2 + (Math.random()-0.5)*0.5;
+      var bH = h*0.65 + Math.random()*h*0.15;
+      var mainBranch = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.08, h*0.4, 5), M_bark);
+      mainBranch.position.set(Math.cos(ang)*r*0.3, bH*0.7, Math.sin(ang)*r*0.3);
+      mainBranch.rotation.z = Math.cos(ang)*0.8;
+      mainBranch.rotation.x = Math.sin(ang)*0.8;
+      g.add(mainBranch);
+    }
+    // 垂枝（柳条效果）- 从树冠向四周下垂
+    var numDroop = 18+Math.floor(Math.random()*8);
+    for(var i=0;i<numDroop;i++){
+      var ang = Math.random()*Math.PI*2;
+      var dist = Math.random()*r*1.2;
+      var startX = Math.cos(ang)*dist*0.5;
+      var startZ = Math.sin(ang)*dist*0.5;
+      var startY = h*0.7+Math.random()*h*0.2;
+      // 每条柳枝由3-5节组成，逐渐下垂
+      var segments = 3+Math.floor(Math.random()*3);
+      var segLen = (0.8+Math.random()*0.6);
+      for(var s=0;s<segments;s++){
+        var t = s/segments;
+        var dropAngle = 0.2+t*1.3; // 越往下越陡
+        var sx = startX + Math.cos(ang)*segLen*0.3*s;
+        var sy = startY - t*h*0.5;
+        var sz = startZ + Math.sin(ang)*segLen*0.3*s;
+        var leaf = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.04, segLen, 4), mat);
+        leaf.position.set(sx, sy, sz);
+        leaf.rotation.z = Math.cos(ang)*dropAngle;
+        leaf.rotation.x = Math.sin(ang)*dropAngle;
+        g.add(leaf);
       }
     }
-    // 多层叶簇 3层
-    for(var layer=0; layer<3; layer++){
-      var layerZ = h*0.5 + layer*h*0.18;
-      var numLeaves = 5+Math.floor(Math.random()*4);
-      var spread = type.r*(0.9-layer*0.15);
-      for(var k=0; k<numLeaves; k++){
-        var lAngle = Math.random()*Math.PI*2;
-        var lDist = Math.random()*spread;
-        var lSize = 0.6+Math.random()*0.5 - layer*0.1;
-        var leaf = new THREE.Mesh(new THREE.SphereGeometry(lSize, 6, 6), type.leaf);
-        leaf.position.set(Math.cos(lAngle)*lDist, layerZ+Math.random()*0.4, Math.sin(lAngle)*lDist);
+    // 顶部叶簇
+    for(var i=0;i<6;i++){
+      var ang = Math.random()*Math.PI*2;
+      var d = Math.random()*r*0.5;
+      var lSize = 0.5+Math.random()*0.4;
+      var leaf = new THREE.Mesh(new THREE.SphereGeometry(lSize, 6, 5), mat);
+      leaf.position.set(Math.cos(ang)*d, h*0.75+Math.random()*0.5, Math.sin(ang)*d);
+      leaf.castShadow = true;
+      g.add(leaf);
+    }
+  }
+
+  // --- 竹子：细高簇生 ---
+  function buildBambooCluster(g, x, z, count){
+    for(var b=0;b<count;b++){
+      var bx = x+(Math.random()-0.5)*2;
+      var bz = z+(Math.random()-0.5)*2;
+      var h = 5+Math.random()*3;
+      // 竹竿
+      var stem = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, h, 6), M_bamboo);
+      stem.position.set(bx, h/2, bz);
+      stem.castShadow = true;
+      g.add(stem);
+      // 竹节
+      for(var j=0;j<Math.floor(h/0.8);j++){
+        var节 = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 6), M_bamboo);
+        节.position.set(bx, 0.8+j*0.8, bz);
+        g.add(节);
+      }
+      // 竹叶（顶部簇生）
+      var leafMat = new THREE.MeshStandardMaterial({color:0x4a8a3a,roughness:0.8});
+      for(var l=0;l<8;l++){
+        var ang = Math.random()*Math.PI*2;
+        var leafLen = 0.6+Math.random()*0.5;
+        var leaf = new THREE.Mesh(new THREE.ConeGeometry(0.08, leafLen, 4), leafMat);
+        leaf.position.set(bx+Math.cos(ang)*0.3, h-0.5+Math.random()*0.5, bz+Math.sin(ang)*0.3);
+        leaf.rotation.z = Math.cos(ang)*1.2;
+        leaf.rotation.x = Math.sin(ang)*1.2;
+        g.add(leaf);
+      }
+    }
+  }
+
+  // --- 阔叶树：球形多层 ---
+  function buildDeciduous(g, h, r, mat, crownShape){
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.2, h*0.6, 8), M_bark);
+    trunk.position.y = h*0.3;
+    trunk.castShadow = true;
+    g.add(trunk);
+    // 主分枝
+    var numB = 4+Math.floor(Math.random()*3);
+    for(var i=0;i<numB;i++){
+      var ang = (i/numB)*Math.PI*2+(Math.random()-0.5)*0.6;
+      var bLen = h*0.4;
+      var bStart = h*0.4+Math.random()*h*0.1;
+      var branch = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.08, bLen, 5), M_bark);
+      branch.position.set(Math.cos(ang)*bLen*0.3, bStart+bLen*0.3, Math.sin(ang)*bLen*0.3);
+      branch.rotation.z = Math.cos(ang)*1.0;
+      branch.rotation.x = Math.sin(ang)*1.0;
+      g.add(branch);
+    }
+    // 叶簇层
+    var layers = crownShape==='dome'? 3 : 4;
+    for(var layer=0;layer<layers;layer++){
+      var layerY = h*0.55+layer*h*0.13;
+      var nLeaves = 5+Math.floor(Math.random()*4);
+      var spread = r*(1-layer*0.18);
+      for(var k=0;k<nLeaves;k++){
+        var ang = Math.random()*Math.PI*2;
+        var dist = Math.random()*spread;
+        var sz = (0.5+Math.random()*0.5)*(1-layer*0.1);
+        // 圆顶形：上层小；普通形：均匀
+        if(crownShape==='dome') sz *= (1-layer*0.2);
+        var geo = crownShape==='dome' ? new THREE.SphereGeometry(sz,6,5) : new THREE.DodecahedronGeometry(sz,0);
+        var leaf = new THREE.Mesh(geo, mat);
+        leaf.position.set(Math.cos(ang)*dist, layerY+Math.random()*0.3, Math.sin(ang)*dist);
+        leaf.rotation.set(Math.random()*0.3, Math.random()*0.3, Math.random()*0.3);
         leaf.castShadow = true;
         g.add(leaf);
       }
     }
+  }
+
+  // --- 灌木：低矮球形 ---
+  function buildShrub(g, h, r, mat){
+    var numBalls = 3+Math.floor(Math.random()*3);
+    for(var i=0;i<numBalls;i++){
+      var ang = Math.random()*Math.PI*2;
+      var d = Math.random()*r*0.6;
+      var sz = 0.4+Math.random()*0.4;
+      var ball = new THREE.Mesh(new THREE.SphereGeometry(sz,6,5), mat);
+      ball.position.set(Math.cos(ang)*d, h*0.4+Math.random()*0.3, Math.sin(ang)*d);
+      ball.castShadow = true;
+      g.add(ball);
+    }
+    // 小树干
+    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.08, h, 5), M_bark);
+    trunk.position.y = h/2;
+    g.add(trunk);
+  }
+
+  // --- 统一入口 ---
+  function buildTree(x, z, type){
+    var g = new THREE.Group();
+    g.position.set(x, 0, z);
+    var h = type.h*(0.7+Math.random()*0.6);
+    var r = type.r*(0.8+Math.random()*0.4);
+    if(type.crown==='pine'||type.crown==='cone'){
+      buildPineTree(g, h, r, type.leaf);
+    } else if(type.crown==='weeping'){
+      buildWillowTree(g, h, r, type.leaf);
+    } else if(type.crown==='bamboo'){
+      buildBambooCluster(g, 0, 0, 5+Math.floor(Math.random()*5));
+    } else if(type.crown==='shrub'){
+      buildShrub(g, h, r, type.leaf);
+    } else {
+      buildDeciduous(g, h, r, type.leaf, type.crown);
+    }
     scene.add(g);
   }
+
+  // 种植75棵树（避开建筑区域）
   for(var i=0; i<75; i++){
     var x = (Math.random()-0.5)*280, z = (Math.random()-0.5)*280;
     if(Math.abs(x)<20 && Math.abs(z)<20) continue;
     if(Math.abs(x-70)<18 && Math.abs(z)<12) continue;
     if(Math.abs(x)<12 && Math.abs(z-70)<18) continue;
     if(Math.abs(x+70)<18 && Math.abs(z)<12) continue;
+    if(Math.abs(x-70)<25 && Math.abs(z)<20) continue;
     buildTree(x, z, pickTreeType());
+  }
+  // 水边额外种柳树
+  for(var i=0;i<12;i++){
+    var ang = Math.random()*Math.PI*2;
+    var dist = 55+Math.random()*15;
+    buildTree(Math.cos(ang)*dist, Math.sin(ang)*dist, treeTypes[2]); // willow
+  }
+  // 宫殿旁种竹林
+  for(var i=0;i<3;i++){
+    buildTree(-90+i*6, 15+Math.random()*5, treeTypes[10]); // bamboo
+    buildTree(90-i*6, -15-Math.random()*5, treeTypes[10]);
   }
   // 花圃（牡丹台/镂月开云）- 牡丹、芍药
   var flowerSpots = [[12,8],[-12,8],[12,-8],[-12,-8],[5,15],[-5,15]];
