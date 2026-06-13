@@ -345,6 +345,7 @@ canvas{display:block}
 </div>
 
 <script src="three.min.js"></script>
+<script src="GLTFLoader.js"></script>
 <script>
 // ==================== OrbitControls内联实现 ====================
 THREE.OrbitControls = function(camera, domElement) {
@@ -711,10 +712,32 @@ function setupLights(){
 function buildWorld(){
   buildSkyDome();
   buildTerrain();
+  loadCourtyardModel();
   buildJiuzhouScene();
   buildDashuifaScene();
   buildFangpuScene();
   buildZhengdaScene();
+}
+
+// 加载四合院GLB模型
+function loadCourtyardModel(){
+  if(!THREE.GLTFLoader) return;
+  var loader = new THREE.GLTFLoader();
+  loader.load('models/chinese_courtyard.glb', function(gltf){
+    var model = gltf.scene;
+    model.scale.set(0.3, 0.3, 0.3);
+    model.position.set(-30, 0, 30);
+    model.traverse(function(child){
+      if(child.isMesh){
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    scene.add(model);
+    console.log('四合院模型加载完成');
+  }, undefined, function(err){
+    console.warn('四合院模型加载失败:', err);
+  });
 }
 
 // ==================== 天空穹顶 + 云层 ====================
@@ -942,9 +965,9 @@ function buildTerrain(){
       g.add(stem);
       // 竹节
       for(var j=0;j<Math.floor(h/0.8);j++){
-        var节 = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 6), M_bamboo);
-        节.position.set(bx, 0.8+j*0.8, bz);
-        g.add(节);
+        var joint = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 6), M_bamboo);
+        joint.position.set(bx, 0.8+j*0.8, bz);
+        g.add(joint);
       }
       // 竹叶（顶部簇生）
       var leafMat = new THREE.MeshStandardMaterial({color:0x4a8a3a,roughness:0.8});
