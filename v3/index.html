@@ -4,251 +4,221 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>重生·圆明园 | AI数字文化遗产3D重建</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Liu+Jian+Mao+Cao&family=Long+Cang&display=swap" rel="stylesheet">
+<link rel="icon" type="image/jpeg" href="ico.jpg">
+<link href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Liu+Jian+Mao+Cao&family=Long+Cang&display=swap" rel="stylesheet">
 <style>
+/* ========== 颜色规范 ========== */
 :root{
-  /* z-index 系统 */
+  --cream:#F5F0E8;--dark-brown:#2A1A0A;--gold:#8B6E3E;--gold-light:#B89F7A;
+  --panel-dark:rgba(42,30,15,0.92);--panel-light:rgba(245,240,232,0.92);
   --z-canvas:0;--z-ui:100;--z-controls:110;--z-detail:120;--z-header:130;--z-modal:200;--z-loading:1000;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Noto Serif SC','ZCOOL XiaoWei',serif;background:#0a0a1a;overflow:hidden;color:#fff}
+body{font-family:'Noto Serif SC','楷体','STKaiti',serif;background:var(--cream);overflow:hidden;color:var(--dark-brown)}
 canvas{display:block}
 #ui{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:var(--z-ui)}
 #ui>*{pointer-events:auto}
-.header{position:absolute;top:0;left:0;right:0;padding:0.875rem 1.5rem;background:linear-gradient(180deg,rgba(10,10,26,0.92) 0%,rgba(10,10,26,0.6) 60%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(232,168,0,0.15)}
-.header h1,.header .slogan{font-size:18px;font-weight:700;font-family:'KaiTi','STKaiti','楷体','Noto Serif SC',serif;display:inline-block;overflow:hidden;white-space:nowrap;border-right:none;animation:none;color:#cc2222;letter-spacing:2px;text-shadow:0 0 8px rgba(200,30,30,0.3)}
-.header h1 em{color:#E8A800;font-style:normal}
-@keyframes typewriter{from{max-width:0}to{max-width:200px}}
-@keyframes blink{50%{border-color:transparent}}
-.header-left{display:flex;align-items:center;gap:10px}
-.header-right{display:flex;align-items:center;gap:10px}
-.header .info{font-size:11px;color:#8B8370;padding:4px 10px;background:rgba(232,168,0,0.08);border:1px solid rgba(232,168,0,0.15);border-radius:12px}
-.fullscreen-btn{width:30px;height:30px;background:rgba(232,168,0,0.06);border:1px solid rgba(232,168,0,0.15);border-radius:8px;color:#ffd700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease}
-.fullscreen-btn:hover{background:rgba(232,168,0,0.15);border-color:rgba(232,168,0,0.3);transform:scale(1.08);box-shadow:0 0 12px rgba(232,168,0,0.2)}
+
+/* ========== 顶部栏 ========== */
+.header{position:absolute;top:0;left:0;right:0;padding:0.12rem 0.5rem;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(139,110,62,0.15);height:26px;z-index:130}
+.header-left{display:flex;align-items:center;gap:6px}
+.header-center{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center}
+.header-right{display:flex;align-items:center;gap:6px}
+.header h1,.header .slogan{font-size:10px;font-weight:700;font-family:'楷体','STKaiti','KaiTi','Noto Serif SC',serif;overflow:hidden;white-space:nowrap;animation:none;color:var(--gold);letter-spacing:1px}
+.header h1 em{color:var(--gold);font-style:normal}
+.header .slogan{font-size:12px;color:var(--dark-brown);letter-spacing:3px;font-weight:600}
+.header .info{font-size:8px;color:var(--gold);padding:1px 4px;background:rgba(139,110,62,0.08);border:1px solid rgba(139,110,62,0.15);border-radius:6px}
+.fullscreen-btn{width:18px;height:18px;background:rgba(139,110,62,0.06);border:1px solid rgba(139,110,62,0.2);border-radius:4px;color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;position:relative;z-index:999}
+.fullscreen-btn:hover{background:rgba(139,110,62,0.15);border-color:rgba(139,110,62,0.3);transform:scale(1.08);box-shadow:0 2px 12px rgba(139,110,62,0.15)}
 .fullscreen-btn:active{transform:scale(0.95)}
-.sidebar{position:absolute;bottom:55px;left:50%;transform:translateX(-50%);width:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(232,168,0,0.25);padding:0.5rem 1rem;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
+.logo-btn{cursor:pointer;transition:transform 0.2s;height:16px;width:16px;border-radius:50%;border:1px solid rgba(139,110,62,0.3);object-fit:cover}
+.logo-btn:hover{transform:scale(1.1)}
+
+/* ========== 左侧数据面板 ========== */
+.stats{position:absolute;top:38px;left:10px;background:var(--panel-light);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(139,110,62,0.15);padding:0.45rem 0.75rem;width:clamp(180px,22vw,225px);transition:all 0.3s;cursor:default;z-index:101}
+.stats::before{content:'';position:absolute;inset:-2px;border-radius:14px;background:conic-gradient(from var(--border-angle,0deg),transparent 0%,#DAA520 15%,#8B6E3E 30%,transparent 45%,transparent 100%);z-index:-1;opacity:0;pointer-events:none}
+.stats::after{content:'';position:absolute;inset:0;border-radius:12px;background:var(--panel-light);z-index:-1;pointer-events:none}
+@keyframes borderRotate{0%{--border-angle:0deg}100%{--border-angle:360deg}}
+@property --border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.stats.glow::before{opacity:1;animation:borderRotate 1.5s linear infinite}
+.stats.glow{animation:borderPulse 1s ease-in-out infinite}
+@keyframes borderPulse{0%,100%{box-shadow:0 0 8px rgba(218,165,32,0.2)}50%{box-shadow:0 0 20px rgba(218,165,32,0.4)}}
+.stats-title{font-size:13px;font-weight:700;font-family:'楷体','STKaiti','KaiTi','Noto Serif SC',serif;color:var(--gold);text-align:center;margin:0 0 4px;letter-spacing:0.5px}
+.stats-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.stats-toggle{font-size:14px;color:var(--gold);transition:transform 0.3s}
+.stats-body{transition:all 0.3s ease;max-height:300px;opacity:1;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:2px 6px}
+.stats.collapsed .stats-body{max-height:0;opacity:0;padding:0;margin:0;overflow:hidden}
+.stat-item{padding:2px 0;text-align:center;position:relative}
+.stat-item .stat-top{display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:2px}
+.stat-item .num{color:var(--gold);font-weight:700;font-family:'楷体','STKaiti','Noto Serif SC',serif;font-size:16px;line-height:1.2}
+.stat-item .label{color:var(--gold-light);font-family:'Noto Serif SC',serif;font-size:9px;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-progress{width:100%;height:3px;background:rgba(139,110,62,0.1);border-radius:1.5px;margin-top:3px;overflow:hidden}
+.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#8B6E3E 0%,#B89F7A 60%,rgba(184,159,122,0.4) 100%);border-radius:1px;transition:width 0.3s ease;width:0}
+.stats.collapsed .stats-toggle{transform:rotate(-90deg)}
+
+/* ========== 标题分隔线 ========== */
+.stats-line{width:100%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(139,110,62,0.3),transparent);margin:0 0 6px}
+
+/* ========== 底部导航栏 ========== */
+.sidebar{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:auto;background:var(--panel-light);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(139,110,62,0.15);padding:0.5rem 1rem;transition:all 0.3s ease;overflow:hidden;display:flex;align-items:center;gap:4px}
 .sidebar.collapsed{padding:6px 10px}
-.sidebar.collapsed .sidebar-title{display:none}
+.sidebar.collapsed .sidebar-title{display:none!important}
 .sidebar.collapsed .scene-btn span{display:none}
 .sidebar.collapsed .scene-btn h4{display:none}
 .sidebar.collapsed .scene-btn{padding:6px 8px;justify-content:center}
 .sidebar.collapsed .scene-btn .btn-icon{margin:0}
-.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(232,168,0,0.08);border:1px solid rgba(232,168,0,0.15);border-radius:6px;color:#ffd700;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:calc(var(--z-ui) - 98)}
-.sidebar-toggle:hover{background:rgba(232,168,0,0.2)}
-.sidebar h3,.sidebar .sidebar-title{display:none}
-.scene-btn{padding:6px 12px;background:rgba(255,255,255,0.04);border:1px solid transparent;border-bottom:2px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:#fff;font-size:12px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
-.scene-btn:hover{background:rgba(232,168,0,0.1);border-color:rgba(232,168,0,0.3);border-bottom-color:#E8A800;transform:translateY(-2px)}
-.scene-btn.active{background:rgba(232,168,0,0.15);border-color:rgba(232,168,0,0.4);border-bottom-color:#E8A800;box-shadow:0 0 16px rgba(232,168,0,0.3);animation:btnFlash 0.6s ease}
-.scene-btn:not(.active){opacity:0.45;transition:opacity 0.3s ease}
-.scene-btn:not(.active):hover{opacity:0.75}
-@keyframes btnFlash{0%{box-shadow:0 0 0 rgba(232,168,0,0)}30%{box-shadow:0 0 28px rgba(232,168,0,0.6)}100%{box-shadow:0 0 16px rgba(232,168,0,0.3)}}
-.scene-btn h4{margin:0;font-size:12px;font-weight:500}
+.sidebar-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:20px;height:20px;background:rgba(139,110,62,0.08);border:1px solid rgba(139,110,62,0.15);border-radius:6px;color:var(--gold);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:calc(var(--z-ui) - 98)}
+.sidebar-toggle:hover{background:rgba(139,110,62,0.18)}
+.sidebar h3,.sidebar .sidebar-title{margin:0;font-size:13px;font-weight:700;color:var(--gold);font-family:'楷体','STKaiti','Noto Serif SC',serif;letter-spacing:1px;line-height:1.2;flex-shrink:0}
+.scene-btn{padding:6px 12px;background:transparent;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:8px;cursor:pointer;text-align:left;transition:all 0.25s ease;color:var(--dark-brown);font-size:12px;font-family:'楷体','STKaiti','Noto Serif SC',serif;display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
+.scene-btn:hover{background:rgba(139,110,62,0.08);border-color:rgba(139,110,62,0.2);border-bottom-color:var(--gold);transform:translateY(-2px)}
+.scene-btn.active{background:rgba(139,110,62,0.1);border-color:rgba(139,110,62,0.25);border-bottom-color:var(--gold);box-shadow:0 2px 12px rgba(139,110,62,0.12);animation:btnFlash 0.6s ease}
+.scene-btn:not(.active){opacity:0.5;transition:opacity 0.3s ease}
+.scene-btn:not(.active):hover{opacity:0.8}
+@keyframes btnFlash{0%{box-shadow:0 0 0 rgba(139,110,62,0)}30%{box-shadow:0 0 20px rgba(139,110,62,0.2)}100%{box-shadow:0 2px 12px rgba(139,110,62,0.12)}}
+.scene-btn h4{margin:0;font-size:12px;font-weight:500;color:var(--dark-brown)}
 .scene-btn span{display:none}
-.btn-icon{width:22px;height:22px;border-radius:4px;background:rgba(232,168,0,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
-.scene-btn:hover .btn-icon{background:rgba(232,168,0,0.18)}
-.scene-btn.active .btn-icon{background:rgba(232,168,0,0.25)}
-.detail{position:absolute;top:65px;right:14px;transform:translateX(20px);width:min(280px,40vw);max-height:calc(100vh - 100px);overflow-y:auto;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.2);padding:1rem;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
+.btn-icon{width:22px;height:22px;border-radius:4px;background:rgba(139,110,62,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s}
+.scene-btn:hover .btn-icon{background:rgba(139,110,62,0.15)}
+.scene-btn.active .btn-icon{background:rgba(139,110,62,0.2)}
+.autoplay-btn{padding:6px 10px !important;min-width:32px;justify-content:center;border-left:1px solid rgba(139,110,62,0.2);margin-left:2px;padding-left:10px !important}
+.autoplay-btn.playing{background:rgba(139,110,62,0.15) !important;border-color:rgba(139,110,62,0.3) !important}
+
+/* ========== 右侧信息面板 ========== */
+.detail{position:absolute;top:32px;right:10px;transform:translateX(20px);width:min(260px,38vw);max-height:calc(100vh - 60px);overflow-y:auto;background:var(--panel-dark);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:10px;border:1px solid rgba(139,110,62,0.2);padding:0.75rem;opacity:0;transform:translateY(20px);pointer-events:none;transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}
 .detail.show{opacity:1;transform:translateX(0);pointer-events:auto}
-.detail .close{position:absolute;top:10px;right:10px;width:26px;height:26px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:#aaa;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.detail .close:hover{background:rgba(255,255,255,0.2);color:#fff}
-.detail h2{font-size:20px;color:#E8A800;margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:1px}
-.detail .year{font-size:11px;color:#aaa;margin-bottom:8px}
-.detail p{font-size:12px;color:#aaa;line-height:1.8;font-family:'Noto Serif SC',serif}
+.detail .close{position:absolute;top:10px;right:10px;width:26px;height:26px;background:rgba(255,255,255,0.1);border:none;border-radius:50%;color:rgba(255,255,255,0.5);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.detail .close:hover{background:rgba(255,255,255,0.15);color:#fff}
+.detail h2{font-size:20px;color:var(--gold);margin-bottom:4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;letter-spacing:1px}
+.detail .year{font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:8px}
+.detail p{font-size:12px;color:rgba(255,255,255,0.75);line-height:1.8;font-family:'Noto Serif SC',serif}
 .detail .tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
-.detail .tag{font-size:10px;padding:3px 8px;background:rgba(232,168,0,0.1);border:1px solid rgba(232,168,0,0.2);border-radius:10px;color:#E8A800;font-family:'Noto Serif SC',serif;cursor:default;transition:all 0.2s}
-.detail .tag:hover{background:rgba(232,168,0,0.2)}
-.stats{position:absolute;top:65px;left:14px;background:rgba(10,10,26,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;border:1px solid rgba(255,215,0,0.15);padding:0.875rem 1rem 0.75rem;width:clamp(180px,22vw,220px);transition:all 0.3s;cursor:default}
-.stats-title{font-size:16px;font-weight:700;font-family:'Noto Serif SC','STSong','SimSun',serif;color:#E8A800;text-align:center;margin:0 0 14px;letter-spacing:2px}
-.stats-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.stats-toggle{font-size:10px;color:#999;transition:transform 0.3s}
+.detail .tag{font-size:10px;padding:3px 8px;background:rgba(139,110,62,0.15);border:1px solid rgba(139,110,62,0.25);border-radius:10px;color:var(--gold-light);font-family:'Noto Serif SC',serif;cursor:default;transition:all 0.2s}
+.detail .tag:hover{background:rgba(139,110,62,0.25)}
+.detail-timeline{margin-top:12px;padding-left:12px;border-left:2px solid rgba(139,110,62,0.3);position:relative}
+.timeline-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;position:absolute;left:-5px;top:2px;box-shadow:0 0 6px rgba(139,110,62,0.5)}
+.timeline-item{margin-bottom:8px;padding-left:10px;position:relative}
+.timeline-year{font-size:10px;color:var(--gold);font-weight:600;font-family:'ZCOOL QingKe HuangYou',monospace}
+.timeline-event.event-1860{color:#FF0000}
+.timeline-event{font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;margin-top:1px}
+.detail-divider{height:1px;background:linear-gradient(90deg,rgba(139,110,62,0.3),transparent);margin:10px 0}
 
-/* ========== 流光线（双层结构） ========== */
-/* 底层：静态基线，常驻 */
-.stats-line{position:relative;width:100%;height:1.5px;background:#DCD3BF;border-radius:0;margin:0 0 12px;overflow:visible}
-/* 上层：流光条，仅动画期间可见 */
-.stats-line::before{content:'';position:absolute;top:0;left:0;width:15%;height:100%;background:linear-gradient(90deg,#8B6E3E 0%,#8B6E3E 25%,#B89F7A 55%,#DCD3BF 85%,transparent 100%);opacity:0;border-radius:0;will-change:transform,left,width,opacity,filter}
+/* ========== 底部文字 ========== */
+.footer{position:absolute;bottom:8px;left:14px;font-size:10px;color:var(--gold-light);opacity:0.5}
 
-/* 阶段① 左→右流动（0~400ms）：15%宽匀速滑到右端，渐变结构锁定 */
-.stats-line.flow::before{opacity:1;animation:flowMove 0.4s linear forwards}
-@keyframes flowMove{
-  0%{left:0;width:15%;opacity:1;filter:brightness(1)}
-  100%{left:85%;width:15%;opacity:1;filter:brightness(1)}
-}
+/* ========== Logo弹窗 ========== */
+.logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:var(--z-modal);display:none;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.3s}
+.logo-modal.show{display:flex;opacity:1;visibility:visible;pointer-events:auto}
+.logo-modal img{max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 0 60px rgba(139,110,62,0.3);border:2px solid rgba(139,110,62,0.3)}
+.logo-modal .hint{position:absolute;bottom:30px;color:rgba(255,255,255,0.4);font-size:12px}
 
-/* 阶段② 明暗起伏（400~550ms）：铺满 + 中间亮两端暗呼吸 */
-.stats-line.pulse::before{opacity:1;left:0;width:100%;animation:flowPulse 0.15s ease-in-out forwards}
-@keyframes flowPulse{
-  0%{opacity:0.7;filter:brightness(0.9)}
-  50%{opacity:1;filter:brightness(1.15)}
-  100%{opacity:0.85;filter:brightness(1)}
-}
-
-/* 阶段③ 向上收缩退场（550~800ms）：上移16px + 透明度→0 + 高度→0 */
-.stats-line.exit::before{opacity:0.85;left:0;width:100%;animation:flowExit 0.25s ease-out forwards}
-@keyframes flowExit{
-  0%{opacity:0.85;transform:translateY(0) scaleY(1)}
-  100%{opacity:0;transform:translateY(-16px) scaleY(0)}
-}
-.stats-body{transition:all 0.3s ease;max-height:300px;opacity:1;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:4px 8px}
-.stats.collapsed .stats-body{max-height:0;opacity:0;padding:0;margin:0;overflow:hidden}
-.stat-item{padding:4px 0;text-align:center;position:relative}
-.stat-item .stat-top{display:flex;flex-direction:column;align-items:center;gap:1px;margin-bottom:2px}
-.stat-item .num{color:#E8A800;font-weight:700;font-family:'Noto Serif SC','STSong','SimSun',serif;font-size:15px;line-height:1.2}
-.stat-item .label{color:#999;font-family:'Noto Serif SC',serif;font-size:8px;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stat-progress{width:100%;height:2px;background:rgba(255,215,0,0.08);border-radius:1px;margin-top:2px;overflow:hidden}
-.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#8B6E3E 0%,#B89F7A 60%,rgba(255,215,0,0.4) 100%);border-radius:1px;transition:width 0.3s ease;width:0}
-.footer{position:absolute;bottom:16px;left:14px;font-size:10px;color:#777}
-.logo-btn{cursor:pointer;transition:transform 0.2s}
-.logo-btn img,.logo-header{height:36px;width:36px;border-radius:50%;border:1px solid rgba(200,30,30,0.4)}
-.logo-btn:hover{transform:scale(1.1)}
-.logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:var(--z-modal);display:none;align-items:center;justify-content:center;cursor:pointer}
-.logo-modal.show{display:flex}
-.logo-modal img{max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 0 60px rgba(212,168,75,0.3);border:2px solid rgba(255,215,0,0.3)}
-.logo-modal .hint{position:absolute;bottom:30px;color:#888;font-size:12px}
-.controls{position:absolute;bottom:12px;left:14px;z-index:var(--z-controls);padding:4px 14px;background:rgba(10,10,26,0.8);backdrop-filter:blur(8px);border-radius:16px;font-size:11px;color:#999;display:flex;align-items:center;gap:12px}
-.controls svg{width:14px;height:14px;fill:none;stroke:#999;stroke-width:1.5}
-/* ========== 潘多拉魔盒加载动画 ========== */
-.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,#0f0f2a 0%,#0a0a1a 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:var(--z-loading);transition:opacity 0.8s ease, transform 0.8s ease;perspective:1000px}
+/* ========== 潘多拉魔盒加载动画（暖金色调） ========== */
+.loading{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,#1a1510 0%,#0d0a06 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:var(--z-loading);transition:opacity 0.8s ease, transform 0.8s ease;perspective:1000px}
 .loading.hide{opacity:0;transform:scale(1.1);pointer-events:none}
 #particleCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
-
-/* 潘多拉魔盒容器 */
 .pandora-scene{position:relative;width:13.75rem;height:15rem;perspective:900px;z-index:1}
-
-/* 盒身 */
 .pandora-body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:10rem;height:6.25rem;
   background:linear-gradient(180deg,#C9A028 0%,#8B6914 40%,#6B4F10 100%);
   border:2px solid #DAA520;border-radius:4px 4px 8px 8px;
   box-shadow:0 8px 40px rgba(218,165,32,0.25),0 0 60px rgba(218,165,32,0.1),inset 0 2px 20px rgba(0,0,0,0.4);
-  opacity:0;animation:boxAppear 0.8s ease 0.2s forwards}
+  opacity:0;animation:boxAppear 0.3s ease 0s forwards}
 .pandora-body::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:30px;height:30px;border:2px solid rgba(255,215,0,0.6);border-radius:50%;
-  box-shadow:0 0 15px rgba(255,215,0,0.3)}
+  width:30px;height:30px;border:2px solid rgba(218,165,32,0.6);border-radius:50%;
+  box-shadow:0 0 15px rgba(218,165,32,0.3)}
 .pandora-body::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:8px;height:8px;background:radial-gradient(circle,#FFD700,#B8860B);border-radius:50%;
-  box-shadow:0 0 20px rgba(255,215,0,0.8)}
-
-/* 盒盖 - 向外打开（向后翻转） */
+  width:8px;height:8px;background:radial-gradient(circle,#DAA520,#8B6914);border-radius:50%;
+  box-shadow:0 0 20px rgba(218,165,32,0.8)}
 .pandora-lid{position:absolute;bottom:6.25rem;left:50%;width:10.75rem;height:1.5rem;
   background:linear-gradient(180deg,#DAA520 0%,#B8860B 50%,#8B6914 100%);
   border:2px solid #DAA520;border-radius:8px 8px 2px 2px;
   transform-origin:50% 100%;transform:translateX(-50%) rotateX(0deg);
   box-shadow:0 -4px 20px rgba(218,165,32,0.3);
-  opacity:0;animation:boxAppear 0.8s ease 0.2s forwards,lidOpen 1.8s cubic-bezier(0.25,0.46,0.45,0.94) 1.2s forwards}
+  opacity:0;animation:boxAppear 0.8s ease 0s forwards,lidOpen 0.5s cubic-bezier(0.25,0.46,0.45,0.94) 0.15s forwards}
 .pandora-lid::before{content:'';position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
   width:40px;height:6px;background:linear-gradient(90deg,#8B6914,#DAA520,#8B6914);
   border-radius:0 0 4px 4px;border:1px solid #DAA520;border-top:none}
-
-/* 盒内金光 */
 .pandora-glow{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
   width:140px;height:120px;
-  background:radial-gradient(ellipse at 50% 80%,rgba(255,215,0,0.7) 0%,rgba(255,184,0,0.3) 30%,rgba(255,165,0,0) 70%);
+  background:radial-gradient(ellipse at 50% 80%,rgba(218,165,32,0.7) 0%,rgba(184,134,11,0.3) 30%,rgba(218,165,32,0) 70%);
   opacity:0;filter:blur(8px);
-  animation:glowBurst 2s ease-out 1.8s forwards;z-index:-1}
-
-/* 光线射出 */
+  animation:glowBurst 0.4s ease-out 0.3s forwards;z-index:-1}
 .pandora-rays{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
   width:300px;height:300px;opacity:0;z-index:-2;
-  background:conic-gradient(from 0deg,transparent 0deg,rgba(255,215,0,0.08) 10deg,transparent 20deg,
-  transparent 40deg,rgba(255,215,0,0.06) 50deg,transparent 60deg,
-  transparent 80deg,rgba(255,215,0,0.08) 90deg,transparent 100deg,
-  transparent 120deg,rgba(255,215,0,0.05) 130deg,transparent 140deg,
-  transparent 160deg,rgba(255,215,0,0.07) 170deg,transparent 180deg,
-  transparent 200deg,rgba(255,215,0,0.06) 210deg,transparent 220deg,
-  transparent 240deg,rgba(255,215,0,0.08) 250deg,transparent 260deg,
-  transparent 280deg,rgba(255,215,0,0.05) 290deg,transparent 300deg,
-  transparent 320deg,rgba(255,215,0,0.07) 330deg,transparent 340deg,
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(218,165,32,0.08) 10deg,transparent 20deg,
+  transparent 40deg,rgba(218,165,32,0.06) 50deg,transparent 60deg,
+  transparent 80deg,rgba(218,165,32,0.08) 90deg,transparent 100deg,
+  transparent 120deg,rgba(218,165,32,0.05) 130deg,transparent 140deg,
+  transparent 160deg,rgba(218,165,32,0.07) 170deg,transparent 180deg,
+  transparent 200deg,rgba(218,165,32,0.06) 210deg,transparent 220deg,
+  transparent 240deg,rgba(218,165,32,0.08) 250deg,transparent 260deg,
+  transparent 280deg,rgba(218,165,32,0.05) 290deg,transparent 300deg,
+  transparent 320deg,rgba(218,165,32,0.07) 330deg,transparent 340deg,
   transparent 360deg);
-  animation:raysReveal 2.5s ease-out 2s forwards}
-
-/* 盒身装饰花纹 */
+  animation:raysReveal 0.5s ease-out 0.35s forwards}
 .pandora-decor{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);
-  width:120px;height:60px;border:1px solid rgba(255,215,0,0.25);border-radius:4px;
-  opacity:0;animation:boxAppear 0.8s ease 0.6s forwards}
+  width:120px;height:60px;border:1px solid rgba(218,165,32,0.25);border-radius:4px;
+  opacity:0;animation:boxAppear 0.5s ease 0.5s forwards}
 .pandora-decor::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(45deg);
-  width:40px;height:40px;border:1px solid rgba(255,215,0,0.2)}
-
+  width:40px;height:40px;border:1px solid rgba(218,165,32,0.2)}
 @keyframes boxAppear{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes lidOpen{0%{transform:translateX(-50%) rotateX(0deg)}100%{transform:translateX(-50%) rotateX(-110deg)}}
 @keyframes glowBurst{0%{opacity:0;transform:translateX(-50%) scale(0.3)}40%{opacity:1}100%{opacity:0.7;transform:translateX(-50%) scale(1.8)}}
 @keyframes raysReveal{0%{opacity:0;transform:translateX(-50%) rotate(0deg) scale(0.5)}50%{opacity:0.6}100%{opacity:0.3;transform:translateX(-50%) rotate(30deg) scale(1.2)}}
-
-/* 加载内容（logo+标题）*/
 .loading-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;margin-top:20px}
-.loading-content img{width:60px;height:60px;filter:drop-shadow(0 0 20px rgba(232,168,0,0.5));
-  opacity:0;animation:contentReveal 1s ease 2.2s forwards}
+.loading-content img{width:60px;height:60px;filter:drop-shadow(0 0 20px rgba(218,165,32,0.5));
+  opacity:0;animation:contentReveal 0.4s ease 0.25s forwards}
 .loading-content h1{font-size:28px;margin:8px 0 4px;font-family:'Ma Shan Zheng','ZCOOL XiaoWei',serif;
-  letter-spacing:3px;color:#E8A800;text-shadow:0 0 20px rgba(232,168,0,0.4);
-  opacity:0;animation:contentReveal 1s ease 2.5s forwards}
-.loading-content p{color:rgba(255,255,255,0.5);font-size:12px;
-  opacity:0;animation:contentReveal 1s ease 2.7s forwards}
-
-.loading-status{color:#E8A800;font-size:11px;margin-top:14px;opacity:0;
-  animation:contentReveal 0.6s ease 2.9s forwards;font-family:'ZCOOL QingKe HuangYou',monospace;letter-spacing:1px}
-.loading-version{position:absolute;bottom:20px;color:#333;font-size:10px;font-family:'ZCOOL QingKe HuangYou',monospace}
-
+  letter-spacing:3px;color:var(--gold);text-shadow:0 0 20px rgba(139,110,62,0.4);
+  opacity:0;animation:contentReveal 0.4s ease 0.65s forwards}
+.loading-content p{color:rgba(255,255,255,0.4);font-size:12px;
+  opacity:0;animation:contentReveal 0.4s ease 0.8s forwards}
+.loading-status{color:var(--gold);font-size:11px;margin-top:14px;opacity:0;
+  animation:contentReveal 0.3s ease 0.9s forwards;font-family:'ZCOOL QingKe HuangYou',monospace;letter-spacing:1px}
+.loading-version{position:absolute;bottom:20px;color:#555;font-size:10px;font-family:'ZCOOL QingKe HuangYou',monospace}
 @keyframes contentReveal{from{opacity:0;transform:translateY(15px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-
-.loading .bar{width:clamp(180px,22vw,220px);height:3px;background:rgba(255,215,0,0.08);border-radius:3px;margin-top:0.875rem;overflow:hidden;position:relative;opacity:0;animation:contentReveal 0.6s ease 3s forwards}
-.loading .bar span{display:block;height:100%;background:linear-gradient(90deg,#E8A800,#FFB800);width:0;transition:width 0.3s ease;border-radius:3px;box-shadow:0 0 12px rgba(232,168,0,0.5),0 0 24px rgba(232,168,0,0.25)}
-.loading .bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.15),transparent);animation:barPulse 1.5s ease-in-out infinite}
+.loading .bar{width:clamp(180px,22vw,220px);height:3px;background:rgba(139,110,62,0.1);border-radius:3px;margin-top:0.875rem;overflow:hidden;position:relative;opacity:0;animation:contentReveal 0.5s ease 1.0s forwards}
+.loading .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0;transition:width 0.3s ease;border-radius:3px;box-shadow:0 0 12px rgba(139,110,62,0.5),0 0 24px rgba(139,110,62,0.25)}
+.loading .bar::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(139,110,62,0.15),transparent);animation:barPulse 1.5s ease-in-out infinite}
 @keyframes barPulse{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
-.stat-progress span{display:block;height:100%;background:linear-gradient(90deg,#8B6E3E 0%,#B89F7A 60%,rgba(255,215,0,0.4) 100%);border-radius:1px;transition:width 0.3s ease;width:0}
-.stats.collapsed .stats-toggle{transform:rotate(-90deg)}
-
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-
-/* Phase 5: Detail timeline */
-.detail-timeline{margin-top:12px;padding-left:12px;border-left:2px solid rgba(255,215,0,0.2);position:relative}
-.timeline-dot{width:8px;height:8px;background:#E8A800;border-radius:50%;position:absolute;left:-5px;top:2px;box-shadow:0 0 6px rgba(232,168,0,0.5)}
-.timeline-item{margin-bottom:8px;padding-left:10px;position:relative}
-.timeline-year{font-size:10px;color:#E8A800;font-weight:600;font-family:'ZCOOL QingKe HuangYou',monospace}
-.timeline-event{font-size:11px;color:#aaa;line-height:1.5;margin-top:1px}
-.detail-divider{height:1px;background:linear-gradient(90deg,rgba(255,215,0,0.3),transparent);margin:10px 0}
+@keyframes typewriter{from{max-width:0}to{max-width:200px}}
+@keyframes blink{50%{border-color:transparent}}
 
 /* ========== 响应式断点 ========== */
-/* 375px 小屏手机 */
 @media(max-width:375px){
   .header h1,.header .slogan{font-size:13px;letter-spacing:1px}
   .header .info{font-size:9px;padding:3px 6px}
-  .sidebar{bottom:45px;padding:6px 10px;gap:2px}
+  .sidebar{bottom:16px;padding:6px 10px;gap:2px}
   .scene-btn{padding:5px 8px;font-size:11px}
   .scene-btn h4{font-size:11px}
   .detail{width:calc(100vw - 28px);right:14px;top:55px;padding:12px}
   .detail h2{font-size:17px}
   .stats{width:140px;padding:10px 12px}
   .stat-item .num{font-size:14px}
-  .controls{font-size:10px;gap:8px;padding:3px 10px}
-  .controls svg{width:10px;height:10px}
   .pandora-scene{transform:scale(0.8)}
   .loading-content h1{font-size:22px}
 }
-/* 768px 平板 */
 @media(max-width:768px){
   .header h1,.header .slogan{font-size:15px}
-  .sidebar{bottom:50px}
+  .sidebar{bottom:20px}
   .scene-btn span{display:none}
   .detail{width:260px}
   .stats{width:155px}
-  .controls{gap:10px}
 }
-/* 1024px 小笔记本 */
 @media(min-width:769px) and (max-width:1024px){
   .sidebar{gap:3px}
   .scene-btn{padding:5px 10px}
   .detail{width:260px}
 }
-/* 1440px+ 大屏 */
 @media(min-width:1440px){
   .header h1,.header .slogan{font-size:20px}
   .stats{width:190px}
   .detail{width:320px}
-  .controls{font-size:12px}
 }
 
 /* ========== 焦点可见样式 ========== */
-:focus-visible{outline:2px solid #E8A800;outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
 .scene-btn:focus-visible{outline-offset:1px}
 .fullscreen-btn:focus-visible{outline-offset:1px}
 .detail .close:focus-visible{outline-offset:1px}
@@ -289,13 +259,15 @@ canvas{display:block}
 <div id="ui">
   <div class="header">
     <div class="header-left">
-      <img src="logo.svg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')"/>
-      <h1 class="slogan">铭记历史 勿忘国耻 振兴中华 文传撄锋</h1>
+      <img src="ico.jpg" alt="logo" class="logo-btn" onclick="document.getElementById('logoModal').classList.add('show')" />
+    </div>
+    <div class="header-center">
+      <span class="slogan" style="font-size:14px;letter-spacing:1px;color:#8B6E3E">圆明园·数字复原</span>
     </div>
     <div class="header-right">
-      <div class="info">AI数字文化遗产 · 3D重建</div>
-      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="info">数字文化遗产</div>
+      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏" aria-label="全屏切换">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
           <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
           <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
@@ -307,7 +279,7 @@ canvas{display:block}
 
   <div class="stats" id="statsPanel" aria-label="景区数据面板" role="region">
     <div class="stats-header" onclick="toggleStats()">
-      <span class="stats-title">数字复原项目</span>
+      <span class="stats-title" style="margin:0">数字复原项目</span>
       <span class="stats-toggle">▼</span>
     </div>
     <div class="stats-line" id="statsLine"></div>
@@ -322,26 +294,29 @@ canvas{display:block}
 
   <div class="sidebar" id="sidebar" role="navigation" aria-label="景区导航">
     <button class="sidebar-toggle" onclick="toggleSidebar()" title="折叠/展开">◀</button>
-    <h3 class="sidebar-title" style="display:flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E8A800" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 重点景区</h3>
+    <h3 class="sidebar-title">景区概览</h3>
     <button class="scene-btn active" data-scene="overview">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B6E3E" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <div><h4>全景漫游</h4><span>圆明园全景俯瞰</span></div>
     </button>
-    <button class="scene-btn" data-scene="jiuzhou">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
-      <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
-    </button>
-    <button class="scene-btn" data-scene="dashuifa">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-      <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
-    </button>
     <button class="scene-btn" data-scene="fangpu">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B6E3E" stroke-width="1.5"><path d="M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 3v2"/></svg></div>
       <div><h4>方壶胜境</h4><span>人间仙境 · 水上楼阁</span></div>
     </button>
+    <button class="scene-btn" data-scene="jiuzhou">
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B6E3E" stroke-width="1.5"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg></div>
+      <div><h4>九州清晏</h4><span>后湖核心 · 九岛仙山</span></div>
+    </button>
     <button class="scene-btn" data-scene="zhengda">
-      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ffd700" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B6E3E" stroke-width="1.5"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7l3-7z"/></svg></div>
       <div><h4>正大光明</h4><span>圆明园正殿</span></div>
+    </button>
+    <button class="scene-btn" data-scene="dashuifa">
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#8B6E3E" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+      <div><h4>大水法</h4><span>西洋楼 · 猎狗逐鹿</span></div>
+    </button>
+    <button class="scene-btn autoplay-btn" id="autoPlayBtn" onclick="autoPlayOnce()" title="自动播放">
+      <div class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="#8B6E3E"><polygon points="8,4 20,12 8,20"/></svg></div>
     </button>
   </div>
 
@@ -361,20 +336,11 @@ canvas{display:block}
     </div>
   </div>
 
-  <div class="controls">
-    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg> 左键旋转</span>
-    <span>·</span>
-    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> 滚轮缩放</span>
-    <span>·</span>
-    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l4-4 4 4M5 15l4 4 4-4"/></svg> 右键平移</span>
-    <span>·</span>
-    <span>1-5 切换景区</span>
-  </div>
   <div class="footer">重生·圆明园 · AI数字文化遗产3D重建</div>
 </div>
 
 <div class="logo-modal" id="logoModal" onclick="this.classList.remove('show')">
-  <img src="ico.jpg" alt="复原圆明园"/>
+  <img src="ico.jpg" style="max-width:60vw;max-height:60vh;border-radius:16px;box-shadow:0 0 80px rgba(139,110,62,0.5)" />
   <div class="hint">点击任意处关闭</div>
 </div>
 
@@ -568,36 +534,36 @@ THREE.OrbitControls = function(camera, domElement) {
 (function(){
 // ==================== 配置 ====================
 var SCENES = {
-  overview:{cam:[80,55,80],look:[0,0,0],title:'圆明园全景',year:'1707-1860',
+  overview:{cam:[70,50,-70],look:[0,0,0],title:'圆明园全景',year:'1707-1860',
     desc:'圆明园由圆明园、长春园、绮春园三园组成，占地5200余亩，是清代大型皇家园林。集中中国古代造园艺术之精华，被誉为"万园之园"。',
     tags:['皇家园林','万园之园','40景','文化遗产'],
     stats:{buildings:'1,247',area:'350',docs:'8,432',models:'2,048',extra:null},
     timeline:[{y:'1707',e:'始建，康熙帝赐名"圆明园"'},{y:'1723',e:'雍正帝大规模扩建'},{y:'1747',e:'乾隆建西洋楼景区'},{y:'1860',e:'英法联军焚毁，万园成灰'},{y:'2026',e:'AI数字重建，重现辉煌'}],
     barWidths:[100,100,100,100]},
-  jiuzhou:{cam:[25,18,25],look:[0,2,0],title:'九州清晏',year:'雍正元年 (1723)',
-    desc:'圆明园四十景之首，位于后湖中心。由九座岛屿组成，象征华夏九州。主殿为皇帝寝宫，黄琉璃瓦，气势恢宏。雍正帝每年在此居住200余天。',
-    tags:['核心景区','岛屿群','皇帝寝宫','后湖'],
-    stats:{buildings:'186',area:'42',docs:'1,240',models:'328',extra:{num:'9',label:'岛屿'}},
-    timeline:[{y:'1723',e:'雍正帝定为寝宫'},{y:'1725',e:'九岛格局定型'},{y:'1860',e:'战火中部分损毁'},{y:'2026',e:'AI精准复原九岛'}],
-    barWidths:[15,30,15,16]},
-  dashuifa:{cam:[20,14,88],look:[0,4,70],title:'大水法',year:'乾隆十二年 (1747)',
+  dashuifa:{cam:[0,30,100],look:[0,3,70],title:'大水法',year:'乾隆十二年 (1747)',
     desc:'西洋楼景区核心，融合巴洛克与洛可可风格。石龛式建筑前有"猎狗逐鹿"喷泉：铜鹿喷水八道，十只铜犬直射鹿身。两侧各有十三级喷水塔，蔚为壮观。',
     tags:['西洋楼','巴洛克','喷泉群','铜雕'],
     stats:{buildings:'53',area:'18',docs:'680',models:'156',extra:{num:'13',label:'喷水塔'}},
     timeline:[{y:'1747',e:'乾隆命郎世宁设计'},{y:'1759',e:'西洋楼全部建成'},{y:'1860',e:'喷泉机械被掠，建筑焚毁'},{y:'2026',e:'铜雕猎狗逐鹿数字重生'}],
     barWidths:[4,13,8,8]},
-  fangpu:{cam:[88,18,20],look:[70,3,0],title:'方壶胜境',year:'乾隆十五年 (1750)',
-    desc:'圆明园四十景之一，仿古代神仙仙境建造。楼阁矗立水面，九座桥梁相连，宛如蓬莱仙境。是圆明园中最具道家意境的景区。',
-    tags:['仙境','湖上建筑','道家','九桥'],
-    stats:{buildings:'124',area:'28',docs:'920',models:'267',extra:{num:'9',label:'桥梁'}},
-    timeline:[{y:'1750',e:'仿蓬莱仙境开建'},{y:'1755',e:'九桥连阁落成'},{y:'1860',e:'楼阁尽毁于火'},{y:'2026',e:'水上仙境再现'}],
-    barWidths:[10,20,11,13]},
-  zhengda:{cam:[-50,20,22],look:[-70,4,0],title:'正大光明',year:'雍正元年 (1723)',
+  zhengda:{cam:[-110,45,-25],look:[-70,3,0],title:'正大光明',year:'雍正元年 (1723)',
     desc:'圆明园正殿，皇帝在此举行朝会、接见外使、颁发诏书。殿内悬雍正帝亲题"正大光明"匾额。重檐庑殿顶，面阔七间，庄严雄伟。',
     tags:['正殿','朝政','雍正御笔','华表'],
     stats:{buildings:'67',area:'15',docs:'1,080',models:'189',extra:{num:'2',label:'华表'}},
     timeline:[{y:'1723',e:'雍正御笔题匾'},{y:'1725',e:'朝政大殿启用'},{y:'1860',e:'正殿焚毁，匾额失踪'},{y:'2026',e:'重檐庑殿顶数字重建'}],
-    barWidths:[5,11,13,9]}
+    barWidths:[5,11,13,9]},
+  jiuzhou:{cam:[0,30,-100],look:[0,3,0],title:'九州清晏',year:'雍正元年 (1723)',
+    desc:'圆明园四十景之首，位于后湖中心。由九座岛屿组成，象征华夏九州。主殿为皇帝寝宫，黄琉璃瓦，气势恢宏。雍正帝每年在此居住200余天。',
+    tags:['核心景区','岛屿群','皇帝寝宫','后湖'],
+    stats:{buildings:'186',area:'42',docs:'1,240',models:'328',extra:{num:'9',label:'岛屿'}},
+    timeline:[{y:'1723',e:'雍正帝定为寝宫'},{y:'1725',e:'九岛格局定型'},{y:'1860',e:'战火中部分损毁'},{y:'2026',e:'AI精准复原九岛'}],
+    barWidths:[15,30,15,16]},
+  fangpu:{cam:[126,46,-25],look:[70,3,0],title:'方壶胜境',year:'乾隆十五年 (1750)',
+    desc:'圆明园四十景之一，仿古代神仙仙境建造。楼阁矗立水面，九座桥梁相连，宛如蓬莱仙境。是圆明园中最具道家意境的景区。',
+    tags:['仙境','湖上建筑','道家','九桥'],
+    stats:{buildings:'124',area:'28',docs:'920',models:'267',extra:{num:'9',label:'桥梁'}},
+    timeline:[{y:'1750',e:'仿蓬莱仙境开建'},{y:'1755',e:'九桥连阁落成'},{y:'1860',e:'楼阁尽毁于火'},{y:'2026',e:'水上仙境再现'}],
+    barWidths:[10,20,11,13]}
 };
 
 // ==================== 材质库 ====================
@@ -650,7 +616,7 @@ function fixedRoof(mat){ return mat || M.roofGray; }
 
 // ==================== 全局变量 ====================
 var scene, camera, renderer, controls, sky;
-var animating = false, animStart = 0, animDuration = 1200;
+var animating = false, animStart = 0, animDuration = 800;
 var startPos, endPos, startLook, endLook;
 
 // ==================== 初始化 ====================
@@ -699,7 +665,9 @@ function init(){
     // 停止粒子动画
     if(particleAnimId){ cancelAnimationFrame(particleAnimId); particleAnimId = null; }
     setTimeout(function(){ if(particleCanvas) particleCanvas.style.display = 'none'; }, 700);
-  }, 400);
+    // 加载完成后自动播放一轮
+    setTimeout(autoPlayOnce, 800);
+  }, 1800);
   animate();
 }
 
@@ -2638,10 +2606,9 @@ function setupUI(){
 
       // 先隐藏数据面板，准备淡入
       var statsBody = document.querySelector('.stats-body');
-      if(statsBody) statsBody.style.opacity = '0';
 
-      // 触发串联细线动效 → 完成后数据淡入
-      triggerLineAnimation(function(){
+      // 立即更新数据，不等glow动画
+      function updateSceneData(){
         // 更新详情面板
         document.getElementById('d-title').textContent = data.title;
         document.getElementById('d-year').textContent = data.year;
@@ -2654,7 +2621,7 @@ function setupUI(){
         var timelineEl = document.getElementById('d-timeline');
         if(data.timeline){
           timelineEl.innerHTML = data.timeline.map(function(item, i){
-            return '<div class="timeline-item" style="animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
+            return '<div class="timeline-item" style="animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event'+(item.y==='1860'?' event-1860':'')+'">'+item.e+'</div></div>';
           }).join('');
           timelineEl.style.display = 'block';
         } else {
@@ -2663,36 +2630,34 @@ function setupUI(){
 
         document.getElementById('detail').classList.add('show');
 
-        // 数据面板淡入
+        // 数据面板立即可见
         if(statsBody){
-          statsBody.style.transition = 'opacity 0.3s ease';
+          statsBody.style.transition = 'opacity 0.2s ease';
           statsBody.style.opacity = '1';
         }
 
-        // 更新左上角景区数据面板（数字滚动动画 + 进度条）
+        // 更新左上角景区数据面板（快速数字滚动 + 进度条）
         if(data.stats){
           var s = data.stats;
-          animateNumber(document.getElementById('stat-1'), s.buildings, 900);
-          animateNumber(document.getElementById('stat-2'), s.area, 700);
-          animateNumber(document.getElementById('stat-3'), s.docs, 1000);
-          animateNumber(document.getElementById('stat-4'), s.models, 800);
+          animateNumber(document.getElementById('stat-1'), s.buildings, 350);
+          animateNumber(document.getElementById('stat-2'), s.area, 300);
+          animateNumber(document.getElementById('stat-3'), s.docs, 400);
+          animateNumber(document.getElementById('stat-4'), s.models, 350);
           var extraEl = document.getElementById('stat-extra');
           if(s.extra){
-            animateNumber(document.getElementById('stat-extra-num'), s.extra.num, 600);
+            animateNumber(document.getElementById('stat-extra-num'), s.extra.num, 250);
             document.getElementById('stat-extra-label').textContent = s.extra.label;
             extraEl.style.display = 'flex';
           } else {
             extraEl.style.display = 'none';
           }
-          // 进度条动画
+          // 进度条
           if(data.barWidths){
-            setTimeout(function(){
-              var bars = ['bar-1','bar-2','bar-3','bar-4'];
-              data.barWidths.forEach(function(w, i){
-                var el = document.getElementById(bars[i]);
-                if(el) el.style.width = w + '%';
-              });
-            }, 100);
+            var bars = ['bar-1','bar-2','bar-3','bar-4'];
+            data.barWidths.forEach(function(w, i){
+              var el = document.getElementById(bars[i]);
+              if(el) el.style.width = w + '%';
+            });
           }
         }
 
@@ -2703,7 +2668,11 @@ function setupUI(){
         endLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
         animStart = Date.now();
         animating = true;
-      }); // end triggerLineAnimation callback
+      }
+
+      // 触发glow边框动效（纯视觉，不阻塞数据更新）
+      triggerLineAnimation(null);
+      updateSceneData();
     });
   });
 
@@ -2735,75 +2704,91 @@ function setupUI(){
 // 阶段① 0~400ms: 流光条从左向右匀速滑行（15%宽，渐变结构锁定）
 // 阶段② 400~550ms: 铺满整线 + 明暗起伏呼吸（中间亮两端暗）
 // 阶段③ 550~800ms: 上移16px + 透明度→0 + 高度→0，完全消失
-var _lt1=null,_lt2=null,_lt3=null,_lt4=null;
+// 边框流光动效（替代旧的细线动效）
 function triggerLineAnimation(onComplete){
-  var line=document.getElementById('statsLine');
-  if(!line) return;
-  // 若上一轮未结束 → 强制终止、重置、从头执行
-  clearTimeout(_lt1);clearTimeout(_lt2);clearTimeout(_lt3);clearTimeout(_lt4);
-  line.classList.remove('flow','pulse','exit');
-  line.style.cssText='';
-  void line.offsetWidth; // 强制重绘，清除残留
-
-  // 阶段①：流光条左→右流动（0~400ms）
-  line.classList.add('flow');
-
-  // 阶段②：铺满 + 明暗起伏（400~550ms）
-  _lt1=setTimeout(function(){
-    line.classList.remove('flow');
-    line.classList.add('pulse');
-  },420);
-
-  // 阶段③：向上收缩退场（550~800ms）
-  _lt2=setTimeout(function(){
-    line.classList.remove('pulse');
-    line.classList.add('exit');
-  },580);
-
-  // 完成回调：数据淡入 + 飞行镜头
-  _lt3=setTimeout(function(){
+  var statsPanel=document.getElementById('statsPanel');
+  if(!statsPanel) { if(onComplete) onComplete(); return; }
+  
+  // 添加glow类，触发金色边框流光
+  statsPanel.classList.add('glow');
+  
+  // 800ms后移除glow并执行回调
+  setTimeout(function(){
+    statsPanel.classList.remove('glow');
     if(onComplete) onComplete();
   },800);
-
-  // 重置回常态：仅保留底轨灰线，流光完全隐藏
-  _lt4=setTimeout(function(){
-    line.classList.remove('exit');
-    line.style.cssText='';
-  },850);
 }
 
-// 数字滚动动画
+// 数字滚动动画（共享单一RAF循环）
+var _numAnims = [];
+var _numAnimRunning = false;
 function animateNumber(el, targetStr, duration){
-  duration = duration || 800;
+  duration = duration || 400;
   var target = parseInt(targetStr.replace(/,/g, ''), 10);
   if(isNaN(target)) { el.textContent = targetStr; return; }
   var startVal = parseInt(el.textContent.replace(/,/g, ''), 10) || 0;
-  var startTime = Date.now();
-  var startStr = el.textContent;
-  // 保持千分位格式
-  function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-  function tick(){
-    var elapsed = Date.now() - startTime;
-    var progress = Math.min(elapsed / duration, 1);
-    // easeOutCubic
+  _numAnims.push({el:el, start:startVal, target:target, startTime:Date.now(), duration:duration});
+  if(!_numAnimRunning){ _numAnimRunning = true; requestAnimationFrame(_numTick); }
+}
+function _numTick(){
+  var now = Date.now();
+  var fmt = function(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+  var alive = [];
+  for(var i=0; i<_numAnims.length; i++){
+    var a = _numAnims[i];
+    var progress = Math.min((now - a.startTime) / a.duration, 1);
     var ease = 1 - Math.pow(1 - progress, 3);
-    var current = Math.round(startVal + (target - startVal) * ease);
-    el.textContent = fmt(current);
-    if(progress < 1) requestAnimationFrame(tick);
-    else el.textContent = fmt(target);
+    a.el.textContent = fmt(Math.round(a.start + (a.target - a.start) * ease));
+    if(progress < 1) alive.push(a);
   }
-  requestAnimationFrame(tick);
+  _numAnims = alive;
+  if(_numAnims.length > 0) requestAnimationFrame(_numTick);
+  else _numAnimRunning = false;
 }
 
 // ==================== 动画循环 ====================
+// 柔和弧线插值：微抬+微偏移，像无人机缓移
+function bezierQuad(a, b, c, t){
+  var mt = 1 - t;
+  return new THREE.Vector3(
+    mt*mt*a.x + 2*mt*t*b.x + t*t*c.x,
+    mt*mt*a.y + 2*mt*t*b.y + t*t*c.y,
+    mt*mt*a.z + 2*mt*t*b.z + t*t*c.z
+  );
+}
+
 function animate(){
   requestAnimationFrame(animate);
 
   if(animating){
     var t = Math.min((Date.now() - animStart) / animDuration, 1);
-    var ease = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; // easeInOutCubic
+    // 缓入缓出
+    var ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
 
-    camera.position.lerpVectors(startPos, endPos, ease);
+    var dist = startPos.distanceTo(endPos);
+
+    // 圆弧滑行：沿圆弧匀速移动，无拉近/甩动
+    // 将起止点投影到XZ平面做角度插值，保持半径不变
+    var angle1 = Math.atan2(startPos.z, startPos.x);
+    var angle2 = Math.atan2(endPos.z, endPos.x);
+    // 选最短弧线方向
+    var dAngle = angle2 - angle1;
+    if(dAngle > Math.PI) dAngle -= 2*Math.PI;
+    if(dAngle < -Math.PI) dAngle += 2*Math.PI;
+    var curAngle = angle1 + dAngle * ease;
+    var radius = (startPos.x*startPos.x + startPos.z*startPos.z) > 0.01
+      ? Math.sqrt(startPos.x*startPos.x + startPos.z*startPos.z)
+      : 100;
+    // Y保持起止点的线性插值（高度一致时不变）
+    var curY = startPos.y + (endPos.y - startPos.y) * ease;
+
+    camera.position.set(
+      Math.cos(curAngle) * radius,
+      curY,
+      Math.sin(curAngle) * radius
+    );
+
+    // 目标点纯线性，视线平稳过渡不晃
     controls.target.lerpVectors(startLook, endLook, ease);
 
     if(t >= 1) animating = false;
@@ -2868,12 +2853,17 @@ function animateParticles(){
 
 // ==================== 全屏切换 ====================
 function toggleFullscreen(){
-  if(!document.fullscreenElement && !document.webkitFullscreenElement){
-    var el = document.documentElement;
-    (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
-  } else {
-    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-  }
+  try{
+    var el=document.documentElement;
+    if(!document.fullscreenElement && !document.webkitFullscreenElement){
+      if(el.requestFullscreen){el.requestFullscreen().catch(function(e){console.warn('FS1',e)})}
+      else if(el.webkitRequestFullscreen){el.webkitRequestFullscreen()}
+      else if(el.msRequestFullscreen){el.msRequestFullscreen()}
+    }else{
+      if(document.exitFullscreen){document.exitFullscreen().catch(function(e){console.warn('FS2',e)})}
+      else if(document.webkitExitFullscreen){document.webkitExitFullscreen()}
+    }
+  }catch(e){console.warn('fullscreen error',e)}
 }
 
 // ==================== 侧栏折叠 ====================
@@ -2897,7 +2887,7 @@ function filterTag(el){
 }
 
 // ==================== 键盘快捷键 ====================
-var sceneKeys = ['overview','jiuzhou','dashuifa','fangpu','zhengda'];
+var sceneKeys = ['overview','dashuifa','zhengda','jiuzhou','fangpu'];
 document.addEventListener('keydown', function(e){
   var num = parseInt(e.key);
   if(num >= 1 && num <= 5){
@@ -2908,8 +2898,48 @@ document.addEventListener('keydown', function(e){
     var dl = document.getElementById('detail');
     if(dl.classList.contains('show')) dl.classList.remove('show');
     var lm = document.getElementById('logoModal');
-    if(lm.classList.contains('show')) lm.classList.remove('show');
+    if(lm) lm.classList.remove('show');
   }
+});
+
+// ==================== 自动轮播（播放一轮） ====================
+var autoPlayOrder = ['overview','fangpu','jiuzhou','zhengda','dashuifa'];
+var autoPlayIndex = 0;
+var autoPlaying = false;
+
+function autoPlayStep(){
+  if(!autoPlaying) return;
+  autoPlayIndex++;
+  if(autoPlayIndex >= autoPlayOrder.length){
+    // 播完一轮，停止
+    autoPlaying = false;
+    document.getElementById('autoPlayBtn').classList.remove('playing');
+    return;
+  }
+  var btn = document.querySelector('.scene-btn[data-scene="'+autoPlayOrder[autoPlayIndex]+'"]');
+  if(btn) btn.click();
+  setTimeout(autoPlayStep, 4000);
+}
+
+function autoPlayOnce(){
+  // 从当前场景的下一个开始播
+  var activeBtn = document.querySelector('.scene-btn.active');
+  if(activeBtn){
+    var idx = autoPlayOrder.indexOf(activeBtn.dataset.scene);
+    if(idx >= 0) autoPlayIndex = idx;
+  }
+  autoPlaying = true;
+  document.getElementById('autoPlayBtn').classList.add('playing');
+  setTimeout(autoPlayStep, 4000);
+}
+
+// 手动点击场景按钮时同步索引
+document.querySelectorAll('.scene-btn[data-scene]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var id = this.dataset.scene;
+    var idx = autoPlayOrder.indexOf(id);
+    if(idx >= 0) autoPlayIndex = idx;
+  });
 });
 
 // ==================== 启动 ====================
@@ -2925,7 +2955,7 @@ function forceHideLoading(){
     setTimeout(function(){ if(particleCanvas) particleCanvas.style.display='none'; }, 900);
   }
 }
-setTimeout(forceHideLoading, 8000);
+setTimeout(forceHideLoading, 5000);
 
 function updateLoadStatus(msg){
   var el = document.getElementById('loadingStatus');
