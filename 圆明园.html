@@ -346,6 +346,7 @@ canvas{display:block}
 
 <script src="three.min.js"></script>
 <script src="GLTFLoader.js"></script>
+<script src="MeshoptDecoder.js"></script>
 <script>
 // ==================== OrbitControls内联实现 ====================
 THREE.OrbitControls = function(camera, domElement) {
@@ -723,7 +724,11 @@ function buildWorld(){
 function loadCourtyardModel(){
   if(!THREE.GLTFLoader) return;
   var loader = new THREE.GLTFLoader();
-  loader.load('models/chinese_courtyard_optimized.glb', function(gltf){
+  // Meshopt 解码器(模型已压缩: 98MB → 10MB)
+  if(window.MeshoptDecoder){
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  }
+  loader.load('v3/models/chinese_courtyard_optimized.glb', function(gltf){
     var model = gltf.scene;
     model.scale.set(0.3, 0.3, 0.3);
     model.position.set(-30, 0, 30);
