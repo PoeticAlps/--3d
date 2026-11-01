@@ -107,6 +107,13 @@ canvas{display:block}
 /* ========== 底部文字 ========== */
 .footer{position:absolute;bottom:8px;left:14px;font-size:10px;color:var(--gold-light);opacity:0.5}
 
+/* ========== 实景模型就绪引导（可点击飞往） ========== */
+.model-tip{position:absolute;left:50%;transform:translateX(-50%);bottom:96px;display:none;align-items:center;gap:6px;background:var(--panel-light);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(139,110,62,0.35);border-radius:20px;padding:8px 18px;font-size:13px;color:var(--gold);font-family:'楷体','STKaiti','Noto Serif SC',serif;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 20px rgba(139,110,62,0.25);z-index:calc(var(--z-ui) + 1);animation:tipPulse 2.2s ease infinite;transition:background 0.25s,transform 0.25s;user-select:none}
+.model-tip.show{display:flex}
+.model-tip:hover{background:rgba(139,110,62,0.18);transform:translateX(-50%) translateY(-2px)}
+.model-tip svg{flex-shrink:0}
+@keyframes tipPulse{0%,100%{box-shadow:0 4px 20px rgba(139,110,62,0.25)}50%{box-shadow:0 4px 26px rgba(139,110,62,0.5)}}
+
 /* ========== Logo弹窗 ========== */
 .logo-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:var(--z-modal);display:none;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 0.3s}
 .logo-modal.show{display:flex;opacity:1;visibility:visible;pointer-events:auto}
@@ -337,6 +344,11 @@ canvas{display:block}
   </div>
 
   <div class="footer">重生·圆明园 · AI数字文化遗产3D重建</div>
+
+  <div class="model-tip" id="modelTip" role="button" tabindex="0" aria-label="查看实景模型">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8B6E3E" stroke-width="1.6"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-5h6v5"/></svg>
+    实景模型已就绪 · 点击查看
+  </div>
 </div>
 
 <div class="logo-modal" id="logoModal" onclick="this.classList.remove('show')">
@@ -720,6 +732,19 @@ function buildWorld(){
   buildZhengdaScene();
 }
 
+// ==================== 实景四合院模型（独立展品） ====================
+// 展示位：后湖东北开阔水面（九州清晏东岛与大水法/方壶胜境之间的留白处），
+// 与各程序化景区保持 30+ 单位间距，配仿九州清晏样式的草坪展岛，作为可独立欣赏的展品。
+// 模型原始包围盒约 17.0(x) x 2.8(y) x 11.5(z)，放大 1.8 倍后约 30.6 x 5.0 x 20.7。
+var COURTYARD_HOME = {
+  x: 50, z: 62,            // 展岛中心（世界坐标，y 落地基准）
+  scale: 1.8,              // 与程序化殿宇（宽20~24、高9~10）协调的中等尺度
+  rotY: 0.72,              // 朝向（正面朝向取景方位，微偏呈浅三分角透视）
+  islandR: 21,             // 草坪展岛半径
+  viewAz: 0.85,            // 取景方位角：相机位于展岛的东北侧（面向正面）
+  viewSlope: 0.26          // 取景相机高度 = 距离 * viewSlope（约15°俯角）
+};
+
 // 加载四合院GLB模型
 function loadCourtyardModel(){
   if(!THREE.GLTFLoader) return;
@@ -730,19 +755,75 @@ function loadCourtyardModel(){
   }
   loader.load('v3/models/chinese_courtyard_optimized.glb', function(gltf){
     var model = gltf.scene;
-    model.scale.set(0.3, 0.3, 0.3);
-    model.position.set(-30, 0, 30);
+    var home = COURTYARD_HOME;
+
+    // 展台：仿九州清晏岛式基座（草坪圆柱 + 石岸），让模型立于湖面而非悬浮
+    var island = new THREE.Mesh(new THREE.CylinderGeometry(home.islandR, home.islandR + 2, 1.5, 24), M.grass);
+    island.position.set(home.x, 0, home.z);
+    island.receiveShadow = true;
+    island.name = '展台';
+    scene.add(island);
+    var shore = new THREE.Mesh(new THREE.TorusGeometry(home.islandR + 0.4, 0.4, 8, 24), M.marbleD);
+    shore.rotation.x = Math.PI/2;
+    shore.position.set(home.x, 0.7, home.z);
+    shore.name = '展台石岸';
+    scene.add(shore);
+
+    model.scale.set(home.scale, home.scale, home.scale);
+    model.rotation.y = home.rotY;
     model.traverse(function(child){
       if(child.isMesh){
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
+    // 贴地：包围盒底面对齐展岛顶面(y=0.75)，水平中心对准岛心
+    var box = new THREE.Box3().setFromObject(model);
+    model.position.set(
+      home.x - (box.min.x + box.max.x) / 2,
+      0.75 - box.min.y,
+      home.z - (box.min.z + box.max.z) / 2
+    );
     scene.add(model);
+
+    // 加载成功：显示可点击的"实景模型已就绪 · 点击查看"引导
+    var tip = document.getElementById('modelTip');
+    if(tip) tip.classList.add('show');
     console.log('四合院模型加载完成');
   }, undefined, function(err){
     console.warn('四合院模型加载失败:', err);
   });
+}
+
+// 镜头平滑飞向实景模型取景位（引导点击）
+function flyToCourtyard(){
+  var tip = document.getElementById('modelTip');
+  if(tip) tip.classList.remove('show');
+  // 手动引导优先：停止自动轮播，避免镜头被切走
+  if(typeof autoPlaying !== 'undefined' && autoPlaying){
+    autoPlaying = false;
+    var ap = document.getElementById('autoPlayBtn');
+    if(ap) ap.classList.remove('playing');
+  }
+  var home = COURTYARD_HOME;
+  // 收起可能残留的景区详情面板，聚焦实景模型
+  var detail = document.getElementById('detail');
+  if(detail) detail.classList.remove('show');
+  var center = new THREE.Vector3(home.x, 2.4, home.z);
+  // 按画面宽度自适应取景距离：保证模型+展岛构图完整（移动端窄视角自动拉远）
+  var halfHFov = Math.atan(Math.tan(camera.fov * 0.5 * Math.PI / 180) * camera.aspect);
+  var dist = Math.min(95, Math.max(26, (home.islandR + 1) / Math.tan(halfHFov) * 1.05));
+  startPos = camera.position.clone();
+  startLook = controls.target.clone();
+  endPos = new THREE.Vector3(
+    center.x + Math.cos(home.viewAz) * dist,
+    center.y + dist * home.viewSlope,
+    center.z + Math.sin(home.viewAz) * dist
+  );
+  endLook = center;
+  animStart = Date.now();
+  animDuration = 2200;   // 稍长的引导飞行，更从容
+  animating = true;
 }
 
 // ==================== 天空穹顶 + 云层 ====================
@@ -1074,12 +1155,15 @@ function buildTerrain(){
     if(Math.abs(x)<12 && Math.abs(z-70)<18) continue;
     if(Math.abs(x+70)<18 && Math.abs(z)<12) continue;
     if(Math.abs(x-70)<25 && Math.abs(z)<20) continue;
+    if(Math.abs(x-COURTYARD_HOME.x)<26 && Math.abs(z-COURTYARD_HOME.z)<24) continue; // 实景模型展岛附近不种树
     buildTree(x, z, pickTreeType());
   }
   // 水边额外种柳树
   for(var i=0;i<12;i++){
     var ang = Math.random()*Math.PI*2;
     var dist = 55+Math.random()*15;
+    var wdx = Math.cos(ang)*dist - COURTYARD_HOME.x, wdz = Math.sin(ang)*dist - COURTYARD_HOME.z;
+    if(wdx*wdx + wdz*wdz < 27*27) continue; // 避开实景模型展岛
     buildTree(Math.cos(ang)*dist, Math.sin(ang)*dist, treeTypes[2]); // willow
   }
   // 宫殿旁种竹林
@@ -2856,6 +2940,7 @@ function setupUI(){
         endPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
         endLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
         animStart = Date.now();
+        animDuration = 800;   // 景区切换固定时长（避免引导飞行的时长残留）
         animating = true;
       }
 
@@ -2868,6 +2953,15 @@ function setupUI(){
   document.getElementById('detail-close').addEventListener('click', function(){
     document.getElementById('detail').classList.remove('show');
   });
+
+  // 实景模型就绪引导：点击飞往模型取景位（脚本在 IIFE 内，需用事件绑定而非内联 onclick）
+  var modelTip = document.getElementById('modelTip');
+  if(modelTip){
+    modelTip.addEventListener('click', flyToCourtyard);
+    modelTip.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flyToCourtyard(); }
+    });
+  }
 
   // 点击详情面板外部关闭
   document.addEventListener('click', function(e){
@@ -2957,7 +3051,7 @@ function animate(){
     var dist = startPos.distanceTo(endPos);
 
     // 圆弧滑行：沿圆弧匀速移动，无拉近/甩动
-    // 将起止点投影到XZ平面做角度插值，保持半径不变
+    // 将起止点投影到XZ平面做角度插值，半径随缓动从起点过渡到终点（保证精确到达取景位）
     var angle1 = Math.atan2(startPos.z, startPos.x);
     var angle2 = Math.atan2(endPos.z, endPos.x);
     // 选最短弧线方向
@@ -2965,9 +3059,11 @@ function animate(){
     if(dAngle > Math.PI) dAngle -= 2*Math.PI;
     if(dAngle < -Math.PI) dAngle += 2*Math.PI;
     var curAngle = angle1 + dAngle * ease;
-    var radius = (startPos.x*startPos.x + startPos.z*startPos.z) > 0.01
-      ? Math.sqrt(startPos.x*startPos.x + startPos.z*startPos.z)
-      : 100;
+    var r1 = Math.sqrt(startPos.x*startPos.x + startPos.z*startPos.z);
+    var r2 = Math.sqrt(endPos.x*endPos.x + endPos.z*endPos.z);
+    if(r1 < 0.01) r1 = 100;
+    if(r2 < 0.01) r2 = 100;
+    var radius = r1 + (r2 - r1) * ease;
     // Y保持起止点的线性插值（高度一致时不变）
     var curY = startPos.y + (endPos.y - startPos.y) * ease;
 
