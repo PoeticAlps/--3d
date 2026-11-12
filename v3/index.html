@@ -566,7 +566,7 @@ var SCENES = {
     stats:{buildings:'1,247',area:'350',docs:'8,432',models:'2,048',extra:null},
     timeline:[{y:'1707',e:'始建，康熙帝赐名"圆明园"'},{y:'1723',e:'雍正帝大规模扩建'},{y:'1747',e:'乾隆建西洋楼景区'},{y:'1860',e:'英法联军焚毁，万园成灰'},{y:'2026',e:'AI数字重建，重现辉煌'}],
     barWidths:[100,100,100,100]},
-  jiuzhou:{cam:[25,18,25],look:[0,2,0],title:'九州清晏',year:'雍正元年 (1723)',
+  jiuzhou:{cam:[38,26,38],look:[0,5,0],title:'九州清晏',year:'雍正元年 (1723)',
     desc:'圆明园四十景之首，位于后湖中心。由九座岛屿组成，象征华夏九州。主殿为皇帝寝宫，黄琉璃瓦，气势恢宏。雍正帝每年在此居住200余天。',
     tags:['核心景区','岛屿群','皇帝寝宫','后湖'],
     stats:{buildings:'186',area:'42',docs:'1,240',models:'328',extra:{num:'9',label:'岛屿'}},
@@ -578,13 +578,13 @@ var SCENES = {
     stats:{buildings:'53',area:'18',docs:'680',models:'156',extra:{num:'13',label:'喷水塔'}},
     timeline:[{y:'1747',e:'乾隆命郎世宁设计'},{y:'1759',e:'西洋楼全部建成'},{y:'1860',e:'喷泉机械被掠，建筑焚毁'},{y:'2026',e:'铜雕猎狗逐鹿数字重生'}],
     barWidths:[4,13,8,8]},
-  fangpu:{cam:[88,18,20],look:[70,3,0],title:'方壶胜境',year:'乾隆十五年 (1750)',
+  fangpu:{cam:[70,30,85],look:[70,6,0],title:'方壶胜境',year:'乾隆十五年 (1750)',
     desc:'圆明园四十景之一，仿古代神仙仙境建造。楼阁矗立水面，九座桥梁相连，宛如蓬莱仙境。是圆明园中最具道家意境的景区。',
     tags:['仙境','湖上建筑','道家','九桥'],
     stats:{buildings:'124',area:'28',docs:'920',models:'267',extra:{num:'9',label:'桥梁'}},
     timeline:[{y:'1750',e:'仿蓬莱仙境开建'},{y:'1755',e:'九桥连阁落成'},{y:'1860',e:'楼阁尽毁于火'},{y:'2026',e:'水上仙境再现'}],
     barWidths:[10,20,11,13]},
-  zhengda:{cam:[-50,20,22],look:[-70,4,0],title:'正大光明',year:'雍正元年 (1723)',
+  zhengda:{cam:[-70,22,-55],look:[-70,6,0],title:'正大光明',year:'雍正元年 (1723)',
     desc:'圆明园正殿，皇帝在此举行朝会、接见外使、颁发诏书。殿内悬雍正帝亲题"正大光明"匾额。重檐庑殿顶，面阔七间，庄严雄伟。',
     tags:['正殿','朝政','雍正御笔','华表'],
     stats:{buildings:'67',area:'15',docs:'1,080',models:'189',extra:{num:'2',label:'华表'}},
@@ -680,6 +680,13 @@ function init(){
   setProgress(30);
   updateLoadStatus('正在构建建筑群...');
   buildWorld();
+  // TEMP-MEASURE: 场景对象统计(测试用,交付前删除)
+  window.__ymyStats = (function(){
+    var m=0,g=0,tr=0;
+    scene.traverse(function(o){ if(o.isMesh){m++; tr+=o.geometry.index? o.geometry.index.count/3 : o.geometry.attributes.position.count/3;} else if(o.isGroup){g++;} });
+    window.__ymyScene = scene;
+    return {meshes:m, groups:g, triangles:Math.round(tr)};
+  })();
   setProgress(85);
   updateLoadStatus('正在配置交互...');
   setupUI();
@@ -917,9 +924,10 @@ function buildTerrain(){
   for(var i=0; i<75; i++){
     var x = (Math.random()-0.5)*280, z = (Math.random()-0.5)*280;
     if(Math.abs(x)<20 && Math.abs(z)<20) continue;
-    if(Math.abs(x-70)<18 && Math.abs(z)<12) continue;
-    if(Math.abs(x)<12 && Math.abs(z-70)<18) continue;
-    if(Math.abs(x+70)<18 && Math.abs(z)<12) continue;
+    // 复原深化:扩大景区排除区,防止树木长在方壶平台上/正大光明宫门御路
+    if(Math.abs(x-70)<20 && Math.abs(z)<24) continue;
+    if(Math.abs(x)<18 && Math.abs(z-70)<14) continue;
+    if(Math.abs(x+70)<12 && z>-24 && z<12) continue;
     buildTree(x, z, pickTreeType());
   }
   // 花圃（牡丹台/镂月开云）- 牡丹、芍药
@@ -2618,6 +2626,57 @@ function buildStoneLion(x, z){
 }
 
 // ==================== UI交互 ====================
+// 复原深化:详情面板与数据更新独立成函数,点击立即执行(不依赖流光动画回调)
+function updateDetailPanel(data){
+  // 更新详情面板
+  document.getElementById('d-title').textContent = data.title;
+  document.getElementById('d-year').textContent = data.year;
+  document.getElementById('d-desc').textContent = data.desc;
+  document.getElementById('d-tags').innerHTML = data.tags.map(function(t){
+    return '<span class="tag" onclick="filterTag(this)">'+t+'</span>';
+  }).join('');
+
+  // 更新时间线
+  var timelineEl = document.getElementById('d-timeline');
+  if(data.timeline){
+    timelineEl.innerHTML = data.timeline.map(function(item, i){
+      return '<div class="timeline-item" style="position:relative;animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
+    }).join('');
+    timelineEl.style.display = 'block';
+  } else {
+    timelineEl.style.display = 'none';
+  }
+
+  document.getElementById('detail').classList.add('show');
+
+  // 更新左上角景区数据面板（数字滚动动画 + 进度条）
+  if(data.stats){
+    var s = data.stats;
+    animateNumber(document.getElementById('stat-1'), s.buildings, 900);
+    animateNumber(document.getElementById('stat-2'), s.area, 700);
+    animateNumber(document.getElementById('stat-3'), s.docs, 1000);
+    animateNumber(document.getElementById('stat-4'), s.models, 800);
+    var extraEl = document.getElementById('stat-extra');
+    if(s.extra){
+      animateNumber(document.getElementById('stat-extra-num'), s.extra.num, 600);
+      document.getElementById('stat-extra-label').textContent = s.extra.label;
+      extraEl.style.display = 'flex';
+    } else {
+      extraEl.style.display = 'none';
+    }
+    // 进度条动画
+    if(data.barWidths){
+      setTimeout(function(){
+        var bars = ['bar-1','bar-2','bar-3','bar-4'];
+        data.barWidths.forEach(function(w, i){
+          var el = document.getElementById(bars[i]);
+          if(el) el.style.width = w + '%';
+        });
+      }, 100);
+    }
+  }
+}
+
 function setupUI(){
   document.querySelectorAll('.scene-btn').forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -2632,70 +2691,24 @@ function setupUI(){
       var statsBody = document.querySelector('.stats-body');
       if(statsBody) statsBody.style.opacity = '0';
 
-      // 触发串联细线动效 → 完成后数据淡入
+      // 复原深化:卡片与飞行动画立即执行(原依赖流光回调,首次点击偶发不触发);流光仅作装饰
+      updateDetailPanel(data);
+
+      // 触发串联细线动效(纯装饰,完成回调仅做数据面板淡入)
       triggerLineAnimation(function(){
-        // 更新详情面板
-        document.getElementById('d-title').textContent = data.title;
-        document.getElementById('d-year').textContent = data.year;
-        document.getElementById('d-desc').textContent = data.desc;
-        document.getElementById('d-tags').innerHTML = data.tags.map(function(t){
-          return '<span class="tag" onclick="filterTag(this)">'+t+'</span>';
-        }).join('');
-
-        // Phase 5: 更新时间线
-        var timelineEl = document.getElementById('d-timeline');
-        if(data.timeline){
-          timelineEl.innerHTML = data.timeline.map(function(item, i){
-            return '<div class="timeline-item" style="position:relative;animation:fadeUp 0.4s ease '+(i*0.1)+'s both"><div class="timeline-dot"></div><div class="timeline-year">'+item.y+'</div><div class="timeline-event">'+item.e+'</div></div>';
-          }).join('');
-          timelineEl.style.display = 'block';
-        } else {
-          timelineEl.style.display = 'none';
-        }
-
-        document.getElementById('detail').classList.add('show');
-
-        // 数据面板淡入
         if(statsBody){
           statsBody.style.transition = 'opacity 0.3s ease';
           statsBody.style.opacity = '1';
         }
+      });
 
-        // 更新左上角景区数据面板（数字滚动动画 + 进度条）
-        if(data.stats){
-          var s = data.stats;
-          animateNumber(document.getElementById('stat-1'), s.buildings, 900);
-          animateNumber(document.getElementById('stat-2'), s.area, 700);
-          animateNumber(document.getElementById('stat-3'), s.docs, 1000);
-          animateNumber(document.getElementById('stat-4'), s.models, 800);
-          var extraEl = document.getElementById('stat-extra');
-          if(s.extra){
-            animateNumber(document.getElementById('stat-extra-num'), s.extra.num, 600);
-            document.getElementById('stat-extra-label').textContent = s.extra.label;
-            extraEl.style.display = 'flex';
-          } else {
-            extraEl.style.display = 'none';
-          }
-          // 进度条动画
-          if(data.barWidths){
-            setTimeout(function(){
-              var bars = ['bar-1','bar-2','bar-3','bar-4'];
-              data.barWidths.forEach(function(w, i){
-                var el = document.getElementById(bars[i]);
-                if(el) el.style.width = w + '%';
-              });
-            }, 100);
-          }
-        }
-
-        // 飞行动画
-        startPos = camera.position.clone();
-        startLook = controls.target.clone();
-        endPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
-        endLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
-        animStart = Date.now();
-        animating = true;
-      }); // end triggerLineAnimation callback
+      // 飞行动画
+      startPos = camera.position.clone();
+      startLook = controls.target.clone();
+      endPos = new THREE.Vector3(data.cam[0], data.cam[1], data.cam[2]);
+      endLook = new THREE.Vector3(data.look[0], data.look[1], data.look[2]);
+      animStart = Date.now();
+      animating = true;
     });
   });
 
