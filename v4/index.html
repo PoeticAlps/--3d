@@ -15,6 +15,8 @@
 html,body{width:100%;height:100%;overflow:hidden}
 body{font-family:'Songti SC','STSong','STZhongsong','Noto Serif CJK SC','SimSun',serif;background:#101418;color:var(--text);-webkit-font-smoothing:antialiased}
 canvas{display:block}
+/* 画质升级:轻暗角 overlay(径向渐变,pointer-events:none 不挡交互) */
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:50;background:radial-gradient(ellipse 125% 95% at 50% 42%, rgba(10,14,22,0) 55%, rgba(10,14,22,.15) 80%, rgba(6,9,15,.32) 100%)}
 #ui{position:fixed;inset:0;pointer-events:none;z-index:100}
 #ui>*{pointer-events:auto}
 
@@ -113,6 +115,8 @@ canvas{display:block}
   <div class="load-foot">丙戌制图 · 依圆明园四十景图咏重建</div>
 </div>
 
+<div id="vignette"></div>
+
 <div id="ui">
   <div class="stats" id="statsPanel">
     <div class="stats-title">
@@ -152,6 +156,8 @@ canvas{display:block}
 </div>
 
 <script src="three.min.js"></script>
+<script src="lib/objects/Sky.js"></script>
+<script src="lib/objects/Water.js"></script>
 <script src="lib/shaders/CopyShader.js"></script>
 <script src="lib/shaders/LuminosityHighPassShader.js"></script>
 <script src="lib/postprocessing/EffectComposer.js"></script>
@@ -454,12 +460,50 @@ function speckle(g,w,h,n,c1,c2,rmin,rmax,seedFn){
   g.globalAlpha=1;
 }
 
+/* 画质升级:数据纹理(法线/粗糙度图,保持线性编码,不套 sRGB) */
+function makeTexN(w,h,fn,repX,repY){
+  var c=document.createElement('canvas'); c.width=w; c.height=h;
+  fn(c.getContext('2d'), w, h);
+  var t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  if(repX) t.repeat.set(repX, repY||repX);
+  t.anisotropy=4;
+  return t;
+}
+/* 画质升级:由灰度高图烘焙法线贴图(Sobel 梯度→RGB 编码,OpenGL 约定) */
+function heightToNormal(srcCanvas, strength){
+  var w=srcCanvas.width, h=srcCanvas.height;
+  var sg=srcCanvas.getContext('2d').getImageData(0,0,w,h).data;
+  var out=document.createElement('canvas'); out.width=w; out.height=h;
+  var og=out.getContext('2d');
+  var od=og.createImageData(w,h);
+  function hgt(x,y){
+    x=((x%w)+w)%w; y=((y%h)+h)%h;
+    var i=(y*w+x)*4;
+    return (sg[i]+sg[i+1]+sg[i+2])/765;
+  }
+  for(var y=0;y<h;y++){
+    for(var x=0;x<w;x++){
+      var dx=(hgt(x-1,y)-hgt(x+1,y))*strength;
+      var dy=(hgt(x,y+1)-hgt(x,y-1))*strength;
+      var len=Math.sqrt(dx*dx+dy*dy+1);
+      var i=(y*w+x)*4;
+      od.data[i]=(dx/len*0.5+0.5)*255;
+      od.data[i+1]=(dy/len*0.5+0.5)*255;
+      od.data[i+2]=(1/len*0.5+0.5)*255;
+      od.data[i+3]=255;
+    }
+  }
+  og.putImageData(od,0,0);
+  return out;
+}
+
 var TEX = {};
 function buildTextures(){
   /* 汉白玉:淡纹大理石 */
   TEX.marble = makeTex(256,256,function(g,w,h){
     var grd=g.createLinearGradient(0,0,0,h);
-    grd.addColorStop(0,'#f7f3ea'); grd.addColorStop(1,'#efe9dc');
+    grd.addColorStop(0,'#f3efe3'); grd.addColorStop(1,'#eae3d4');
     g.fillStyle=grd; g.fillRect(0,0,w,h);
     for(var i=0;i<26;i++){
       g.strokeStyle='rgba(168,160,146,'+(0.08+Math.random()*0.14)+')';
@@ -475,7 +519,7 @@ function buildTextures(){
   /* 白石(大水法,稍冷) */
   TEX.stone = makeTex(256,256,function(g,w,h){
     var grd=g.createLinearGradient(0,0,0,h);
-    grd.addColorStop(0,'#eeede8'); grd.addColorStop(1,'#e2e0d8');
+    grd.addColorStop(0,'#e9e7df'); grd.addColorStop(1,'#dcd9cf');
     g.fillStyle=grd; g.fillRect(0,0,w,h);
     for(var i=0;i<20;i++){
       g.strokeStyle='rgba(150,148,140,'+(0.06+Math.random()*0.1)+')';
@@ -585,14 +629,255 @@ function buildTextures(){
       g.fillStyle='#e0c184'; g.fillRect(x+5,2,6,3);
     }
   });
-  /* 草地 */
+  /* 草地(画质升级:短草笔触+双色斑,告别纯色平面感) */
   TEX.grass = makeTex(256,256,function(g,w,h){
     var grd=g.createLinearGradient(0,0,w,h);
-    grd.addColorStop(0,'#7a9250'); grd.addColorStop(1,'#6a8446');
+    grd.addColorStop(0,'#758c4c'); grd.addColorStop(1,'#668042');
     g.fillStyle=grd; g.fillRect(0,0,w,h);
-    speckle(g,w,h,420,'#5c7438','#9fb26a',0.6,2.2,rnd(21));
-    speckle(g,w,h,180,'#4e6630','#8aa054',0.5,1.6,rnd(33));
+    speckle(g,w,h,420,'#556e34','#9db070',0.6,2.2,rnd(21));
+    speckle(g,w,h,180,'#48602e','#8aa054',0.5,1.6,rnd(33));
+    /* 短草笔触:随机方向的细短线,模拟草叶 */
+    var R=rnd(29);
+    for(var i=0;i<520;i++){
+      var x=R()*w, y=R()*h, a=-1.2+R()*2.4, len=3+R()*6;
+      g.strokeStyle = R()<0.5? 'rgba(38,54,20,0.28)' : 'rgba(178,196,120,0.30)';
+      g.lineWidth=0.7+R()*0.6;
+      g.beginPath(); g.moveTo(x,y);
+      g.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len);
+      g.stroke();
+    }
   });
+  /* 草地法线贴图(画质升级:凹凸短草起伏) */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#808080'; g.fillRect(0,0,s,s);
+    var R=rnd(44);
+    for(var i=0;i<260;i++){
+      var x=R()*s, y=R()*s, a=-1.2+R()*2.4, len=3+R()*7;
+      g.strokeStyle = R()<0.5? 'rgba(40,40,40,0.55)' : 'rgba(200,200,200,0.55)';
+      g.lineWidth=1+R()*1.6;
+      g.beginPath(); g.moveTo(x,y); g.lineTo(x+Math.cos(a)*len, y+Math.sin(a)*len); g.stroke();
+    }
+    speckle(g,s,s,60,'#6a6a6a','#9a9a9a',1,2.6,R);
+    TEX.grassN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,2.2),0,0); });
+  })();
+  /* 画质升级:水法线贴图(可平铺噪声高图烘焙,供 Water.js) */
+  (function(){
+    var s=256;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    var img=g.createImageData(s,s);
+    var R=rnd(1234), blobs=[];
+    for(var i=0;i<95;i++){ blobs.push({x:R()*s, y:R()*s, r:7+R()*24, a:(R()<0.5?-1:1)*(0.5+R()*0.5)}); }
+    var hs=new Float32Array(s*s);
+    for(var y=0;y<s;y++){
+      for(var x=0;x<s;x++){
+        var v=0.5;
+        for(var j=0;j<blobs.length;j++){
+          var b=blobs[j];
+          var dx=Math.abs(x-b.x); if(dx>s/2) dx=s-dx;
+          var dy=Math.abs(y-b.y); if(dy>s/2) dy=s-dy;
+          var d2=(dx*dx+dy*dy)/(b.r*b.r);
+          if(d2<1) v+=b.a*0.045*(1-d2)*(1-d2);
+        }
+        hs[y*s+x]=v;
+      }
+    }
+    for(y=0;y<s;y++){
+      for(x=0;x<s;x++){
+        function H(xx,yy){ xx=((xx%s)+s)%s; yy=((yy%s)+s)%s; return hs[yy*s+xx]; }
+        var nx=(H(x-1,y)-H(x+1,y))*3.2, ny=(H(x,y+1)-H(x,y-1))*3.2;
+        var len=Math.sqrt(nx*nx+ny*ny+1);
+        var i=(y*s+x)*4;
+        img.data[i]=(nx/len*0.5+0.5)*255;
+        img.data[i+1]=(ny/len*0.5+0.5)*255;
+        img.data[i+2]=(1/len*0.5+0.5)*255;
+        img.data[i+3]=255;
+      }
+    }
+    g.putImageData(img,0,0);
+    TEX.waterN=new THREE.CanvasTexture(hc);
+    TEX.waterN.wrapS=TEX.waterN.wrapT=THREE.RepeatWrapping;
+  })();
+  /* 画质升级:汉白玉细纹法线 */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#808080'; g.fillRect(0,0,s,s);
+    for(var i=0;i<10;i++){
+      g.strokeStyle='rgba(190,190,190,'+(0.15+Math.random()*0.2)+')';
+      g.lineWidth=1+Math.random()*1.5;
+      g.beginPath();
+      var x=Math.random()*s, y=Math.random()*s;
+      g.moveTo(x,y);
+      for(var k=0;k<4;k++){ x+=(Math.random()-0.5)*40; y+=12+Math.random()*22; g.lineTo(x,y); }
+      g.stroke();
+    }
+    speckle(g,s,s,40,'#787878','#8f8f8f',0.6,1.8,rnd(13));
+    TEX.marbleN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,1.1),0,0); });
+  })();
+  /* 画质升级:石板路法线+粗糙度(拼缝凹陷、表面磨光) */
+  (function(){
+    var s=128, joint=16;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#8c8c8c'; g.fillRect(0,0,s,s);
+    var R=rnd(15);
+    for(var i=0;i<140;i++){
+      g.fillStyle='rgba('+Math.round(110+R()*60)+','+Math.round(110+R()*60)+','+Math.round(110+R()*60)+',0.4)';
+      g.beginPath(); g.arc(R()*s,R()*s,1+R()*3,0,6.283); g.fill();
+    }
+    g.strokeStyle='#3a3a3a'; g.lineWidth=3;
+    for(var y=0;y<=s;y+=joint){ g.beginPath(); g.moveTo(0,y); g.lineTo(s,y); g.stroke(); }
+    for(y=0;y<=s;y+=joint){
+      var off=((y/joint)%2)? 0:joint;
+      for(var x=off;x<=s;x+=joint*2){ g.beginPath(); g.moveTo(x,y); g.lineTo(x,y+joint); g.stroke(); }
+    }
+    TEX.pavingN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,2.6),0,0); },6,6);
+    /* 粗糙度图:拼缝粗糙(亮)、板面略光滑(暗) */
+    var rc=document.createElement('canvas'); rc.width=rc.height=s;
+    var rg=rc.getContext('2d');
+    rg.fillStyle='#8a8a8a'; rg.fillRect(0,0,s,s);
+    for(i=0;i<120;i++){
+      var rv=Math.round(90+R()*120);
+      rg.fillStyle='rgba('+rv+','+rv+','+rv+',0.35)';
+      rg.beginPath(); rg.arc(R()*s,R()*s,1+R()*2.4,0,6.283); rg.fill();
+    }
+    rg.strokeStyle='#e8e8e8'; rg.lineWidth=3;
+    for(y=0;y<=s;y+=joint){ rg.beginPath(); rg.moveTo(0,y); rg.lineTo(s,y); rg.stroke(); }
+    for(y=0;y<=s;y+=joint){
+      var off2=((y/joint)%2)? 0:joint;
+      for(var x2=off2;x2<=s;x2+=joint*2){ rg.beginPath(); rg.moveTo(x2,y); rg.lineTo(x2,y+joint); rg.stroke(); }
+    }
+    TEX.pavingR = makeTexN(s,s,function(gg){ gg.drawImage(rc,0,0); },6,6);
+  })();
+  /* 画质升级:瓦垄法线(明暗条起伏,琉璃/灰瓦共用,周期与瓦纹一致) */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    var img=g.createImageData(s,s);
+    for(var y=0;y<s;y++){
+      for(var x=0;x<s;x++){
+        /* 三角波:周期 8px,垄峰亮、垄沟暗 */
+        var ph=(x%8)/8;
+        var hh=60+70*Math.abs(ph-0.5)*2;
+        var i=(y*s+x)*4;
+        img.data[i]=img.data[i+1]=img.data[i+2]=hh;
+        img.data[i+3]=255;
+      }
+    }
+    g.putImageData(img,0,0);
+    TEX.roofN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,1.6),0,0); });
+  })();
+  /* 画质升级:木纹法线(朱红柱) */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#808080'; g.fillRect(0,0,s,s);
+    var R=rnd(17);
+    for(var i=0;i<30;i++){
+      g.strokeStyle='rgba('+(R()<0.5?52:186)+','+(R()<0.5?52:186)+','+(R()<0.5?52:186)+','+(0.25+R()*0.3)+')';
+      g.lineWidth=1+R()*2;
+      var x=R()*s;
+      g.beginPath(); g.moveTo(x,0);
+      g.bezierCurveTo(x+4, s*0.33, x-4, s*0.66, x+(R()-0.5)*7, s);
+      g.stroke();
+    }
+    TEX.woodN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,1.4),0,0); });
+  })();
+  /* 画质升级:红墙灰浆法线(细颗粒抹灰) */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#808080'; g.fillRect(0,0,s,s);
+    var R=rnd(19);
+    for(var i=0;i<420;i++){
+      var v=Math.round(96+R()*72);
+      g.fillStyle='rgba('+v+','+v+','+v+','+(0.18+R()*0.25)+')';
+      g.beginPath(); g.arc(R()*s,R()*s,0.8+R()*2.2,0,6.283); g.fill();
+    }
+    TEX.plasterN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,1.2),0,0); });
+  })();
+  /* 画质升级:山石法线(嶙峋凹凸) */
+  (function(){
+    var s=128;
+    var hc=document.createElement('canvas'); hc.width=hc.height=s;
+    var g=hc.getContext('2d');
+    g.fillStyle='#808080'; g.fillRect(0,0,s,s);
+    var R=rnd(23);
+    for(var i=0;i<50;i++){
+      var v=Math.round(60+R()*150);
+      g.fillStyle='rgba('+v+','+v+','+v+','+(0.3+R()*0.4)+')';
+      g.beginPath(); g.arc(R()*s,R()*s,2+R()*7,0,6.283); g.fill();
+    }
+    for(i=0;i<16;i++){
+      g.strokeStyle='rgba(50,50,50,0.5)'; g.lineWidth=1+R()*2;
+      g.beginPath(); var x=R()*s,y=R()*s; g.moveTo(x,y);
+      for(var k=0;k<3;k++){ x+=(R()-0.5)*44; y+=(R()-0.5)*36; g.lineTo(x,y); }
+      g.stroke();
+    }
+    TEX.rockN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,2.4),0,0); });
+  })();
+  /* 画质升级:草簇 alpha 贴图(交叉面片用) */
+  TEX.grassBlade = (function(){
+    var c=document.createElement('canvas'); c.width=128; c.height=128;
+    var g=c.getContext('2d');
+    g.clearRect(0,0,128,128);
+    var R=rnd(35);
+    for(var i=0;i<11;i++){
+      var bx=10+R()*108, topY=14+R()*36, w=2.2+R()*2.4, lean=(R()-0.5)*26;
+      var grd=g.createLinearGradient(bx,128,bx+lean,topY);
+      grd.addColorStop(0,'#3c5524'); grd.addColorStop(0.7,'#5e7c34'); grd.addColorStop(1,'#93ad58');
+      g.fillStyle=grd;
+      g.beginPath();
+      g.moveTo(bx-w,128);
+      g.quadraticCurveTo(bx-w*0.4, 128-(128-topY)*0.6, bx+lean, topY);
+      g.quadraticCurveTo(bx+w*0.4, 128-(128-topY)*0.6, bx+w, 128);
+      g.closePath(); g.fill();
+    }
+    var t=new THREE.CanvasTexture(c);
+    t.anisotropy=4;
+    return t;
+  })();
+  /* 画质升级:花瓣 sprite(飘落粒子用,柔边) */
+  TEX.petal=(function(){
+    var c=document.createElement('canvas'); c.width=64; c.height=64;
+    var g=c.getContext('2d');
+    var grd=g.createRadialGradient(32,30,2,32,30,26);
+    grd.addColorStop(0,'rgba(252,225,232,0.95)');
+    grd.addColorStop(0.55,'rgba(244,186,206,0.72)');
+    grd.addColorStop(1,'rgba(236,168,192,0)');
+    g.fillStyle=grd;
+    g.save(); g.translate(32,32); g.scale(1,0.82); g.beginPath(); g.arc(0,0,27,0,6.283); g.fill(); g.restore();
+    var t=new THREE.CanvasTexture(c);
+    return t;
+  })();
+  /* 画质升级:程序化云纹理(两张柔边云团) */
+  function cloudTex(seed){
+    var c=document.createElement('canvas'); c.width=256; c.height=128;
+    var g=c.getContext('2d');
+    g.clearRect(0,0,256,128);
+    var R=rnd(seed);
+    for(var i=0;i<26;i++){
+      var cx=40+R()*176, cy=44+R()*44, rr=16+R()*30;
+      var grd=g.createRadialGradient(cx,cy,rr*0.1,cx,cy,rr);
+      var a=0.10+R()*0.16;
+      grd.addColorStop(0,'rgba(255,251,246,'+a+')');
+      grd.addColorStop(0.6,'rgba(252,244,236,'+(a*0.55)+')');
+      grd.addColorStop(1,'rgba(250,240,230,0)');
+      g.fillStyle=grd;
+      g.beginPath(); g.arc(cx,cy,rr,0,6.283); g.fill();
+    }
+    var t=new THREE.CanvasTexture(c);
+    return t;
+  }
+  TEX.cloud1=cloudTex(301); TEX.cloud2=cloudTex(402);
   /* 石板路(repeat 6×6,实际约 1m 一板) */
   TEX.paving = makeTex(256,256,function(g,w,h){
     g.fillStyle='#cfc7b2'; g.fillRect(0,0,w,h);
@@ -628,24 +913,6 @@ function buildTextures(){
     }
     speckle(g,w,h,120,'#565248','#a29c8c',0.8,2.4,rnd(9));
   });
-  /* 水面噪声两张(柔边径向渐变,避免硬斑) */
-  function noiseTex(seed, blobN){
-    return makeTex(128,128,function(g,w,h){
-      g.fillStyle='#808080'; g.fillRect(0,0,w,h);
-      var R=rnd(seed);
-      for(var i=0;i<blobN;i++){
-        var v=96+Math.floor(R()*100);
-        var x=R()*w, y=R()*h, rr=8+R()*26;
-        var grd=g.createRadialGradient(x,y,0, x,y,rr);
-        grd.addColorStop(0,'rgba('+v+','+v+','+v+',0.5)');
-        grd.addColorStop(1,'rgba('+v+','+v+','+v+',0)');
-        g.fillStyle=grd;
-        g.beginPath(); g.arc(x,y,rr,0,6.283); g.fill();
-      }
-    });
-  }
-  TEX.noise1 = noiseTex(101, 260);
-  TEX.noise2 = noiseTex(202, 240);
   /* 山峦剪影(竖直 billboard,山形+向下淡出) */
   function mountainTex(seed, topCol, baseCol, fadeCol){
     return makeTex(512,256,function(g,w,h){
@@ -667,60 +934,62 @@ function buildTextures(){
         g.quadraticCurveTo(x-step/2, y, x, h*(0.42+R()*0.3));
       }
       g.lineTo(w,h); g.closePath(); g.fill();
+      /* 画质升级:左右边缘横向淡出,消除 billboard 拼接缝 */
+      var fade=g.createLinearGradient(0,0,w,0);
+      fade.addColorStop(0,'rgba(0,0,0,1)'); fade.addColorStop(0.10,'rgba(0,0,0,0)');
+      fade.addColorStop(0.90,'rgba(0,0,0,0)'); fade.addColorStop(1,'rgba(0,0,0,1)');
+      g.globalCompositeOperation='destination-out';
+      g.fillStyle=fade; g.fillRect(0,0,w,h);
+      g.globalCompositeOperation='source-over';
     });
   }
   TEX.mtnFar  = mountainTex(55, 'rgba(158,176,186,0.95)', 'rgba(197,209,214,0.95)', 'rgba(197,209,214,0.35)');
   TEX.mtnMid  = mountainTex(77, 'rgba(128,150,156,0.96)', 'rgba(174,190,192,0.96)', 'rgba(174,190,192,0.35)');
   TEX.mtnNear = mountainTex(99, 'rgba(96,120,118,0.97)', 'rgba(150,168,166,0.97)', 'rgba(150,168,166,0.35)');
-  /* 天空穹顶渐变 */
-  TEX.sky = makeTex(64,512,function(g,w,h){
-    var grd=g.createLinearGradient(0,0,0,h);
-    grd.addColorStop(0.0,'#5e88b5');
-    grd.addColorStop(0.42,'#9fbcd2');
-    grd.addColorStop(0.62,'#d4dfe0');
-    grd.addColorStop(0.74,'#eee6cf');
-    grd.addColorStop(0.85,'#e6dcc2');
-    grd.addColorStop(1,'#dcd2ba');
-    g.fillStyle=grd; g.fillRect(0,0,w,h);
-  });
 }
 
 /* ==================== 材质库 ==================== */
 var MAT = {};
 function buildMaterials(){
-  MAT.marble   = new THREE.MeshStandardMaterial({map:TEX.marble, roughness:0.42, metalness:0.02});
-  MAT.stone    = new THREE.MeshStandardMaterial({map:TEX.stone, roughness:0.5, metalness:0.02});
-  MAT.column   = new THREE.MeshStandardMaterial({map:TEX.redColumn, roughness:0.55, metalness:0.05});
-  MAT.redWall  = new THREE.MeshStandardMaterial({map:TEX.redWall, roughness:0.75, metalness:0.02});
-  MAT.glazeGreen = new THREE.MeshStandardMaterial({map:TEX.glazeGreen, roughness:0.32, metalness:0.12, side:THREE.DoubleSide});
-  MAT.glazeYellow= new THREE.MeshStandardMaterial({map:TEX.glazeYellow, roughness:0.3, metalness:0.15, side:THREE.DoubleSide});
-  MAT.tileGray   = new THREE.MeshStandardMaterial({map:TEX.tileGray, roughness:0.62, metalness:0.04, side:THREE.DoubleSide});
-  MAT.tileTrim   = new THREE.MeshStandardMaterial({map:TEX.tileGrayGreenTrim, roughness:0.55, metalness:0.06, side:THREE.DoubleSide});
+  /* 画质升级:各材质补 normal/roughness 贴图,几何不动只提质感 */
+  MAT.marble   = new THREE.MeshStandardMaterial({map:TEX.marble, roughness:0.44, metalness:0.02, normalMap:TEX.marbleN, normalScale:new THREE.Vector2(0.32,0.32), envMapIntensity:0.28});
+  MAT.stone    = new THREE.MeshStandardMaterial({map:TEX.stone, roughness:0.6, metalness:0.02, normalMap:TEX.marbleN, normalScale:new THREE.Vector2(0.5,0.5), envMapIntensity:0.28});
+  MAT.column   = new THREE.MeshStandardMaterial({map:TEX.redColumn, roughness:0.52, metalness:0.05, normalMap:TEX.woodN, normalScale:new THREE.Vector2(0.45,0.45), envMapIntensity:0.4});
+  MAT.redWall  = new THREE.MeshStandardMaterial({map:TEX.redWall, roughness:0.78, metalness:0.02, normalMap:TEX.plasterN, normalScale:new THREE.Vector2(0.5,0.5)});
+  MAT.glazeGreen = new THREE.MeshStandardMaterial({map:TEX.glazeGreen, roughness:0.28, metalness:0.14, normalMap:TEX.roofN, normalScale:new THREE.Vector2(0.65,0.65), side:THREE.DoubleSide, envMapIntensity:0.6});
+  MAT.glazeYellow= new THREE.MeshStandardMaterial({map:TEX.glazeYellow, roughness:0.26, metalness:0.16, normalMap:TEX.roofN, normalScale:new THREE.Vector2(0.65,0.65), side:THREE.DoubleSide, envMapIntensity:0.6});
+  MAT.tileGray   = new THREE.MeshStandardMaterial({map:TEX.tileGray, roughness:0.58, metalness:0.05, normalMap:TEX.roofN, normalScale:new THREE.Vector2(0.6,0.6), side:THREE.DoubleSide});
+  MAT.tileTrim   = new THREE.MeshStandardMaterial({map:TEX.tileGrayGreenTrim, roughness:0.52, metalness:0.07, normalMap:TEX.roofN, normalScale:new THREE.Vector2(0.6,0.6), side:THREE.DoubleSide});
   MAT.goldDark = new THREE.MeshStandardMaterial({color:0x8a6b2c, roughness:0.32, metalness:0.72});
   MAT.gold     = new THREE.MeshStandardMaterial({color:0xd4af4e, roughness:0.25, metalness:0.85});
   MAT.lattice  = new THREE.MeshStandardMaterial({map:TEX.lattice, roughness:0.9, transparent:true, opacity:0.92, side:THREE.DoubleSide});
   MAT.dougong  = new THREE.MeshStandardMaterial({map:TEX.dougong, roughness:0.7});
-  MAT.grass    = new THREE.MeshStandardMaterial({map:TEX.grass, roughness:0.95});
+  MAT.grass    = new THREE.MeshStandardMaterial({map:TEX.grass, roughness:0.95, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.7,0.7)});
+  /* 画质升级:地形顶面专用(带顶点色大尺度深浅) */
+  MAT.grassVC  = new THREE.MeshStandardMaterial({map:TEX.grass, roughness:0.95, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.7,0.7), vertexColors:true});
   MAT.grassSide= new THREE.MeshStandardMaterial({color:0x6b5b40, roughness:0.9});
-  MAT.paving   = new THREE.MeshStandardMaterial({map:TEX.paving, roughness:0.85});
-  MAT.plank    = new THREE.MeshStandardMaterial({map:TEX.plank, roughness:0.8});
-  MAT.rock     = new THREE.MeshStandardMaterial({map:TEX.rock, roughness:0.95});
-  MAT.trunk    = new THREE.MeshStandardMaterial({color:0x6e5136, roughness:0.9});
+  MAT.paving   = new THREE.MeshStandardMaterial({map:TEX.paving, roughness:0.9, metalness:0.02, normalMap:TEX.pavingN, normalScale:new THREE.Vector2(0.75,0.75), roughnessMap:TEX.pavingR});
+  MAT.plank    = new THREE.MeshStandardMaterial({map:TEX.plank, roughness:0.8, normalMap:TEX.woodN, normalScale:new THREE.Vector2(0.28,0.28)});
+  MAT.rock     = new THREE.MeshStandardMaterial({map:TEX.rock, roughness:0.95, normalMap:TEX.rockN, normalScale:new THREE.Vector2(1.1,1.1)});
+  MAT.trunk    = new THREE.MeshStandardMaterial({color:0x6e5136, roughness:0.9, normalMap:TEX.woodN, normalScale:new THREE.Vector2(0.3,0.3)});
   /* 实例化植被基色为白,由 instanceColor 提供色相 */
-  MAT.pine     = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9});
-  MAT.cypress  = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9});
-  MAT.willow   = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9});
-  MAT.blossom  = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.85});
-  MAT.lotusPad = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.7, side:THREE.DoubleSide});
+  MAT.pine     = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.45,0.45), envMapIntensity:0.4});
+  MAT.cypress  = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.45,0.45), envMapIntensity:0.4});
+  MAT.willow   = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.45,0.45), envMapIntensity:0.4});
+  MAT.blossom  = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.85, normalMap:TEX.grassN, normalScale:new THREE.Vector2(0.3,0.3), envMapIntensity:0.35});
+  MAT.lotusPad = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.65, side:THREE.DoubleSide});
   MAT.lotusFlower = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.7});
   MAT.reed     = new THREE.MeshStandardMaterial({color:0xffffff, roughness:0.9});
   MAT.bronze   = new THREE.MeshStandardMaterial({color:0x5e6b4e, roughness:0.4, metalness:0.75});
   MAT.bronze2  = new THREE.MeshStandardMaterial({color:0x6e6a52, roughness:0.5, metalness:0.6});
-  MAT.waterPool= new THREE.MeshStandardMaterial({color:0x7fb2ba, roughness:0.22, metalness:0.05, transparent:true, opacity:0.88});
   MAT.hedge    = new THREE.MeshStandardMaterial({color:0x3c5a34, roughness:0.9});
   MAT.hillNear = new THREE.MeshStandardMaterial({color:0x5e7d68, roughness:1});
   MAT.hillMid  = new THREE.MeshStandardMaterial({color:0x72907e, roughness:1});
   MAT.white    = new THREE.MeshStandardMaterial({color:0xf2efe6, roughness:0.5});
+  /* 画质升级:地表草簇(交叉面片 alphaTest) */
+  MAT.clutterGrass = new THREE.MeshStandardMaterial({map:TEX.grassBlade, alphaTest:0.42, side:THREE.DoubleSide, roughness:0.95});
+  /* 画质升级:落地花瓣 */
+  MAT.petalGround = new THREE.MeshStandardMaterial({map:TEX.petal, alphaTest:0.25, side:THREE.DoubleSide, roughness:0.9, color:0xffffff});
 }
 
 /* ==================== 屋面几何生成(庑殿/攒尖 + 飞檐翘角) ==================== */
@@ -1188,65 +1457,43 @@ function buildZigzagBridge(pts, wDeck, railMat, baseY){
 }
 </script>
 <script>
-/* ==================== 水面(自定义 shader:UV 滚动法线扰动 + 高光 + 雾) ==================== */
-var waterUniforms;
-function buildWater(){
-  waterUniforms = {
-    uTime:{value:0},
-    uNoise1:{value:TEX.noise1},
-    uNoise2:{value:TEX.noise2},
-    uSunDir:{value:new THREE.Vector3(0.5,0.62,0.28).normalize()},
-    uFogColor:{value:new THREE.Color(0xdfe3da)},
-    uFogNear:{value:240},
-    uFogFar:{value:820}
-  };
-  var mat=new THREE.ShaderMaterial({
-    uniforms:waterUniforms,
-    transparent:true,
-    vertexShader:[
-      'uniform float uTime;',
-      'varying vec2 vUv; varying vec3 vWorld;',
-      'void main(){',
-      '  vUv=uv;',
-      '  vec3 p=position;',
-      '  vec4 wp=modelMatrix*vec4(p,1.0);',
-      '  wp.y += sin(wp.x*0.09+uTime*0.85)*0.055 + sin(wp.z*0.115+uTime*1.15)*0.05 + sin((wp.x+wp.z)*0.05+uTime*0.6)*0.04;',
-      '  vWorld=wp.xyz;',
-      '  gl_Position=projectionMatrix*viewMatrix*wp;',
-      '}'
-    ].join('\n'),
-    fragmentShader:[
-      'uniform float uTime; uniform sampler2D uNoise1; uniform sampler2D uNoise2;',
-      'uniform vec3 uSunDir; uniform vec3 uFogColor; uniform float uFogNear; uniform float uFogFar;',
-      'varying vec2 vUv; varying vec3 vWorld;',
-      'void main(){',
-      '  vec2 uvW=(vWorld.xz)*0.05;',
-      '  float n1=texture2D(uNoise1, uvW*0.9+vec2(uTime*0.011,uTime*0.014)).r;',
-      '  float n2=texture2D(uNoise2, uvW*1.7-vec2(uTime*0.013,uTime*0.007)).r;',
-      '  float n3=texture2D(uNoise1, uvW*3.1+vec2(-uTime*0.02,uTime*0.008)).r;',
-      '  vec3 N=normalize(vec3((n1-0.5)*0.6+(n3-0.5)*0.35, 1.0, (n2-0.5)*0.6+(n3-0.5)*0.3));',
-      '  vec3 V=normalize(cameraPosition-vWorld);',
-      '  float fres=pow(1.0-max(dot(N,V),0.0), 2.4);',
-      '  vec3 deep=vec3(0.055,0.165,0.20);',
-      '  vec3 skyc=vec3(0.55,0.67,0.71);',
-      '  vec3 col=mix(deep, skyc, clamp(fres*0.92+0.10,0.0,1.0));',
-      '  vec3 L=normalize(uSunDir);',
-      '  vec3 H=normalize(L+V);',
-      '  float spec=pow(max(dot(N,H),0.0),120.0)*1.15;',
-      '  float glint=pow(max(dot(N,H),0.0),900.0)*2.6;',
-      '  col += vec3(1.0,0.93,0.78)*spec + vec3(1.0)*glint*0.55;',
-      '  float dist=length(cameraPosition-vWorld);',
-      '  float fog=smoothstep(uFogNear,uFogFar,dist);',
-      '  col=mix(col,uFogColor,fog);',
-      '  gl_FragColor=vec4(col, 0.92);',
-      '}'
-    ].join('\n')
+/* ==================== 画质升级:Water.js 平面反射水面(Minecraft 光影同款原理) ==================== */
+/* 性能降级开关:移动端反射纹理减半;若桌面帧率不足可将 LAKE_RT 降至 256 */
+var IS_MOBILE=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || Math.min(screen.width,screen.height)<640;
+var LAKE_RT=IS_MOBILE?256:512;
+var waterMats=[];
+function buildLakeWater(){
+  var geo=new THREE.PlaneGeometry(1300,1300);
+  var water=new THREE.Water(geo,{
+    textureWidth:LAKE_RT, textureHeight:LAKE_RT,
+    waterNormals:TEX.waterN,
+    sunDirection:SUN_DIR.clone().normalize(),
+    sunColor:0xfff1d6,
+    waterColor:0x00463e,          /* 微绿偏碧,按画调 */
+    distortionScale:4.2,
+    fog:true
   });
-  var geo=new THREE.PlaneGeometry(1300,1300,84,84);
-  var mesh=new THREE.Mesh(geo,mat);
-  mesh.rotation.x=-Math.PI/2;
-  mesh.renderOrder=1;
-  return mesh;
+  water.material.uniforms.size.value=1.45; /* 画质升级:波纹细碎,波光粼粼 */
+  water.rotation.x=-Math.PI/2;
+  water.renderOrder=1;
+  waterMats.push(water.material);
+  return water;
+}
+/* 大水法喷泉池小水面(独立反射,分辨率较低) */
+function buildPoolWater(){
+  var geo=new THREE.CircleGeometry(11.55,40);
+  var water=new THREE.Water(geo,{
+    textureWidth:IS_MOBILE?128:512, textureHeight:IS_MOBILE?128:512,
+    waterNormals:TEX.waterN,
+    sunDirection:SUN_DIR.clone().normalize(),
+    sunColor:0xfff1d6,
+    waterColor:0x0a4a42,
+    distortionScale:1.2,
+    fog:true
+  });
+  water.rotation.x=-Math.PI/2;
+  waterMats.push(water.material);
+  return water;
 }
 
 /* ==================== 地形(有机形状台地) ==================== */
@@ -1279,7 +1526,36 @@ function landFromPoints(pts, topY, depth){
   shape.closePath();
   var geo=new THREE.ExtrudeGeometry(shape,{depth:depth||0.75, bevelEnabled:false, curveSegments:4});
   geo.rotateX(-Math.PI/2);
-  var mesh=new THREE.Mesh(geo,[MAT.grass, MAT.grassSide]);
+  /* 画质升级:台地顶面顶点色——大尺度草色深浅变化,近水/岸缘渐趋枯黄 */
+  (function(){
+    var pos=geo.attributes.position, n=pos.count;
+    var cols=new Float32Array(n*3);
+    function edgeDist(x,z){
+      var m=1e9;
+      for(var k=0;k<pts.length;k++){
+        var a=pts[k], b=pts[(k+1)%pts.length];
+        var ax=a[0], az=a[1], bx=b[0], bz=b[1];
+        var dx=bx-ax, dz=bz-az, L2=dx*dx+dz*dz;
+        var t=L2>0? clamp(((x-ax)*dx+(z-az)*dz)/L2,0,1):0;
+        var px=ax+dx*t-x, pz=az+dz*t-z;
+        var d=Math.sqrt(px*px+pz*pz);
+        if(d<m) m=d;
+      }
+      return m;
+    }
+    for(var i=0;i<n;i++){
+      var x=pos.getX(i), z=pos.getZ(i);
+      var n1=Math.sin(x*0.021+1.7)*Math.cos(z*0.017-0.6);
+      var n2=Math.sin(x*0.047-z*0.033+4.1)*0.5;
+      var dry=clamp(1.0-edgeDist(x,z)/8.5, 0, 1);
+      var t=clamp(0.5+n1*0.6+n2*0.4, 0, 1);
+      var cr=lerp(0.74,1.0,t), cg=lerp(0.84,1.0,t), cb=lerp(0.58,0.95,t);
+      if(dry>0){ cr=lerp(cr,1.0,dry*0.5); cg=lerp(cg,0.86,dry*0.5); cb=lerp(cb,0.42,dry*0.5); }
+      cols[i*3]=cr; cols[i*3+1]=cg; cols[i*3+2]=cb;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols,3));
+  })();
+  var mesh=new THREE.Mesh(geo,[MAT.grassVC, MAT.grassSide]);
   mesh.position.y=topY-(depth||0.75);
   mesh.receiveShadow=true;
   mesh.castShadow=false;
@@ -1288,12 +1564,14 @@ function landFromPoints(pts, topY, depth){
 
 /* ==================== 树木(InstancedMesh) ==================== */
 var treeMeshes=[];
+var swayData=[]; /* 画质升级:风摆数据(逐株基准位姿+随机相位) */
 function makeTreeInstanced(crownGeo, trunkGeo, matCrown, positions, colorFn, scaleMin, scaleMax, seed){
   var R=rnd(seed||1);
   var n=positions.length;
   var crown=new THREE.InstancedMesh(crownGeo, matCrown, n);
   var trunk=new THREE.InstancedMesh(trunkGeo, MAT.trunk, n);
   var m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler(), s=new THREE.Vector3(), p=new THREE.Vector3(), c=new THREE.Color();
+  var items=[];
   for(var i=0;i<n;i++){
     var sc=lerp(scaleMin,scaleMax,R());
     var ry=R()*Math.PI*2;
@@ -1304,13 +1582,34 @@ function makeTreeInstanced(crownGeo, trunkGeo, matCrown, positions, colorFn, sca
     crown.setMatrixAt(i,m);
     trunk.setMatrixAt(i,m);
     crown.setColorAt(i, c.setHex(colorFn(R)));
+    items.push({px:pos[0],py:pos[1],pz:pos[2], ry:ry, sx:sc, sy:s.y, sz:sc, ph:R()*6.283, amp:0.012+R()*0.012});
   }
   crown.instanceMatrix.needsUpdate=true;
   trunk.instanceMatrix.needsUpdate=true;
   if(crown.instanceColor) crown.instanceColor.needsUpdate=true;
   crown.castShadow=true; trunk.castShadow=true;
   crown.receiveShadow=false;
+  swayData.push({crown:crown, trunk:trunk, items:items});
   return [crown,trunk];
+}
+/* 画质升级:树冠风摆——逐株随机相位的正弦呼吸(整组实例矩阵微转,不掉帧) */
+function updateTreeSway(t){
+  var m=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler(), s=new THREE.Vector3(), p=new THREE.Vector3();
+  for(var g=0; g<swayData.length; g++){
+    var sd=swayData[g], items=sd.items;
+    for(var i=0;i<items.length;i++){
+      var it=items[i];
+      var tx=Math.sin(t*0.9+it.ph)*it.amp, tz=Math.cos(t*0.68+it.ph*1.3)*it.amp;
+      e.set(tx, it.ry, tz); q.setFromEuler(e);
+      s.set(it.sx,it.sy,it.sz);
+      p.set(it.px,it.py,it.pz);
+      m.compose(p,q,s);
+      sd.crown.setMatrixAt(i,m);
+      sd.trunk.setMatrixAt(i,m);
+    }
+    sd.crown.instanceMatrix.needsUpdate=true;
+    sd.trunk.instanceMatrix.needsUpdate=true;
+  }
 }
 function pineCrownGeo(){
   return mergeGeoms([
@@ -1374,7 +1673,7 @@ function lotusPatch(cx,cz,rx,rz,count,seedArr){
     var a=R()*Math.PI*2, rr=Math.sqrt(R());
     var x=cx+Math.cos(a)*rx*rr, z=cz+Math.sin(a)*rz*rr;
     pads.push([x, 0.07, z]);
-    if(R()<0.3 && flowers.length<40) flowers.push([x, 0.12, z]);
+    if(R()<0.3 && flowers.length<55) flowers.push([x, 0.12, z]);
   }
   return {pads:pads, flowers:flowers};
 }
@@ -1620,8 +1919,8 @@ function buildDashuifa(){
   ring.position.set(150,0.06,105);
   ring.castShadow=ring.receiveShadow=true;
   g.add(ring);
-  var poolWater=new THREE.Mesh(new THREE.CircleGeometry(11.6,36), MAT.waterPool);
-  poolWater.rotation.x=-Math.PI/2;
+  /* 画质升级:池水改平面反射 Water(倒影含石龛拱门/铜雕/天空) */
+  var poolWater=buildPoolWater();
   poolWater.position.set(150,0.82,105);
   g.add(poolWater);
   /* 中央铜盘 + 铜座 */
@@ -1862,7 +2161,7 @@ function buildJiuzhou(){
 /* ==================== 全局 ==================== */
 var scene, camera, renderer, controls, composer, bloomPass;
 var world=new THREE.Group();
-var waterUniformsGlobal=null;
+var SUN_DIR=new THREE.Vector3(0.22,0.41,0.88).normalize(); /* 画质升级:太阳方向(Sky/平行光/水面共用) */
 var animState={flying:false, t0:0, dur:2600, fromP:null, toP:null, fromL:null, toL:null};
 var fountainData=null;
 var clock0=Date.now();
@@ -1877,19 +2176,21 @@ function init(){
   bar.style.width='34%';
 
   scene=new THREE.Scene();
-  scene.fog=new THREE.Fog(0xdfe3da, 240, 820);
+  /* 画质升级:雾色调暖,与 Preetham 天空地平线衔接 */
+  /* 画质升级:雾改淡蓝灰且推远——此前米白近雾把全景洗成灰白纱 */
+  scene.fog=new THREE.Fog(0xc9d6de, 420, 1700);
 
   camera=new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.5, 3000);
   camera.position.set(14,118,232);
 
   renderer=new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); /* 画质升级:渲染分辨率上限提至 dpr 2 */
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate=false; /* 场景静态:阴影图仅按需重绘 */
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.05;
+  renderer.toneMappingExposure=0.85; /* 画质升级:压曝光找回饱和度与对比 */
   renderer.outputEncoding=THREE.sRGBEncoding;
   document.body.insertBefore(renderer.domElement, document.body.firstChild);
   bar.style.width='46%';
@@ -1902,18 +2203,42 @@ function init(){
   controls.maxPolarAngle=1.52;
   controls.target.set(0,2,8);
 
+  /* 画质升级:Preetham 大气天空(Sky.js)替换渐变穹顶——傍晚前暖阳 */
+  var sunPhi=deg(90-32), sunTheta=deg(14); /* 画质升级:太阳升高至 32°,减少地平线霾光,增强立体受光 */
+  SUN_DIR.setFromSphericalCoords(1, sunPhi, sunTheta);
   setupLights();
   bar.style.width='58%';
 
-  /* 天空穹顶 */
-  var sky=new THREE.Mesh(new THREE.SphereGeometry(1500,24,16), new THREE.MeshBasicMaterial({map:TEX.sky, side:THREE.BackSide, fog:false, depthWrite:false}));
+  var sky=new THREE.Sky();
+  sky.scale.setScalar(2400);
+  var skyUniforms=sky.material.uniforms;
+  skyUniforms.turbidity.value=2.4;
+  skyUniforms.rayleigh.value=1.7;
+  skyUniforms.mieCoefficient.value=0.003;
+  skyUniforms.mieDirectionalG.value=0.85;
+  skyUniforms.sunPosition.value.copy(SUN_DIR);
+
+  /* 画质升级:PMREMGenerator.fromScene(天空) 产出 environment map → 全局 IBL 环境光 */
+  var pmrem=new THREE.PMREMGenerator(renderer);
+  var envScene=new THREE.Scene();
+  var skyEnv=new THREE.Sky();
+  skyEnv.scale.setScalar(90);
+  var envU=skyEnv.material.uniforms;
+  envU.turbidity.value=2.4; envU.rayleigh.value=1.7;
+  envU.mieCoefficient.value=0.003; envU.mieDirectionalG.value=0.85;
+  envU.sunPosition.value.copy(SUN_DIR);
+  envScene.add(skyEnv);
+  var envRT=pmrem.fromScene(envScene);
+  scene.environment=envRT.texture;
+  pmrem.dispose();
   scene.add(sky);
 
-  /* 水面 */
-  var water=buildWater();
-  waterUniformsGlobal=waterUniforms;
-  waterUniformsGlobal.uSunDir.value.set(210,260,120).normalize();
+  /* 画质升级:水面改平面反射 Water(九岛湖/方壶前池/御路桥下同湖面) */
+  var water=buildLakeWater();
   scene.add(water);
+
+  /* 画质升级:程序化缓移云 */
+  buildClouds();
 
   /* 地形台地 */
   buildTerrain();
@@ -1963,23 +2288,25 @@ function init(){
   bar.style.width='100%';
 }
 
-/* ==================== 光照(暖主光+天光半球) ==================== */
+/* ==================== 画质升级:光照(方向与 Sky 太阳严格对齐;IBL 环境光兜底) ==================== */
 function setupLights(){
-  var hemi=new THREE.HemisphereLight(0xcfe2ec, 0x8e9078, 0.62);
+  /* 天光半球:天蓝/地暖,与暖阳互补 */
+  var hemi=new THREE.HemisphereLight(0xbcd4e8, 0x9a8f70, 0.3);
   scene.add(hemi);
-  var sun=new THREE.DirectionalLight(0xffe2b0, 1.35);
-  sun.position.set(210,260,120);
+  /* 暖阳平行光:色温 0xffdfae 级别,方向=Sky 太阳 */
+  var sun=new THREE.DirectionalLight(0xffdfae, 1.25); /* 画质升级:曝光降后增强主光对比 */
+  sun.position.copy(SUN_DIR).multiplyScalar(420);
   sun.castShadow=true;
-  sun.shadow.mapSize.set(1024,1024);
-  sun.shadow.camera.left=-200; sun.shadow.camera.right=200;
-  sun.shadow.camera.top=200; sun.shadow.camera.bottom=-200;
-  sun.shadow.camera.near=40; sun.shadow.camera.far=720;
-  sun.shadow.bias=-0.0006;
+  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.camera.left=-240; sun.shadow.camera.right=240;
+  sun.shadow.camera.top=240; sun.shadow.camera.bottom=-240;
+  sun.shadow.camera.near=60; sun.shadow.camera.far=920;
+  sun.shadow.bias=-0.0005;
   scene.add(sun);
-  var fill=new THREE.DirectionalLight(0xa9c2dc, 0.34);
-  fill.position.set(-160,120,-80);
+  /* 冷色补光(背光面) */
+  var fill=new THREE.DirectionalLight(0x9db8d8, 0.15);
+  fill.position.copy(SUN_DIR).multiplyScalar(-320).setY(200);
   scene.add(fill);
-  if(waterUniformsGlobal){ waterUniformsGlobal.uSunDir.value.set(210,260,120).normalize(); }
 }
 
 /* ==================== 地形台地 ==================== */
@@ -2135,17 +2462,17 @@ function buildVegetation(){
 
   /* 荷花(三处:方壶前池 / 九州湖 / 正大水岸) */
   var patches=[]
-    .concat(lotusPatch(146,-92,26,14,120,51).pads)
-    .concat(lotusPatch(226,-66,18,12,70,52).pads)
-    .concat(lotusPatch(48,58,26,16,90,53).pads)
-    .concat(lotusPatch(-52,-16,20,14,60,54).pads)
-    .concat(lotusPatch(-40,88,20,12,50,55).pads);
+    .concat(lotusPatch(146,-92,26,14,180,51).pads)
+    .concat(lotusPatch(226,-66,18,12,105,52).pads)
+    .concat(lotusPatch(48,58,26,16,135,53).pads)
+    .concat(lotusPatch(-52,-16,20,14,90,54).pads)
+    .concat(lotusPatch(-40,88,20,12,75,55).pads);
   var flowers=[]
-    .concat(lotusPatch(146,-92,26,14,120,51).flowers)
-    .concat(lotusPatch(226,-66,18,12,70,52).flowers)
-    .concat(lotusPatch(48,58,26,16,90,53).flowers)
-    .concat(lotusPatch(-52,-16,20,14,60,54).flowers)
-    .concat(lotusPatch(-40,88,20,12,50,55).flowers);
+    .concat(lotusPatch(146,-92,26,14,180,51).flowers)
+    .concat(lotusPatch(226,-66,18,12,105,52).flowers)
+    .concat(lotusPatch(48,58,26,16,135,53).flowers)
+    .concat(lotusPatch(-52,-16,20,14,90,54).flowers)
+    .concat(lotusPatch(-40,88,20,12,75,55).flowers);
   var padGeo=new THREE.CircleGeometry(0.55,8);
   padGeo.rotateX(-Math.PI/2);
   var padsIM=new THREE.InstancedMesh(padGeo, MAT.lotusPad, patches.length);
@@ -2196,6 +2523,155 @@ function buildVegetation(){
   reedIM.instanceMatrix.needsUpdate=true;
   if(reedIM.instanceColor) reedIM.instanceColor.needsUpdate=true;
   world.add(reedIM);
+
+  /* ==================== 画质升级:地表 clutter(全部 InstancedMesh,不涨 draw call) ==================== */
+  var mC=new THREE.Matrix4(), qC=new THREE.Quaternion(), eC=new THREE.Euler(), sC=new THREE.Vector3(), pC=new THREE.Vector3(), cC=new THREE.Color();
+  /* 草簇:交叉双面片 + alphaTest,3200 株 */
+  (function(){
+    var quad=new THREE.PlaneGeometry(1.15,0.6);
+    quad.translate(0,0.3,0);
+    var geo=mergeGeoms([
+      tgeo(quad, 0,0,0, 0,0,0),
+      tgeo(quad, 0,0,0, 0,Math.PI/2,0)
+    ]);
+    var N=IS_MOBILE?1500:3200;
+    var im=new THREE.InstancedMesh(geo, MAT.clutterGrass, N);
+    var placed=0, tries=0;
+    while(placed<N && tries<N*6){
+      tries++;
+      var x=(R()-0.5)*620, z=(R()-0.5)*600;
+      if(blocked(x,z)) continue;
+      eC.set(0, R()*6.283, (R()-0.5)*0.22); qC.setFromEuler(eC);
+      var sc=0.7+R()*0.9;
+      sC.set(sc, sc*(0.8+R()*0.55), sc);
+      pC.set(x, 0.79, z);
+      mC.compose(pC,qC,sC);
+      im.setMatrixAt(placed,mC);
+      cC.setHSL(0.22+R()*0.07, 0.42+R()*0.15, 0.34+R()*0.16);
+      im.setColorAt(placed,cC);
+      placed++;
+    }
+    im.count=placed;
+    im.instanceMatrix.needsUpdate=true;
+    if(im.instanceColor) im.instanceColor.needsUpdate=true;
+    im.castShadow=false; im.receiveShadow=false;
+    world.add(im);
+  })();
+  /* 小石块 200 颗 */
+  (function(){
+    var N=IS_MOBILE?100:200;
+    var im=new THREE.InstancedMesh(new THREE.DodecahedronGeometry(0.22,0), MAT.rock, N);
+    var placed=0, tries=0;
+    while(placed<N && tries<N*8){
+      tries++;
+      var x=(R()-0.5)*620, z=(R()-0.5)*600;
+      if(blocked(x,z)) continue;
+      eC.set(R()*3.1, R()*6.283, R()*3.1); qC.setFromEuler(eC);
+      var sc=0.5+R()*1.15;
+      sC.set(sc, sc*(0.6+R()*0.5), sc);
+      pC.set(x, 0.74+R()*0.05, z);
+      mC.compose(pC,qC,sC);
+      im.setMatrixAt(placed,mC);
+      cC.setHSL(0.09+R()*0.05, R()*0.12, 0.42+R()*0.2);
+      im.setColorAt(placed,cC);
+      placed++;
+    }
+    im.count=placed;
+    im.instanceMatrix.needsUpdate=true;
+    if(im.instanceColor) im.instanceColor.needsUpdate=true;
+    im.castShadow=false;
+    world.add(im);
+  })();
+  /* 落花瓣 300 片(撒在开花树冠下与岸畔) */
+  (function(){
+    var quad=new THREE.PlaneGeometry(0.17,0.13);
+    quad.rotateX(-Math.PI/2);
+    var N=IS_MOBILE?150:300;
+    var im=new THREE.InstancedMesh(quad, MAT.petalGround, N);
+    var placed=0, tries=0;
+    var centers=blossomPos.length? blossomPos : [[146,-28]];
+    while(placed<N && tries<N*8){
+      tries++;
+      var bc=centers[placed%centers.length];
+      var x=bc[0]+(R()-0.5)*10, z=bc[2]+(R()-0.5)*10;
+      if(blocked(x,z)) continue;
+      eC.set(0, R()*6.283, (R()-0.5)*0.3); qC.setFromEuler(eC);
+      var sc=0.7+R()*0.7;
+      sC.set(sc,1,sc);
+      pC.set(x, 0.8+R()*0.03, z);
+      mC.compose(pC,qC,sC);
+      im.setMatrixAt(placed,mC);
+      cC.setHSL(0.93+R()*0.03, 0.45, 0.78+R()*0.12);
+      im.setColorAt(placed,cC);
+      placed++;
+    }
+    im.count=placed;
+    im.instanceMatrix.needsUpdate=true;
+    if(im.instanceColor) im.instanceColor.needsUpdate=true;
+    world.add(im);
+  })();
+  /* 花瓣飘落粒子(柔边 sprite) */
+  buildFallingPetals();
+}
+
+/* ==================== 画质升级:花瓣飘落粒子(柔边 sprite,随风摆动) ==================== */
+var petalData=null;
+function buildFallingPetals(){
+  var N=IS_MOBILE?160:340;
+  var pos=new Float32Array(N*3), vel=[];
+  var R2=rnd(77);
+  var zones=[[146,-28,26,16],[-172,90,50,26],[0,20,80,80],[188,-66,26,18]];
+  for(var i=0;i<N;i++){
+    var Z=zones[i%zones.length];
+    pos[i*3]=Z[0]+(R2()-0.5)*2*Z[2];
+    pos[i*3+1]=1.5+R2()*9;
+    pos[i*3+2]=Z[1]+(R2()-0.5)*2*Z[3];
+    vel.push({vy:0.3+R2()*0.28, swx:0.4+R2()*0.5, ph:R2()*6.28, swz:0.3+R2()*0.4});
+  }
+  var geo=new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  var mat=new THREE.PointsMaterial({map:TEX.petal, size:0.5, transparent:true, opacity:0.85, depthWrite:false, sizeAttenuation:true});
+  var pts=new THREE.Points(geo,mat);
+  pts.frustumCulled=false;
+  pts.renderOrder=3;
+  world.add(pts);
+  petalData={pts:pts, vel:vel, N:N};
+}
+function updateFallingPetals(dt, t){
+  if(!petalData) return;
+  var arr=petalData.pts.geometry.attributes.position.array;
+  for(var i=0;i<petalData.N;i++){
+    var v=petalData.vel[i];
+    var y=arr[i*3+1]-v.vy*dt;
+    if(y<0.8){ y=9+Math.random()*3; arr[i*3]=arr[i*3]+(Math.random()-0.5)*2; }
+    arr[i*3]+=Math.sin(t*v.swx+v.ph)*dt*0.6;
+    arr[i*3+1]=y;
+    arr[i*3+2]+=Math.cos(t*v.swz+v.ph)*dt*0.5;
+  }
+  petalData.pts.geometry.attributes.position.needsUpdate=true;
+}
+
+/* ==================== 画质升级:程序化缓移云(柔边水平云板,不挡交互) ==================== */
+var cloudData=[];
+function buildClouds(){
+  for(var i=0;i<9;i++){
+    var tex=(i%2)? TEX.cloud1 : TEX.cloud2;
+    var w=150+((i*53)%170), h=w*0.42;
+    var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),
+      new THREE.MeshBasicMaterial({map:tex, transparent:true, depthWrite:false, fog:false, opacity:0.8, side:THREE.DoubleSide}));
+    m.rotation.x=-Math.PI/2;
+    m.position.set(-700+((i*127)%1400), 170+((i*37)%110), -750+((i*211)%1500));
+    m.renderOrder=2;
+    world.add(m);
+    cloudData.push({mesh:m, spd:1.1+((i*7)%10)*0.14});
+  }
+}
+function updateClouds(dt){
+  for(var i=0;i<cloudData.length;i++){
+    var cd=cloudData[i];
+    cd.mesh.position.x+=cd.spd*dt;
+    if(cd.mesh.position.x>820) cd.mesh.position.x=-820;
+  }
 }
 
 /* ==================== 大水法喷泉(粒子水柱) ==================== */
@@ -2401,7 +2877,11 @@ function animate(){
   controls.update();
   if(camera.position.y<1.2) camera.position.y=1.2;
 
-  waterUniformsGlobal.uTime.value=t;
+  /* 画质升级:水面时间推进 + 树冠风摆 + 花瓣飘落 + 云缓移 */
+  for(var wi=0; wi<waterMats.length; wi++) waterMats[wi].uniforms.time.value=t;
+  updateTreeSway(t);
+  updateFallingPetals(dt, t);
+  updateClouds(dt);
   updateFountain(dt, t);
 
   composer.render();
