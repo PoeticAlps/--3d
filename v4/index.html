@@ -2249,7 +2249,8 @@ function init(){
   window.fangpuGroup=buildFangpu(); /* 精细复原模式:全局引用,供切换 Blender 高模 */
   world.add(window.fangpuGroup);
   world.add(buildZhengda());
-  world.add(buildDashuifa());
+  window.dashuifaGroup=buildDashuifa(); /* 精细复原模式:全局引用 */
+  world.add(window.dashuifaGroup);
   world.add(buildJiuzhou());
   bar.style.width='80%';
 
@@ -2849,32 +2850,49 @@ function flyTo(key){
   animState.fromL=controls.target.clone();
   animState.toP=new THREE.Vector3(d.cam[0],d.cam[1],d.cam[2]);
   animState.toL=new THREE.Vector3(d.look[0],d.look[1],d.look[2]);
+  fineArea=currentScene;
   refreshFineBtn();
 }
 
-/* ==================== 精细复原模式:方壶胜境 Blender 高模(考据:四十景图咏+清宫档案+人大清史所) ==================== */
-var fangpuFine={loaded:false,loading:false,active:false};
+/* ==================== 精细复原模式:Blender 高模(方壶胜境/大水法;考据:四十景图咏+西洋楼铜版画+清宫档案) ==================== */
+var FINE_DEF={
+  fangpu:{file:'models/fangpu_high.glb',scale:0.5,pos:{x:188,y:0.35-0.5,z:-88-10*0.5},
+          fine:{cam:[118,38,-24],look:[188,7,-97]},
+          hide:function(){ if(window.fangpuGroup) window.fangpuGroup.visible=false; },
+          show:function(){ if(window.fangpuGroup) window.fangpuGroup.visible=true; }},
+  dashuifa:{file:'models/dashuifa_high.glb',scale:0.5,pos:{x:150,y:0.25,z:105},
+          fine:{cam:[104,16,166],look:[150,7,102]},matEnv:0.3,matMul:0.85,
+          hide:function(){ if(window.dashuifaGroup) window.dashuifaGroup.visible=false; },
+          show:function(){ if(window.dashuifaGroup) window.dashuifaGroup.visible=true; }}
+};
+var fineSt={fangpu:{loaded:false,loading:false,active:false},dashuifa:{loaded:false,loading:false,active:false}};
+var fineArea=null;
 var fineBtn=document.createElement('button');
 fineBtn.style.cssText='position:fixed;right:18px;bottom:118px;z-index:60;padding:10px 20px;'
   +'background:rgba(16,24,32,.88);color:#e8c97a;border:1px solid #c8a24a;border-radius:22px;'
   +'font-family:"Songti SC","STSong",serif;font-size:13px;cursor:pointer;display:none;letter-spacing:2px';
 document.body.appendChild(fineBtn);
 fineBtn.addEventListener('click',function(){
-  if(fangpuFine.loading) return;
-  if(!fangpuFine.loaded){ loadFangpuFine(); return; }
-  fangpuFine.active=!fangpuFine.active;
-  applyFangpuFine();
+  if(!fineArea||!FINE_DEF[fineArea]||fineSt[fineArea].loading) return;
+  var st=fineSt[fineArea];
+  if(!st.loaded){ loadFine(fineArea); return; }
+  st.active=!st.active;
+  applyFine(fineArea);
 });
 function refreshFineBtn(){
-  fineBtn.style.display=(currentScene==='fangpu')?'block':'none';
-  fineBtn.textContent=fangpuFine.active?'⬅ 返回意向版':(fangpuFine.loading?'⏳ 精细复原模型加载中…':'🏯 精细复原版 · 点击切换');
+  var supported=fineArea&&FINE_DEF[fineArea];
+  fineBtn.style.display=supported?'block':'none';
+  if(!supported) return;
+  var st=fineSt[fineArea];
+  fineBtn.textContent=st.active?'⬅ 返回意向版':(st.loading?'⏳ 精细复原模型加载中…':'🏯 精细复原版 · 点击切换');
 }
-function applyFangpuFine(){
-  fangpuGroup.visible=!fangpuFine.active;
-  if(fangpuFine.group) fangpuFine.group.visible=fangpuFine.active;
+function applyFine(area){
+  var st=fineSt[area],def=FINE_DEF[area];
+  if(st.active){ def.hide(); } else { def.show(); }
+  if(st.group) st.group.visible=st.active;
   shadowDirty=true;
-  if(currentScene==='fangpu'){
-    var d=fangpuFine.active?{cam:[118,38,-24],look:[188,7,-97]}:SCENES.fangpu;
+  if(currentScene===area){
+    var d=st.active?def.fine:SCENES[area];
     animState.flying=true; animState.t0=Date.now(); animState.dur=2200;
     animState.fromP=camera.position.clone(); animState.fromL=controls.target.clone();
     animState.toP=new THREE.Vector3(d.cam[0],d.cam[1],d.cam[2]);
@@ -2882,14 +2900,14 @@ function applyFangpuFine(){
   }
   refreshFineBtn();
 }
-function loadFangpuFine(){
-  if(fangpuFine.loading||fangpuFine.loaded) return;
-  fangpuFine.loading=true; refreshFineBtn();
-  new THREE.GLTFLoader().load('models/fangpu_high.glb',function(g){
-    var s=0.5;
+function loadFine(area){
+  var st=fineSt[area],def=FINE_DEF[area];
+  if(st.loading||st.loaded) return;
+  st.loading=true; refreshFineBtn();
+  new THREE.GLTFLoader().load(def.file,function(g){
+    var s=def.scale;
     g.scene.scale.setScalar(s);
-    /* Blender 主轴锚点(0,-10)对齐 v4 方壶场地(188,-88);地面高度对齐 */
-    g.scene.position.set(188-0*s, 0.35-1*s, -88-10*s);
+    g.scene.position.set(def.pos.x,def.pos.y,def.pos.z);
     g.scene.traverse(function(o){
       if(o.isMesh){
         o.frustumCulled=false; o.castShadow=true; o.receiveShadow=true;
@@ -2897,20 +2915,21 @@ function loadFangpuFine(){
         var ms=Array.isArray(o.material)?o.material:[o.material];
         ms.forEach(function(mm){
           if(!mm) return;
-          if(mm.envMapIntensity!==undefined) mm.envMapIntensity=0.45;
+          if(mm.envMapIntensity!==undefined) mm.envMapIntensity=def.matEnv||0.45;
           if(mm.roughness!==undefined && mm.roughness<0.45) mm.roughness=0.5;
+          if(def.matMul&&def.matMul<1&&mm.color) mm.color.multiplyScalar(def.matMul);
         });
       }
     });
-    fangpuFine.group=g.scene;
+    st.group=g.scene;
     world.add(g.scene);
-    fangpuFine.loaded=true; fangpuFine.loading=false;
-    fangpuFine.active=true;
-    applyFangpuFine();
+    st.loaded=true; st.loading=false;
+    st.active=true;
+    applyFine(area);
   },function(ev){
     fineBtn.textContent='⏳ 加载 '+(ev.total?Math.round(ev.loaded/ev.total*100)+'%':'…');
   },function(e){
-    fangpuFine.loading=false; refreshFineBtn();
+    st.loading=false; refreshFineBtn();
     fineBtn.textContent='⚠ 精细模型加载失败';
   });
 }
@@ -2919,12 +2938,29 @@ var qs=new URLSearchParams(location.search);
 var qsScene=qs.get('scene');
 if(qsScene&&SCENES[qsScene]){
   setTimeout(function(){ flyTo(qsScene); },400);
-  if(qs.get('fine')==='1'&&qsScene==='fangpu'){
+  if(qs.get('fine')==='1'&&FINE_DEF[qsScene]){
     setTimeout(function(){
-      if(!fangpuFine.loaded) loadFangpuFine();
-      else { fangpuFine.active=true; applyFangpuFine(); }
+      fineArea=qsScene;
+      var st=fineSt[qsScene];
+      if(!st.loaded) loadFine(qsScene);
+      else { st.active=true; applyFine(qsScene); }
     },900);
   }
+}
+/* 调试读数:仅 ?debug=1 时显示 */
+if(qs.get('debug')==='1'){
+  var dbg=document.createElement('div');
+  dbg.style.cssText='position:fixed;left:10px;bottom:6px;color:#9f9;font:11px/1.6 Menlo,monospace;z-index:99;pointer-events:none;white-space:pre;text-shadow:0 1px 2px #000';
+  document.body.appendChild(dbg);
+  setInterval(function(){
+    try{
+      dbg.textContent='cam='+camera.position.toArray().map(function(v){return v.toFixed(0)}).join(',')
+        +'  scene='+currentScene+'  fineArea='+fineArea
+        +'  fp='+(fineSt.fangpu?fineSt.fangpu.active+'/'+fineSt.fangpu.loaded:'-')
+        +'  ds='+(fineSt.dashuifa?fineSt.dashuifa.active+'/'+fineSt.dashuifa.loaded:'-')
+        +'  fly='+animState.flying;
+    }catch(e){ dbg.textContent='dbg:'+e.message; }
+  },600);
 }
 
 /* ==================== 主循环 ==================== */
