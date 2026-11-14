@@ -156,6 +156,7 @@ canvas{display:block}
 </div>
 
 <script src="three.min.js"></script>
+<script src="../GLTFLoader.js"></script>
 <script src="lib/objects/Sky.js"></script>
 <script src="lib/objects/Water.js"></script>
 <script src="lib/shaders/CopyShader.js"></script>
@@ -2245,7 +2246,8 @@ function init(){
   bar.style.width='66%';
 
   /* 建筑四景区 */
-  world.add(buildFangpu());
+  window.fangpuGroup=buildFangpu(); /* 精细复原模式:全局引用,供切换 Blender 高模 */
+  world.add(window.fangpuGroup);
   world.add(buildZhengda());
   world.add(buildDashuifa());
   world.add(buildJiuzhou());
@@ -2847,6 +2849,82 @@ function flyTo(key){
   animState.fromL=controls.target.clone();
   animState.toP=new THREE.Vector3(d.cam[0],d.cam[1],d.cam[2]);
   animState.toL=new THREE.Vector3(d.look[0],d.look[1],d.look[2]);
+  refreshFineBtn();
+}
+
+/* ==================== 精细复原模式:方壶胜境 Blender 高模(考据:四十景图咏+清宫档案+人大清史所) ==================== */
+var fangpuFine={loaded:false,loading:false,active:false};
+var fineBtn=document.createElement('button');
+fineBtn.style.cssText='position:fixed;right:18px;bottom:118px;z-index:60;padding:10px 20px;'
+  +'background:rgba(16,24,32,.88);color:#e8c97a;border:1px solid #c8a24a;border-radius:22px;'
+  +'font-family:"Songti SC","STSong",serif;font-size:13px;cursor:pointer;display:none;letter-spacing:2px';
+document.body.appendChild(fineBtn);
+fineBtn.addEventListener('click',function(){
+  if(fangpuFine.loading) return;
+  if(!fangpuFine.loaded){ loadFangpuFine(); return; }
+  fangpuFine.active=!fangpuFine.active;
+  applyFangpuFine();
+});
+function refreshFineBtn(){
+  fineBtn.style.display=(currentScene==='fangpu')?'block':'none';
+  fineBtn.textContent=fangpuFine.active?'⬅ 返回意向版':(fangpuFine.loading?'⏳ 精细复原模型加载中…':'🏯 精细复原版 · 点击切换');
+}
+function applyFangpuFine(){
+  fangpuGroup.visible=!fangpuFine.active;
+  if(fangpuFine.group) fangpuFine.group.visible=fangpuFine.active;
+  shadowDirty=true;
+  if(currentScene==='fangpu'){
+    var d=fangpuFine.active?{cam:[118,38,-24],look:[188,7,-97]}:SCENES.fangpu;
+    animState.flying=true; animState.t0=Date.now(); animState.dur=2200;
+    animState.fromP=camera.position.clone(); animState.fromL=controls.target.clone();
+    animState.toP=new THREE.Vector3(d.cam[0],d.cam[1],d.cam[2]);
+    animState.toL=new THREE.Vector3(d.look[0],d.look[1],d.look[2]);
+  }
+  refreshFineBtn();
+}
+function loadFangpuFine(){
+  if(fangpuFine.loading||fangpuFine.loaded) return;
+  fangpuFine.loading=true; refreshFineBtn();
+  new THREE.GLTFLoader().load('models/fangpu_high.glb',function(g){
+    var s=0.5;
+    g.scene.scale.setScalar(s);
+    /* Blender 主轴锚点(0,-10)对齐 v4 方壶场地(188,-88);地面高度对齐 */
+    g.scene.position.set(188-0*s, 0.35-1*s, -88-10*s);
+    g.scene.traverse(function(o){
+      if(o.isMesh){
+        o.frustumCulled=false; o.castShadow=true; o.receiveShadow=true;
+        /* 画质对齐:GLB 材质压环境反射、抬粗糙度,防止汉白玉过曝成白幕 */
+        var ms=Array.isArray(o.material)?o.material:[o.material];
+        ms.forEach(function(mm){
+          if(!mm) return;
+          if(mm.envMapIntensity!==undefined) mm.envMapIntensity=0.45;
+          if(mm.roughness!==undefined && mm.roughness<0.45) mm.roughness=0.5;
+        });
+      }
+    });
+    fangpuFine.group=g.scene;
+    world.add(g.scene);
+    fangpuFine.loaded=true; fangpuFine.loading=false;
+    fangpuFine.active=true;
+    applyFangpuFine();
+  },function(ev){
+    fineBtn.textContent='⏳ 加载 '+(ev.total?Math.round(ev.loaded/ev.total*100)+'%':'…');
+  },function(e){
+    fangpuFine.loading=false; refreshFineBtn();
+    fineBtn.textContent='⚠ 精细模型加载失败';
+  });
+}
+/* 深链:?scene=fangpu&fine=1 直达景区/精细模式(便于分享与测试) */
+var qs=new URLSearchParams(location.search);
+var qsScene=qs.get('scene');
+if(qsScene&&SCENES[qsScene]){
+  setTimeout(function(){ flyTo(qsScene); },400);
+  if(qs.get('fine')==='1'&&qsScene==='fangpu'){
+    setTimeout(function(){
+      if(!fangpuFine.loaded) loadFangpuFine();
+      else { fangpuFine.active=true; applyFangpuFine(); }
+    },900);
+  }
 }
 
 /* ==================== 主循环 ==================== */
