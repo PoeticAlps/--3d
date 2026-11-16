@@ -150,6 +150,7 @@ canvas{display:block}
     <button class="nav-btn" data-scene="fangpu"><div class="glyph">壶</div><span>方壶胜境</span></button>
     <button class="nav-btn" data-scene="zhengda"><div class="glyph">正</div><span>正大光明</span></button>
     <button class="nav-btn" data-scene="dashuifa"><div class="glyph">水</div><span>大水法</span></button>
+    <button class="nav-btn" data-scene="haiyantang"><div class="glyph">海</div><span>海晏堂</span></button>
   </div>
 
   <div class="hint">左键旋转 · 右键平移 · 滚轮缩放 · 点击景区牌钮即飞</div>
@@ -398,6 +399,10 @@ var SCENES = {
     poem:'西洋妙制通水法,喷浪飞涛悬素练。',
     desc:'西洋楼景区核心,巴洛克石龛拱门居中,两侧塔柱对称而立;前设大喷泉池,铜兽吐水、"猎狗逐鹿"夺人心魄,水柱腾空,借西洋机括引水成戏。灰白大理石与铜雕重现盛时气象。',
     tags:['西洋楼','巴洛克','喷泉','铜雕'],stats:['53 座西式建筑','18 公顷','1747 建成','13 级水塔']},
+  haiyantang:{cam:[110,20,158],look:[45,7,105],title:'海晏堂',year:'乾隆二十四年 · 1759',
+    poem:'西洋奇制水力钟,十二辰兽次第喷。河清海晏迎宾日,玉宇琼楼气象雄。',
+    desc:'西洋楼最大建筑,坐西朝东,上下各十一开间;门前八字形叠落喷水槽上,端坐十二生肖人身兽首铜像,按十二时辰依次喷水、正午十二兽齐喷,是为"水力钟"。池中巨型贝壳石雕与海豚吐水相映,堂后蓄水楼以龙尾车引水,供给全组喷泉。',
+    tags:['西洋楼最大','水力钟','十二生肖','蓄水楼'],stats:['上下各 11 开间','12 生肖兽首','1759 建成','时辰喷水']},
   jiuzhou:{cam:[26,48,148],look:[0,4,22],title:'九州清晏',year:'雍正元年 · 1723',
     poem:'后湖九岛环列,不施雕绘,清幽如画。',
     desc:'四十景之首。后湖九岛环列,以九州寓意天下;中央寝宫黄瓦重檐,为雍正以来历代园居听政之所。岛岸垂柳拂水,荷花映日,石桥连通诸岛,是圆明园的生活核心。',
@@ -2863,9 +2868,12 @@ var FINE_DEF={
   dashuifa:{file:'models/dashuifa_high.glb',scale:0.5,pos:{x:150,y:0.25,z:105},
           fine:{cam:[104,16,166],look:[150,7,102]},matEnv:0.3,matMul:0.85,
           hide:function(){ if(window.dashuifaGroup) window.dashuifaGroup.visible=false; },
-          show:function(){ if(window.dashuifaGroup) window.dashuifaGroup.visible=true; }}
+          show:function(){ if(window.dashuifaGroup) window.dashuifaGroup.visible=true; }},
+  haiyantang:{file:'models/haiyantang_high.glb',scale:0.5,pos:{x:45,y:0.3,z:105},
+          fine:{cam:[88,15,128],look:[45,7,105]},matEnv:0.4,matMul:0.92,
+          hide:function(){},show:function(){}}
 };
-var fineSt={fangpu:{loaded:false,loading:false,active:false},dashuifa:{loaded:false,loading:false,active:false}};
+var fineSt={fangpu:{loaded:false,loading:false,active:false},dashuifa:{loaded:false,loading:false,active:false},haiyantang:{loaded:false,loading:false,active:false}};
 var fineArea=null;
 var fineBtn=document.createElement('button');
 fineBtn.style.cssText='position:fixed;right:18px;bottom:118px;z-index:60;padding:10px 20px;'
