@@ -2955,6 +2955,148 @@ if(qsScene&&SCENES[qsScene]){
     },900);
   }
 }
+/* ==================== AI 导游"小桂":逐景区讲解 + 考据问答 + 语音朗读 ==================== */
+/* 形象与问答机制源自 agnes-learning-systems 的 A5 景区导览数字人原型;讲解词来自本仓库考据 */
+var GUIDE_CSS=document.createElement('style');
+GUIDE_CSS.textContent=[
+ '#guideBtn{position:fixed;left:18px;bottom:118px;z-index:60;padding:10px 18px;background:rgba(16,24,32,.88);',
+ 'color:#7fd4a8;border:1px solid #3f8a68;border-radius:22px;font-family:"Songti SC","STSong",serif;font-size:13px;',
+ 'cursor:pointer;letter-spacing:2px;}',
+ '#guidePanel{position:fixed;left:18px;bottom:170px;z-index:61;width:330px;max-width:calc(100vw - 36px);',
+ 'background:rgba(250,247,240,.97);color:#2b2b2b;border:1px solid #c8a24a;border-radius:14px;',
+ 'box-shadow:0 10px 30px rgba(0,0,0,.35);font-family:"Songti SC","STSong",serif;display:none;}',
+ '#guidePanel .g-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #e3d9c4;}',
+ '#guidePanel .g-avatar{width:44px;height:44px;border-radius:50%;flex:none;',
+ 'background:radial-gradient(circle at 35% 30%,#ffe0b8,#e8b27a 65%,#c98d52);position:relative;}',
+ '#guidePanel .g-avatar::before{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);',
+ 'width:30px;height:12px;border-radius:14px 14px 0 0;background:#2e5a3f;}',
+ '#guidePanel .g-avatar .g-eye{position:absolute;top:17px;width:6px;height:8px;border-radius:50%;background:#333;}',
+ '#guidePanel .g-avatar .g-eye.l{left:11px}#guidePanel .g-avatar .g-eye.r{right:11px}',
+ '#guidePanel .g-avatar .g-smile{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);',
+ 'width:14px;height:7px;border-bottom:2px solid #a3542e;border-radius:0 0 10px 10px;}',
+ '#guidePanel .g-title{font-size:14px;font-weight:700;color:#1e3a2a;}',
+ '#guidePanel .g-title small{display:block;font-weight:400;font-size:11px;color:#8a7a5c;}',
+ '#guidePanel .g-bubble{padding:12px 14px;font-size:13.5px;line-height:1.75;max-height:200px;overflow-y:auto;}',
+ '#guidePanel .g-bubble b{color:#8a6a2a;}',
+ '#guidePanel .g-tools{padding:0 14px 10px;display:flex;gap:8px;}',
+ '#guidePanel .g-tools button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #c8a24a;',
+ 'background:#fff;cursor:pointer;font-family:inherit;font-size:12.5px;color:#6b5a2a;}',
+ '#guidePanel .g-tools button:hover{background:#faf3e0;}',
+ '#guidePanel .g-ask{display:flex;gap:8px;padding:0 14px 14px;}',
+ '#guidePanel .g-ask input{flex:1;padding:8px 10px;border:1px solid #d8cfae;border-radius:8px;font-family:inherit;font-size:13px;}',
+ '#guidePanel .g-ask button{padding:8px 14px;border-radius:8px;border:none;background:#2e5a3f;color:#fff;cursor:pointer;font-family:inherit;}',
+ '#guidePanel .g-close{margin-left:auto;border:none;background:none;cursor:pointer;font-size:16px;color:#999;}'
+].join('');
+document.head.appendChild(GUIDE_CSS);
+
+var GUIDE_DATA={
+ overview:{n:'小桂',sample:'这个项目是真的圆明园吗,依据是什么?',intro:'欢迎来到<b>重生·圆明园</b>!眼前是参照《圆明园四十景图咏》数字重建的"万园之园"。点击下方景区按钮或场景中的热区,我带你逐景游览;走进<b>方壶胜境、大水法、海晏堂</b>时,还能一键切换考据级精细复原模型。有任何问题,尽管问我。',qa:[
+  {k:['真实','复原','考据','依据'],a:'本项目的复原依据有三层:清代宫廷画师绘制的《圆明园四十景图咏》绢画(1744)、清宫裱作与样式房档案,以及当代考古与研究成果(如清华大学数字复原团队的工作)。全园写意漫游,重点景区做考据级精细复原。'},
+  {k:['四十景','图咏','绢画'],a:'《四十景图咏》是乾隆九年(1744)由唐岱、沈源等宫廷画师绘制的四十幅绢本彩绘,每幅附乾隆御题与汪由敦楷书。1860 年园毁后流散海外,现藏法国国家图书馆,是本 project 最核心的图像依据。'},
+  {k:['1860','焚毁','英法联军','劫难'],a:'1860 年 10 月,英法联军劫掠并焚毁圆明园,大火三日不熄。"万园之园"化为废墟,大量文物流散海外。本项目标题"重生",即是以数字手段让这座园林在虚拟世界中重现。'}]},
+ fangpu:{n:'小桂',sample:'屋顶为什么是青绿色的?',intro:'这里<b>方壶胜境</b>——"仿海上三神山仙境"。看这幅构图:中央两层楼阁耸峙,左右亭座相拱,白玉台基层层自水中升起,九曲桥蜿蜒相连。点"🏯 精细复原版",看 Blender 逐构件重建的版本。',qa:[
+  {k:['名字','为什么','方壶','三神山','寓意'],a:'"方壶"是古代传说海上三神山之一(方壶、蓬莱、瀛洲)。乾隆以此景模拟仙境:楼阁矗立水面,九桥相连,云气缭绕,是圆明园最具道家意境的景区。'},
+  {k:['屋顶','琉璃','颜色','为什么是青'],a:'主楼与亭座覆青绿琉璃瓦,金色的只有屋脊宝顶——这正是我修复对照《四十景图咏》绢画得到的关键结论:早期 v3 版满场金黄是误读,画作里白玉台基与青绿屋顶才是主调。'},
+  {k:['精细','blender','建模','怎么做的','工作量'],a:'精细模型用 Blender 的 bpy 接口程序化建模:斗拱、望柱、瓦垄、栏杆都是逐构件生成的几何体,脚本报出每一处对应的历史依据,一共 1352 行考据注释——这就是可以写进参赛材料的工作量证明。'},
+  {k:['桥','九曲桥','几座'],a:'画面中的桥统称九曲桥,寓意"九曲连环"。绢画显示方壶胜境一带"九座桥梁相连",故描述中称九桥。'}]},
+ dashuifa:{n:'小桂',sample:'"猎狗逐鹿"是什么?',intro:'眼前是<b>大水法</b>——西洋楼景区的核心喷泉。巴洛克石龛拱门居中,两侧塔柱对称;前方海棠形水池里,"猎狗逐鹿"铜雕引水成戏。乾隆帝观赏喷泉,就在这里。',qa:[
+  {k:['猎狗逐鹿','铜雕','鹿','狗','喷泉原理'],a:'按铜版画与文献:水池中央一只铜鹿昂首如奔,角尖喷水八道;十只铜犬环列,口中水柱直射鹿身,溅起水花,谓之"猎狗逐鹿"。两侧还有十三级喷水塔,水声如乐。'},
+  {k:['水从哪','机括','供水','动力','提水'],a:'喷泉用水由"龙尾车"(往复式提水机械)从蓄水楼提升供给——当年这是西洋机械与中式园林结合的奇观,蒋友仁神父参与了设计。'},
+  {k:['现在','遗址','还能看到','现状'],a:'1860 年大火后,大水法只余石龛拱门与几根残柱,是今天圆明园最著名的遗址意象。本 scene 展示的是"盛期复原";残迹对照是下一阶段计划。'},
+  {k:['远瀛观','高台','柱廊'],a:'大水法北面高台上的西洋钟楼式大殿就是<b>远瀛观</b>,平面呈倒凹字形,柱廊用西洋柱式,檐下却覆中式庑殿灰瓦顶——中西合璧正是西洋楼的特征。'}]},
+ haiyantang:{n:'小桂',sample:'水力钟是怎么报时的?',intro:'<b>海晏堂</b>——西洋楼最大的建筑,坐西朝东,上下各十一开间。门前八字形叠落喷水槽上,端坐<b>十二生肖人身兽首铜像</b>:按十二时辰依次喷水两小时,正午十二兽齐喷,这就是闻名世界的"水力钟"。',qa:[
+  {k:['水力钟','怎么报时','原理','十二时辰'],a:'十二兽像各对应一个时辰(两小时):到点即由该兽口中喷水报时;正午十二兽齐喷,蔚为壮观。以喷泉计时,是郎世宁、蒋友仁等西洋设计与中国造园的融合产物。'},
+  {k:['兽首','去哪了','流散','回归','下落'],a:'1860 年劫难后,十二兽首流散海外。近年经捐赠与拍卖回归数尊(牛、虎、猴、猪、马首等),部分藏于保利艺术博物馆与圆明园,龙首等仍下落不明——兽首的流散史本身就是一部近代史。'},
+  {k:['蓄水','龙尾车','水源','塔'],a:'堂后高台上的建筑是<b>蓄水楼</b>:台上设大型水池,以龙尾车把水提升到高处储存,靠落差为全组喷泉供水。蓄水楼遗址至今尚存,2016 年做过加固修缮。'},
+  {k:['名字','海晏','为什么叫'],a:'"海晏"取自"河清海晏"——海波不扬、天下太平。这座为喷泉而建的大楼,名字里藏的是一份盛世祈愿。'}]}
+};
+
+var guidePanel=document.createElement('div');
+guidePanel.id='guidePanel';
+guidePanel.innerHTML='<div class="g-head"><div class="g-avatar"><div class="g-eye l"></div><div class="g-eye r"></div><div class="g-smile"></div></div>'
+ +'<div class="g-title">小桂 · AI 导游<small id="guideWhere">圆明园</small></div><button class="g-close" title="收起">✕</button></div>'
+ +'<div class="g-bubble" id="guideBubble"></div>'
+ +'<div class="g-tools"><button id="guideTts">🔊 朗读</button><button id="guideStop">⏹ 停止</button><button id="guideQa">💬 考据问答</button></div>'
+ +'<div class="g-ask" id="guideAskRow" style="display:none"><input id="guideInput" placeholder="问点什么(如:水力钟怎么报时?)"><button id="guideSend">问</button></div>';
+document.body.appendChild(guidePanel);
+var guideBtn=document.createElement('button');
+guideBtn.id='guideBtn';
+guideBtn.textContent='🧑‍🏫 AI 导游 · 小桂';
+document.body.appendChild(guideBtn);
+
+var guideOpen=false, guideTtsOn=false;
+var gBubble=document.getElementById('guideBubble');
+var gWhere=document.getElementById('guideWhere');
+function guideSay(html,speak){
+  gBubble.innerHTML=html;
+  if(speak&&guideTtsOn&&window.speechSynthesis){
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(gBubble.textContent);
+    u.lang='zh-CN'; u.rate=0.95; speechSynthesis.speak(u);
+  }
+}
+function guideGreet(){
+  var d=GUIDE_DATA[currentScene]||GUIDE_DATA.overview;
+  gWhere.textContent=(SCENES[currentScene]&&SCENES[currentScene].title)||'圆明园';
+  guideSay(d.intro,true);
+}
+guideBtn.addEventListener('click',function(){
+  guideOpen=!guideOpen;
+  guidePanel.style.display=guideOpen?'block':'none';
+  if(guideOpen) guideGreet();
+});
+guidePanel.querySelector('.g-close').addEventListener('click',function(){
+  guidePanel.style.display='none'; guideOpen=false;
+  if(window.speechSynthesis) speechSynthesis.cancel();
+});
+document.getElementById('guideTts').addEventListener('click',function(){
+  guideTtsOn=!guideTtsOn; this.textContent=guideTtsOn?'🔊 朗读中':'🔊 朗读';
+  if(guideTtsOn) guideSay(gBubble.innerHTML,true);
+  else if(window.speechSynthesis) speechSynthesis.cancel();
+});
+document.getElementById('guideStop').addEventListener('click',function(){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+});
+var guideAskRow=document.getElementById('guideAskRow');
+document.getElementById('guideQa').addEventListener('click',function(){
+  var opening=(guideAskRow.style.display==='none');
+  guideAskRow.style.display=opening?'flex':'none';
+  /* 用户体验:展开时若为空,自动填入当前景区的推荐问题 */
+  var inp=document.getElementById('guideInput');
+  if(opening&&inp&&!inp.value){
+    var d=GUIDE_DATA[currentScene]||GUIDE_DATA.overview;
+    if(d.sample) inp.value=d.sample;
+  }
+});
+document.getElementById('guideSend').addEventListener('click',guideAnswer);
+document.getElementById('guideInput').addEventListener('keydown',function(e){ if(e.key==='Enter') guideAnswer(); });
+function guideAnswer(){
+  var inp=document.getElementById('guideInput');
+  var q=(inp.value||'').trim();
+  if(!q) return;
+  var d=GUIDE_DATA[currentScene]||GUIDE_DATA.overview;
+  var best=null,bestScore=0;
+  d.qa.forEach(function(item){
+    var score=0;
+    item.k.forEach(function(kw){ if(q.indexOf(kw)>=0) score+=kw.length; });
+    if(score>bestScore){ bestScore=score; best=item; }
+  });
+  var ans=best?('<b>小桂:</b>'+best.a):('<b>小桂:</b>这个问题我还没整理到考据笔记里。试试问我:名字由来、屋顶颜色、喷泉原理、水力钟、兽首下落、Blender 建模方法……');
+  guideSay(ans,true);
+  inp.value='';
+}
+/* 场景切换时:更新导游问候(轮询 currentScene,轻量) */
+var _lastGuideScene=null;
+setInterval(function(){
+  if(currentScene!==_lastGuideScene){
+    _lastGuideScene=currentScene;
+    if(guideOpen) guideGreet();
+  }
+},900);
+/* 深链 fine=1 时自动开导游(若已打开) */
+if(qs.get('fine')==='1'&&FINE_DEF[qsScene||'']){
+  setTimeout(function(){ if(!guideOpen){ guideOpen=true; guidePanel.style.display='block'; guideGreet(); } },2500);
+}
 /* 调试读数:仅 ?debug=1 时显示 */
 if(qs.get('debug')==='1'){
   var dbg=document.createElement('div');
