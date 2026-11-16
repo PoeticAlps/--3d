@@ -15,13 +15,16 @@
 html,body{width:100%;height:100%;overflow:hidden}
 body{font-family:'Songti SC','STSong','STZhongsong','Noto Serif CJK SC','SimSun',serif;background:#101418;color:var(--text);-webkit-font-smoothing:antialiased}
 canvas{display:block}
+.stats.collapsed .stats-grid,.stats.collapsed .rule,.stats.collapsed .meta,.stats.collapsed .sub{display:none}
+.stats.collapsed{width:auto;padding:10px 14px}
+.stats-title{cursor:pointer}
 /* 画质升级:轻暗角 overlay(径向渐变,pointer-events:none 不挡交互) */
 #vignette{position:fixed;inset:0;pointer-events:none;z-index:50;background:radial-gradient(ellipse 125% 95% at 50% 42%, rgba(10,14,22,0) 55%, rgba(10,14,22,.15) 80%, rgba(6,9,15,.32) 100%)}
 #ui{position:fixed;inset:0;pointer-events:none;z-index:100}
 #ui>*{pointer-events:auto}
 
 /* ---------- 左上 · 数据面板 ---------- */
-.stats{position:absolute;top:16px;left:16px;width:212px;padding:14px 16px 12px;
+.stats{position:absolute;top:16px;left:16px;width:212px;padding:14px 16px 12px;pointer-events:auto;
   background:linear-gradient(165deg,var(--paper),var(--paper2));
   border:1px solid var(--line);box-shadow:0 3px 22px rgba(30,25,15,.22), inset 0 0 0 1px rgba(255,255,255,.55);
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .35s ease,opacity .35s ease}
@@ -59,14 +62,29 @@ canvas{display:block}
 .d-tag{font-size:10px;padding:3px 9px;border:1px solid rgba(169,137,90,.45);color:#7a6a4e;letter-spacing:1.5px;background:rgba(255,252,244,.5)}
 
 /* ---------- 底部 · 景区导航 ---------- */
-.nav{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:9px;
-  padding:10px 16px 9px;background:linear-gradient(165deg,var(--paper),var(--paper2));
-  border:1px solid var(--line);box-shadow:0 3px 22px rgba(30,25,15,.25), inset 0 0 0 1px rgba(255,255,255,.55);transition:transform .3s ease}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;cursor:pointer;padding:2px 3px;transition:transform .22s ease;font-family:inherit}
-.nav-btn:hover{transform:translateY(-3px)}
-.nav-btn .glyph{width:32px;height:32px;border:1px solid rgba(158,58,47,.65);color:var(--seal);font-size:16px;line-height:30px;text-align:center;font-weight:700;background:rgba(255,255,255,.45);transition:.22s ease;position:relative}
+/* 交互大修:底部导航条 → 右侧抽屉;#ui 内所有可点元素显式恢复 pointer-events */
+.nav{position:fixed;top:14px;right:14px;width:238px;max-height:calc(100vh - 110px);overflow-y:auto;pointer-events:auto;
+  display:none;flex-direction:column;align-items:stretch;gap:4px;
+  padding:14px;background:linear-gradient(165deg,var(--paper),var(--paper2));
+  border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 30px rgba(30,25,15,.3);
+  transition:transform .28s ease,opacity .28s ease;transform:translateX(108%);opacity:0;z-index:120}
+.nav.open{display:flex;transform:translateX(0);opacity:1}
+.nav-handle{position:fixed;top:14px;right:14px;z-index:118;pointer-events:auto;
+  padding:9px 18px;background:linear-gradient(165deg,var(--paper),var(--paper2));border:1px solid var(--line);
+  border-radius:20px;font-family:"Songti SC","STSong",serif;font-size:14px;letter-spacing:3px;cursor:pointer;
+  color:var(--seal);box-shadow:0 3px 18px rgba(30,25,15,.22)}
+.nav-handle:hover{border-color:var(--seal)}
+.nav-btn{display:flex;flex-direction:row;align-items:center;gap:12px;background:none;border:none;cursor:pointer;
+  padding:8px 9px;font-family:inherit;pointer-events:auto;border-radius:8px;transition:background .2s ease}
+.nav-btn:hover{background:rgba(158,58,47,.08)}
+.nav-btn .glyph{width:32px;height:32px;flex:none;border:1px solid rgba(158,58,47,.65);color:var(--seal);font-size:16px;line-height:30px;text-align:center;font-weight:700;background:rgba(255,255,255,.45);transition:.22s ease;position:relative}
 .nav-btn .glyph::after{content:'';position:absolute;inset:2px;border:1px solid rgba(158,58,47,.18)}
-.nav-btn span{font-size:11px;letter-spacing:2px;color:var(--text);white-space:nowrap}
+.nav-btn span{font-size:13px;letter-spacing:1px;color:var(--text);white-space:nowrap}
+.nav-btn.active .glyph{background:var(--seal);color:#f6efe2;box-shadow:0 2px 10px rgba(158,58,47,.45)}
+.nav-btn.active .glyph::after{border-color:rgba(246,239,226,.4)}
+.nav-btn.active span{color:var(--seal);font-weight:700}
+.nav-sep{display:none}
+.nav-cap{font-size:11px;letter-spacing:4px;color:#8a7a5c;padding:0 6px 6px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .nav-btn.active .glyph{background:var(--seal);color:#f6efe2;box-shadow:0 2px 10px rgba(158,58,47,.45)}
 .nav-btn.active .glyph::after{border-color:rgba(246,239,226,.4)}
 .nav-btn.active span{color:var(--seal);font-weight:700}
@@ -143,8 +161,10 @@ canvas{display:block}
     <div class="d-tags" id="dTags"></div>
   </div>
 
+  <button class="nav-handle" id="navHandle">☰ 景区</button>
   <div class="nav" id="nav">
-    <button class="nav-btn active" data-scene="overview"><div class="glyph">全</div><span>全景</span></button>
+    <div class="nav-cap">选择景区</div>
+    <button class="nav-btn active" data-scene="overview"><div class="glyph">全</div><span>全景 · 圆明三园</span></button>
     <div class="nav-sep"></div>
     <button class="nav-btn" data-scene="jiuzhou"><div class="glyph">九</div><span>九州清晏</span></button>
     <button class="nav-btn" data-scene="fangpu"><div class="glyph">壶</div><span>方壶胜境</span></button>
@@ -153,7 +173,7 @@ canvas{display:block}
     <button class="nav-btn" data-scene="haiyantang"><div class="glyph">海</div><span>海晏堂</span></button>
   </div>
 
-  <div class="hint">左键旋转 · 右键平移 · 滚轮缩放 · 点击景区牌钮即飞</div>
+  <div class="hint">左键旋转 · 右键平移 · 滚轮缩放 · ☰ 景区</div>
 </div>
 
 <script src="three.min.js"></script>
@@ -385,27 +405,27 @@ THREE.OrbitControls = function(camera, domElement) {
 var SCENES = {
   overview:{cam:[14,118,232],look:[0,2,8],title:'圆明三园 · 全景',year:'1707—1860',
     poem:'谁道江南风景佳,移天缩地在君怀。',
-    desc:'圆明园由圆明、长春、绮春三园组成,占地约350公顷。东北为仿海上仙山的方壶胜境,东方为西洋楼大水法,西方为正大光明正殿,中央后湖九岛环列,是谓九州清晏。',
+    desc:'圆明、长春、绮春三园,占地 350 公顷——"万园之园"的数字写意长卷。',
     tags:['万园之园','皇家园林','四十景'],stats:['186 座建筑群','350 公顷','40 景','3 园']},
   fangpu:{cam:[116,21,-14],look:[186,9,-104],title:'方壶胜境',year:'乾隆十五年 · 1750',
     poem:'飞观图云镜水涵,拏空松柏与天参。高冈翙羽鸣应六,曲渚寒蟾印有三。',
-    desc:'仿海上三神山仙境:中央两层楼阁耸峙,左右亭座相拱,青绿琉璃映水;白玉台基层层自水中升起,九曲桥蜿蜒相连,前池荷风送香,后院松柏参天,为圆明园最具道家意境之景。',
+    desc:'仿海上三神山:白玉台基自水中升起,九曲桥相连,青绿琉璃映水。',
     tags:['海上仙山','青绿琉璃','九曲桥','白玉台基'],stats:['124 座楼阁','28 公顷','9 座桥梁','1750 建成']},
   zhengda:{cam:[-152,16,150],look:[-165,7,54],title:'正大光明',year:'雍正元年 · 1723',
     poem:'胜地同灵囿,遗规继畅春。当年成不日,弈代永居辰。',
-    desc:'圆明园正殿。中轴御路朱栏跨水引入,前庭虚敞,两侧朝房对称;大殿居高台之上,红墙灰瓦、绿瓦剪边,殿后峭石壁立、玉笋嶙峋,四望墙外林木阴湛。皇帝在此听政、宴请、颁诏。',
+    desc:'圆明园正殿。中轴御路朱栏跨水,大殿居高台,殿后峭石壁立,皇帝听政之所。',
     tags:['正殿','听政','朱栏御路','峭石屏立'],stats:['67 座殿宇','15 公顷','1723 启用','面阔七间']},
   dashuifa:{cam:[90,14,144],look:[190,9,104],title:'大水法',year:'乾隆十二年 · 1747',
     poem:'西洋妙制通水法,喷浪飞涛悬素练。',
-    desc:'西洋楼景区核心,巴洛克石龛拱门居中,两侧塔柱对称而立;前设大喷泉池,铜兽吐水、"猎狗逐鹿"夺人心魄,水柱腾空,借西洋机括引水成戏。灰白大理石与铜雕重现盛时气象。',
+    desc:'西洋楼核心喷泉:"猎狗逐鹿"铜雕引水成戏,灰白大理石重现盛时气象。',
     tags:['西洋楼','巴洛克','喷泉','铜雕'],stats:['53 座西式建筑','18 公顷','1747 建成','13 级水塔']},
   haiyantang:{cam:[110,20,158],look:[45,7,105],title:'海晏堂',year:'乾隆二十四年 · 1759',
     poem:'西洋奇制水力钟,十二辰兽次第喷。河清海晏迎宾日,玉宇琼楼气象雄。',
-    desc:'西洋楼最大建筑,坐西朝东,上下各十一开间;门前八字形叠落喷水槽上,端坐十二生肖人身兽首铜像,按十二时辰依次喷水、正午十二兽齐喷,是为"水力钟"。池中巨型贝壳石雕与海豚吐水相映,堂后蓄水楼以龙尾车引水,供给全组喷泉。',
+    desc:'西洋楼最大建筑:十二生肖"水力钟"按时辰喷水,正午齐喷。',
     tags:['西洋楼最大','水力钟','十二生肖','蓄水楼'],stats:['上下各 11 开间','12 生肖兽首','1759 建成','时辰喷水']},
   jiuzhou:{cam:[26,48,148],look:[0,4,22],title:'九州清晏',year:'雍正元年 · 1723',
     poem:'后湖九岛环列,不施雕绘,清幽如画。',
-    desc:'四十景之首。后湖九岛环列,以九州寓意天下;中央寝宫黄瓦重檐,为雍正以来历代园居听政之所。岛岸垂柳拂水,荷花映日,石桥连通诸岛,是圆明园的生活核心。',
+    desc:'四十景之首:后湖九岛环列,中央寝宫黄瓦重檐,园居生活核心。',
     tags:['四十景之首','九岛环湖','皇帝寝宫','黄琉璃'],stats:['186 座建筑','42 公顷','9 座岛屿','园居 200+ 日']}
 };
 
@@ -2204,9 +2224,13 @@ function init(){
   controls=new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping=true;
   controls.dampingFactor=0.08;
-  controls.minDistance=8;
-  controls.maxDistance=430;
-  controls.maxPolarAngle=1.52;
+  controls.minDistance=6;
+  controls.maxDistance=600;
+  controls.maxPolarAngle=Math.PI; /* 交互大修:解除俯仰限制,手动可任意方向观察 */
+  /* 手动优先:任何手动输入随时打断自动飞行 */
+  ['pointerdown','wheel','touchstart'].forEach(function(ev){
+    renderer.domElement.addEventListener(ev,function(){ if(animState.flying) animState.flying=false; },{passive:true});
+  });
   controls.target.set(0,2,8);
 
   /* 画质升级:Preetham 大气天空(Sky.js)替换渐变穹顶——傍晚前暖阳 */
@@ -2790,8 +2814,19 @@ function setupUI(){
   for(var i=0;i<btns.length;i++){
     btns[i].addEventListener('click', function(){
       flyTo(this.getAttribute('data-scene'));
+      /* 交互大修:抽屉导航——选择后自动收起 */
+      document.getElementById('nav').classList.remove('open');
     });
   }
+  /* 交互大修:抽屉开合 */
+  document.getElementById('navHandle').addEventListener('click', function(){
+    document.getElementById('nav').classList.toggle('open');
+  });
+  /* 交互大修:数据面板折叠(原先 ▼ 只是装饰) */
+  var stTitle=document.querySelector('.stats-title');
+  if(stTitle) stTitle.addEventListener('click', function(){
+    document.getElementById('statsPanel').classList.toggle('collapsed');
+  });
   document.getElementById('detailClose').addEventListener('click', function(){
     document.getElementById('detail').classList.remove('show');
   });
@@ -2990,21 +3025,21 @@ GUIDE_CSS.textContent=[
 document.head.appendChild(GUIDE_CSS);
 
 var GUIDE_DATA={
- overview:{n:'小桂',sample:'这个项目是真的圆明园吗,依据是什么?',intro:'欢迎来到<b>重生·圆明园</b>!眼前是参照《圆明园四十景图咏》数字重建的"万园之园"。点击下方景区按钮或场景中的热区,我带你逐景游览;走进<b>方壶胜境、大水法、海晏堂</b>时,还能一键切换考据级精细复原模型。有任何问题,尽管问我。',qa:[
+ overview:{n:'小桂',sample:'这个项目是真的圆明园吗,依据是什么?',intro:'欢迎来到重生·圆明园!点右上 ☰ 选景区,我带你逐景游览;有问题尽管问我。',qa:[
   {k:['真实','复原','考据','依据'],a:'本项目的复原依据有三层:清代宫廷画师绘制的《圆明园四十景图咏》绢画(1744)、清宫裱作与样式房档案,以及当代考古与研究成果(如清华大学数字复原团队的工作)。全园写意漫游,重点景区做考据级精细复原。'},
   {k:['四十景','图咏','绢画'],a:'《四十景图咏》是乾隆九年(1744)由唐岱、沈源等宫廷画师绘制的四十幅绢本彩绘,每幅附乾隆御题与汪由敦楷书。1860 年园毁后流散海外,现藏法国国家图书馆,是本 project 最核心的图像依据。'},
   {k:['1860','焚毁','英法联军','劫难'],a:'1860 年 10 月,英法联军劫掠并焚毁圆明园,大火三日不熄。"万园之园"化为废墟,大量文物流散海外。本项目标题"重生",即是以数字手段让这座园林在虚拟世界中重现。'}]},
- fangpu:{n:'小桂',sample:'屋顶为什么是青绿色的?',intro:'这里<b>方壶胜境</b>——"仿海上三神山仙境"。看这幅构图:中央两层楼阁耸峙,左右亭座相拱,白玉台基层层自水中升起,九曲桥蜿蜒相连。点"🏯 精细复原版",看 Blender 逐构件重建的版本。',qa:[
+ fangpu:{n:'小桂',sample:'屋顶为什么是青绿色的?',intro:'方壶胜境——仿海上三神山仙境。名字由来、屋顶颜色考据,尽管问我。',qa:[
   {k:['名字','为什么','方壶','三神山','寓意'],a:'"方壶"是古代传说海上三神山之一(方壶、蓬莱、瀛洲)。乾隆以此景模拟仙境:楼阁矗立水面,九桥相连,云气缭绕,是圆明园最具道家意境的景区。'},
   {k:['屋顶','琉璃','颜色','为什么是青'],a:'主楼与亭座覆青绿琉璃瓦,金色的只有屋脊宝顶——这正是我修复对照《四十景图咏》绢画得到的关键结论:早期 v3 版满场金黄是误读,画作里白玉台基与青绿屋顶才是主调。'},
   {k:['精细','blender','建模','怎么做的','工作量'],a:'精细模型用 Blender 的 bpy 接口程序化建模:斗拱、望柱、瓦垄、栏杆都是逐构件生成的几何体,脚本报出每一处对应的历史依据,一共 1352 行考据注释——这就是可以写进参赛材料的工作量证明。'},
   {k:['桥','九曲桥','几座'],a:'画面中的桥统称九曲桥,寓意"九曲连环"。绢画显示方壶胜境一带"九座桥梁相连",故描述中称九桥。'}]},
- dashuifa:{n:'小桂',sample:'"猎狗逐鹿"是什么?',intro:'眼前是<b>大水法</b>——西洋楼景区的核心喷泉。巴洛克石龛拱门居中,两侧塔柱对称;前方海棠形水池里,"猎狗逐鹿"铜雕引水成戏。乾隆帝观赏喷泉,就在这里。',qa:[
+ dashuifa:{n:'小桂',sample:'"猎狗逐鹿"是什么?',intro:'大水法——西洋楼核心喷泉。"猎狗逐鹿"怎么玩?问我。',qa:[
   {k:['猎狗逐鹿','铜雕','鹿','狗','喷泉原理'],a:'按铜版画与文献:水池中央一只铜鹿昂首如奔,角尖喷水八道;十只铜犬环列,口中水柱直射鹿身,溅起水花,谓之"猎狗逐鹿"。两侧还有十三级喷水塔,水声如乐。'},
   {k:['水从哪','机括','供水','动力','提水'],a:'喷泉用水由"龙尾车"(往复式提水机械)从蓄水楼提升供给——当年这是西洋机械与中式园林结合的奇观,蒋友仁神父参与了设计。'},
   {k:['现在','遗址','还能看到','现状'],a:'1860 年大火后,大水法只余石龛拱门与几根残柱,是今天圆明园最著名的遗址意象。本 scene 展示的是"盛期复原";残迹对照是下一阶段计划。'},
   {k:['远瀛观','高台','柱廊'],a:'大水法北面高台上的西洋钟楼式大殿就是<b>远瀛观</b>,平面呈倒凹字形,柱廊用西洋柱式,檐下却覆中式庑殿灰瓦顶——中西合璧正是西洋楼的特征。'}]},
- haiyantang:{n:'小桂',sample:'水力钟是怎么报时的?',intro:'<b>海晏堂</b>——西洋楼最大的建筑,坐西朝东,上下各十一开间。门前八字形叠落喷水槽上,端坐<b>十二生肖人身兽首铜像</b>:按十二时辰依次喷水两小时,正午十二兽齐喷,这就是闻名世界的"水力钟"。',qa:[
+ haiyantang:{n:'小桂',sample:'水力钟是怎么报时的?',intro:'海晏堂——十二生肖"水力钟"。想知道它怎么报时?问我。',qa:[
   {k:['水力钟','怎么报时','原理','十二时辰'],a:'十二兽像各对应一个时辰(两小时):到点即由该兽口中喷水报时;正午十二兽齐喷,蔚为壮观。以喷泉计时,是郎世宁、蒋友仁等西洋设计与中国造园的融合产物。'},
   {k:['兽首','去哪了','流散','回归','下落'],a:'1860 年劫难后,十二兽首流散海外。近年经捐赠与拍卖回归数尊(牛、虎、猴、猪、马首等),部分藏于保利艺术博物馆与圆明园,龙首等仍下落不明——兽首的流散史本身就是一部近代史。'},
   {k:['蓄水','龙尾车','水源','塔'],a:'堂后高台上的建筑是<b>蓄水楼</b>:台上设大型水池,以龙尾车把水提升到高处储存,靠落差为全组喷泉供水。蓄水楼遗址至今尚存,2016 年做过加固修缮。'},
