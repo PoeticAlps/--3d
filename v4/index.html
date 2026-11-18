@@ -182,6 +182,7 @@ canvas{display:block}
 <script src="lib/objects/Sky.js"></script>
 <script src="lib/objects/Water.js"></script>
 <script src="lib/shaders/CopyShader.js"></script>
+<script src="lib/shaders/HueSaturationShader.js"></script>
 <script src="lib/shaders/LuminosityHighPassShader.js"></script>
 <script src="lib/postprocessing/EffectComposer.js"></script>
 <script src="lib/postprocessing/RenderPass.js"></script>
@@ -1495,12 +1496,12 @@ function buildLakeWater(){
     textureWidth:LAKE_RT, textureHeight:LAKE_RT,
     waterNormals:TEX.waterN,
     sunDirection:SUN_DIR.clone().normalize(),
-    sunColor:0xfff1d6,
-    waterColor:0x00463e,          /* 微绿偏碧,按画调 */
-    distortionScale:4.2,
+    sunColor:0xffffff,
+    waterColor:0x00222e,          /* 真实感专项:湖水加深加深蓝灰,贴近真实园林湖面 */
+    distortionScale:5.5,
     fog:true
   });
-  water.material.uniforms.size.value=1.45; /* 画质升级:波纹细碎,波光粼粼 */
+  water.material.uniforms.size.value=1.15; /* 真实感专项:波纹略放大,细节可辨 */
   water.rotation.x=-Math.PI/2;
   water.renderOrder=1;
   waterMats.push(water.material);
@@ -1513,9 +1514,9 @@ function buildPoolWater(){
     textureWidth:IS_MOBILE?128:512, textureHeight:IS_MOBILE?128:512,
     waterNormals:TEX.waterN,
     sunDirection:SUN_DIR.clone().normalize(),
-    sunColor:0xfff1d6,
-    waterColor:0x0a4a42,
-    distortionScale:1.2,
+    sunColor:0xffffff,
+    waterColor:0x0a3238,
+    distortionScale:2.6,
     fog:true
   });
   water.rotation.x=-Math.PI/2;
@@ -2205,7 +2206,7 @@ function init(){
   scene=new THREE.Scene();
   /* 画质升级:雾色调暖,与 Preetham 天空地平线衔接 */
   /* 画质升级:雾改淡蓝灰且推远——此前米白近雾把全景洗成灰白纱 */
-  scene.fog=new THREE.Fog(0xc9d6de, 420, 1700);
+  scene.fog=new THREE.Fog(0xbccfda, 520, 1900); /* 真实感专项:雾只留远景,中景通透 */
 
   camera=new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.5, 3000);
   camera.position.set(14,118,232);
@@ -2217,7 +2218,7 @@ function init(){
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate=false; /* 场景静态:阴影图仅按需重绘 */
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=0.85; /* 画质升级:压曝光找回饱和度与对比 */
+  renderer.toneMappingExposure=0.95; /* 真实感专项:曝光回调,找回对比 */
   renderer.outputEncoding=THREE.sRGBEncoding;
   document.body.insertBefore(renderer.domElement, document.body.firstChild);
   bar.style.width='46%';
@@ -2243,8 +2244,8 @@ function init(){
   var sky=new THREE.Sky();
   sky.scale.setScalar(2400);
   var skyUniforms=sky.material.uniforms;
-  skyUniforms.turbidity.value=2.4;
-  skyUniforms.rayleigh.value=1.7;
+  skyUniforms.turbidity.value=1.9;
+  skyUniforms.rayleigh.value=2.1;
   skyUniforms.mieCoefficient.value=0.003;
   skyUniforms.mieDirectionalG.value=0.85;
   skyUniforms.sunPosition.value.copy(SUN_DIR);
@@ -2298,6 +2299,10 @@ function init(){
   composer.addPass(new THREE.RenderPass(scene, camera));
   bloomPass=new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth/2,innerHeight/2), 0.35, 0.45, 0.85);
   composer.addPass(bloomPass);
+  /* 真实感专项:饱和度提升(0=原色,+1=最大),补偿大气灰化 */
+  var satPass=new THREE.ShaderPass(THREE.HueSaturationShader);
+  satPass.uniforms['saturation'].value=0.3;
+  composer.addPass(satPass);
   var gammaPass=new THREE.ShaderPass({
     uniforms:{tDiffuse:{value:null}},
     vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
@@ -2324,10 +2329,10 @@ function init(){
 /* ==================== 画质升级:光照(方向与 Sky 太阳严格对齐;IBL 环境光兜底) ==================== */
 function setupLights(){
   /* 天光半球:天蓝/地暖,与暖阳互补 */
-  var hemi=new THREE.HemisphereLight(0xbcd4e8, 0x9a8f70, 0.3);
+  var hemi=new THREE.HemisphereLight(0xbcd4e8, 0x9a8f70, 0.24); /* 真实感专项:压环境填充,保住暗部 */
   scene.add(hemi);
   /* 暖阳平行光:色温 0xffdfae 级别,方向=Sky 太阳 */
-  var sun=new THREE.DirectionalLight(0xffdfae, 1.25); /* 画质升级:曝光降后增强主光对比 */
+  var sun=new THREE.DirectionalLight(0xffdfae, 1.38); /* 真实感专项:主光更强,明暗对比拉大 */
   sun.position.copy(SUN_DIR).multiplyScalar(420);
   sun.castShadow=true;
   sun.shadow.mapSize.set(2048,2048);
@@ -2899,14 +2904,15 @@ function flyTo(key){
     controls.target.copy(animState.toL);
     animState.flying=false;
     forceHideLoading();
-    /* 印象片:2.5s 后将 loading 从 DOM 移除(过渡在节流环境下会冻结,remove 才可靠) */
+    /* 印象片:tour 模式下自动加载精细模型(有定义的景区) */
+    if(FINE_DEF[key]&&!fineSt[key].active){ fineArea=key; loadFine(key); }
     setTimeout(function(){
       var le=document.getElementById('loading');
       if(le){ le.style.transition='none'; le.style.display='none'; le.remove(); }
       var pc=document.getElementById('particleCanvas');
       if(pc){ pc.style.transition='none'; pc.style.display='none'; }
-    },2500);
-    setTimeout(function(){ try{ renderer.render(scene,camera); }catch(e){} },3000);
+      try{ renderer.render(scene,camera); }catch(e){}
+    },1500);
   }
 }
 
@@ -3005,7 +3011,7 @@ var qs=new URLSearchParams(location.search);
 var qsScene=qs.get('scene');
 if(qsScene&&SCENES[qsScene]){
   setTimeout(function(){ flyTo(qsScene); },400);
-  if(qs.get('fine')==='1'&&FINE_DEF[qsScene]){
+  if(qs.get('fine')==='1'&&FINE_DEF[qsScene]&&qs.get('tour')!=='1'){
     setTimeout(function(){
       fineArea=qsScene;
       var st=fineSt[qsScene];
@@ -3014,6 +3020,12 @@ if(qsScene&&SCENES[qsScene]){
     },900);
   }
 }
+/* 快捷键:1-6 景区直达 */
+var KEYMAP={1:'overview',2:'jiuzhou',3:'fangpu',4:'zhengda',5:'dashuifa',6:'haiyantang'};
+document.addEventListener('keydown',function(e){
+  var k=KEYMAP[parseInt(e.key)];
+  if(k&&SCENES[k]) flyTo(k);
+});
 /* ==================== AI 导游"小桂":逐景区讲解 + 考据问答 + 语音朗读 ==================== */
 /* 形象与问答机制源自 agnes-learning-systems 的 A5 景区导览数字人原型;讲解词来自本仓库考据 */
 var GUIDE_CSS=document.createElement('style');
@@ -3175,7 +3187,8 @@ if(qs.get('debug')==='1'){
         +'  scene='+currentScene+'  fineArea='+fineArea
         +'  fp='+(fineSt.fangpu?fineSt.fangpu.active+'/'+fineSt.fangpu.loaded:'-')
         +'  ds='+(fineSt.dashuifa?fineSt.dashuifa.active+'/'+fineSt.dashuifa.loaded:'-')
-        +'  fly='+animState.flying;
+        +'  fly='+animState.flying
+        +(function(){ var le=document.getElementById('loading'); return le?(' load[disp='+getComputedStyle(le).display+' op='+getComputedStyle(le).opacity+' cls='+le.className+']'):' load[gone]'; })();
     }catch(e){ dbg.textContent='dbg:'+e.message; }
   },600);
 }
