@@ -2893,6 +2893,21 @@ function flyTo(key){
   animState.toL=new THREE.Vector3(d.look[0],d.look[1],d.look[2]);
   fineArea=currentScene;
   refreshFineBtn();
+  /* 印象片模式(?tour=1):跳过开场与飞行动画,直接落位并渲染单帧 */
+  if(qs.get('tour')==='1'){
+    camera.position.copy(animState.toP);
+    controls.target.copy(animState.toL);
+    animState.flying=false;
+    forceHideLoading();
+    /* 印象片:2.5s 后将 loading 从 DOM 移除(过渡在节流环境下会冻结,remove 才可靠) */
+    setTimeout(function(){
+      var le=document.getElementById('loading');
+      if(le){ le.style.transition='none'; le.style.display='none'; le.remove(); }
+      var pc=document.getElementById('particleCanvas');
+      if(pc){ pc.style.transition='none'; pc.style.display='none'; }
+    },2500);
+    setTimeout(function(){ try{ renderer.render(scene,camera); }catch(e){} },3000);
+  }
 }
 
 /* ==================== 精细复原模式:Blender 高模(方壶胜境/大水法;考据:四十景图咏+西洋楼铜版画+清宫档案) ==================== */
@@ -2912,6 +2927,7 @@ var FINE_DEF={
 var fineSt={fangpu:{loaded:false,loading:false,active:false},dashuifa:{loaded:false,loading:false,active:false},haiyantang:{loaded:false,loading:false,active:false}};
 var fineArea=null;
 var fineBtn=document.createElement('button');
+fineBtn.id='fineBtn';
 fineBtn.style.cssText='position:fixed;right:18px;bottom:118px;z-index:60;padding:10px 20px;'
   +'background:rgba(16,24,32,.88);color:#e8c97a;border:1px solid #c8a24a;border-radius:22px;'
   +'font-family:"Songti SC","STSong",serif;font-size:13px;cursor:pointer;display:none;letter-spacing:2px';
@@ -2941,6 +2957,13 @@ function applyFine(area){
     animState.fromP=camera.position.clone(); animState.fromL=controls.target.clone();
     animState.toP=new THREE.Vector3(d.cam[0],d.cam[1],d.cam[2]);
     animState.toL=new THREE.Vector3(d.look[0],d.look[1],d.look[2]);
+    /* 印象片模式:同 flyTo,直接落位 */
+    if(qs.get('tour')==='1'){
+      camera.position.copy(animState.toP);
+      controls.target.copy(animState.toL);
+      animState.flying=false;
+      setTimeout(function(){ try{ renderer.render(scene,camera); }catch(e){} },1200);
+    }
   }
   refreshFineBtn();
 }
@@ -3138,7 +3161,7 @@ setInterval(function(){
   }
 },900);
 /* 深链 fine=1 时自动开导游(若已打开) */
-if(qs.get('fine')==='1'&&FINE_DEF[qsScene||'']){
+if(qs.get('fine')==='1'&&FINE_DEF[qsScene||'']&&qs.get('tour')!=='1'){
   setTimeout(function(){ if(!guideOpen){ guideOpen=true; guidePanel.style.display='block'; guideGreet(); } },2500);
 }
 /* 调试读数:仅 ?debug=1 时显示 */

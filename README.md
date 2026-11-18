@@ -274,3 +274,10 @@ SCENES['newScene'] = {
 ---
 
 *重生·圆明园 · AI数字文化遗产3D重建 · 2026全国3D大赛参赛作品*
+
+## 📦 作品物料
+
+- 📄 [参赛作品说明书](docs/参赛作品说明书.md) — 作品概述 / 考据依据 / 技术路线 / AI 辅助工作流
+- 🎬 [漫游印象片](docs/video/圆明园漫游印象.mp4) — 全景 → 方壶胜境 → 大水法 → 海晏堂(15 秒)
+- 🧾 建模脚本(工作量证明):[方壶胜境](v4/blender/fanghu_build.py) · [大水法](v4/blender/dashuifa_build.py) · [海晏堂](v4/blender/haiyantang_build.py) — 共 3,437 行考据注释
+- 🖼 参考图:《圆明园四十景图咏》绢画([v4/reference/](v4/reference/))
