@@ -3275,6 +3275,8 @@ if(qs.get('debug')==='1'){
         +'  fp='+(fineSt.fangpu?fineSt.fangpu.active+'/'+fineSt.fangpu.loaded:'-')
         +'  ds='+(fineSt.dashuifa?fineSt.dashuifa.active+'/'+fineSt.dashuifa.loaded:'-')
         +'  fly='+animState.flying
+        +'  mood='+moodDusk
+        +'  水色=#'+(waterMats[0]&&waterMats[0].uniforms.waterColor?waterMats[0].uniforms.waterColor.value.getHexString():'?')
         +(function(){ var le=document.getElementById('loading'); return le?(' load[disp='+getComputedStyle(le).display+' op='+getComputedStyle(le).opacity+' cls='+le.className+']'):' load[gone]'; })();
     }catch(e){ dbg.textContent='dbg:'+e.message; }
   },600);
