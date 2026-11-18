@@ -708,14 +708,17 @@ function buildTextures(){
     speckle(g,s,s,220,'#5a5a5a','#a8a8a8',1,2.8,R);
     TEX.grassN = makeTexN(s,s,function(gg){ gg.drawImage(heightToNormal(hc,2.6),0,0); });
   })();
-  /* 画质升级:水法线贴图(可平铺噪声高图烘焙,供 Water.js) */
+  /* 真实感专项:水法线贴图(512px,椭圆形涌浪脊+细碎波纹,对齐 famquest 海面波峰质感) */
   (function(){
-    var s=256;
+    var s=512;
     var hc=document.createElement('canvas'); hc.width=hc.height=s;
     var g=hc.getContext('2d');
     var img=g.createImageData(s,s);
     var R=rnd(1234), blobs=[];
-    for(var i=0;i<95;i++){ blobs.push({x:R()*s, y:R()*s, r:7+R()*24, a:(R()<0.5?-1:1)*(0.5+R()*0.5)}); }
+    /* 涌浪:椭圆形隆起,方向大体一致(风浪) */
+    for(var i=0;i<170;i++){ blobs.push({x:R()*s, y:R()*s, r:9+R()*30, el:2.2+R()*2.2, ang:1.2+(R()-0.5)*0.9, a:(R()<0.5?-1:1)*(0.45+R()*0.55)}); }
+    /* 细碎波纹:圆形小凸起 */
+    for(var i=0;i<260;i++){ blobs.push({x:R()*s, y:R()*s, r:5+R()*14, el:1, ang:0, a:(R()<0.5?-1:1)*(0.3+R()*0.5)}); }
     var hs=new Float32Array(s*s);
     for(var y=0;y<s;y++){
       for(var x=0;x<s;x++){
@@ -724,7 +727,9 @@ function buildTextures(){
           var b=blobs[j];
           var dx=Math.abs(x-b.x); if(dx>s/2) dx=s-dx;
           var dy=Math.abs(y-b.y); if(dy>s/2) dy=s-dy;
-          var d2=(dx*dx+dy*dy)/(b.r*b.r);
+          var ca=Math.cos(b.ang), sa=Math.sin(b.ang);
+          var ux=(ca*dx+sa*dy)/b.r, uy=(sa*dx-ca*dy)/(b.r*b.el);
+          var d2=ux*ux+uy*uy;
           if(d2<1) v+=b.a*0.045*(1-d2)*(1-d2);
         }
         hs[y*s+x]=v;
@@ -1515,13 +1520,26 @@ function buildLakeWater(){
     sunDirection:SUN_DIR.clone().normalize(),
     sunColor:0xffffff,
     waterColor:0x00222e,          /* 真实感专项:湖水加深加深蓝灰,贴近真实园林湖面 */
-    distortionScale:5.5,
+    distortionScale:6.5,
     fog:true
   });
-  water.material.uniforms.size.value=1.15; /* 真实感专项:波纹略放大,细节可辨 */
+  water.material.uniforms.size.value=0.9; /* 真实感专项:涌浪尺度放大,波峰可辨 */
   water.rotation.x=-Math.PI/2;
   water.renderOrder=1;
   waterMats.push(water.material);
+  /* 真实感专项:太阳眩光——湖面日光反射光斑(对齐 famquest 基准) */
+  var glareCv=document.createElement('canvas'); glareCv.width=glareCv.height=256;
+  var gg=glareCv.getContext('2d');
+  var rg=gg.createRadialGradient(128,128,4,128,128,128);
+  rg.addColorStop(0,'rgba(255,246,214,0.95)');
+  rg.addColorStop(0.22,'rgba(255,232,170,0.5)');
+  rg.addColorStop(1,'rgba(255,224,150,0)');
+  gg.fillStyle=rg; gg.fillRect(0,0,256,256);
+  var glare=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(glareCv),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0.8}));
+  var gd=SUN_DIR.clone().normalize();
+  glare.position.set(gd.x*430, 2.0, gd.z*430); /* 湖面远处,太阳镜像方向 */
+  glare.scale.set(110,70,1);
+  scene.add(glare);
   return water;
 }
 /* 大水法喷泉池小水面(独立反射,分辨率较低) */
@@ -3193,6 +3211,58 @@ setInterval(function(){
 if(qs.get('fine')==='1'&&FINE_DEF[qsScene||'']&&qs.get('tour')!=='1'){
   setTimeout(function(){ if(!guideOpen){ guideOpen=true; guidePanel.style.display='block'; guideGreet(); } },2500);
 }
+/* ==================== 氛围模式:白天 / 黄昏(黄昏=暗调海面基准,运行时全链切换) ==================== */
+var moodDusk=false;
+var moodBtn=document.createElement('button');
+moodBtn.id='moodBtn';
+moodBtn.style.cssText='position:fixed;left:18px;bottom:76px;z-index:60;padding:9px 16px;'
+  +'background:rgba(16,24,32,.88);color:#e8c97a;border:1px solid #c8a24a;border-radius:20px;'
+  +'font-family:"Songti SC","STSong",serif;font-size:12.5px;cursor:pointer;letter-spacing:2px';
+moodBtn.textContent='🌙 黄昏模式';
+document.body.appendChild(moodBtn);
+moodBtn.addEventListener('click',function(){
+  moodDusk=!moodDusk;
+  moodBtn.textContent=moodDusk?'☀️ 白天模式':'🌙 黄昏模式';
+  /* 太阳方向与高度角 */
+  SUN_DIR.setFromSphericalCoords(1, deg(90-(moodDusk?7:32)), deg(14));
+  /* 天空 / 光照 / 雾 / 曝光 */
+  scene.traverse(function(o){
+    var u=o.material&&o.material.uniforms;
+    if(u&&u.turbidity){
+      u.turbidity.value=moodDusk?5.0:1.9;
+      u.rayleigh.value=moodDusk?3.1:2.1;
+      u.mieCoefficient.value=moodDusk?0.008:0.003;
+      if(u.sunPosition) u.sunPosition.value.copy(SUN_DIR);
+    }
+    if(o.isDirectionalLight&&o.castShadow){
+      o.position.copy(SUN_DIR).multiplyScalar(420);
+      o.intensity=moodDusk?0.95:1.38;
+      o.color.set(moodDusk?0xffb066:0xffdfae);
+    }
+  });
+  scene.fog.color.set(moodDusk?0x8f9aa8:0xbccfda);
+  scene.fog.near=moodDusk?300:520;
+  scene.fog.far=moodDusk?1500:1900;
+  renderer.toneMappingExposure=moodDusk?0.72:0.95;
+  /* 水面 uniforms(主湖+池水) */
+  waterMats.forEach(function(mm){
+    if(!mm.uniforms) return;
+    if(mm.uniforms.waterColor) mm.uniforms.waterColor.value.set(moodDusk?0x00141d:0x00222e);
+    if(mm.uniforms.sunColor) mm.uniforms.sunColor.value.set(moodDusk?0xffc890:0xffffff);
+    if(mm.uniforms.sunDirection) mm.uniforms.sunDirection.value.copy(SUN_DIR);
+    if(mm.uniforms.distortionScale) mm.uniforms.distortionScale.value=moodDusk?7:6.5;
+  });
+  /* 太阳眩光 */
+  scene.traverse(function(o){
+    if(o.isSprite&&o.material.blending===THREE.AdditiveBlending){
+      o.material.opacity=moodDusk?1.0:0.8;
+      var gd=SUN_DIR.clone().normalize();
+      o.position.set(gd.x*430,2.0,gd.z*430);
+      o.scale.set(moodDusk?150:110,moodDusk?95:70,1);
+    }
+  });
+  shadowDirty=true;
+});
 /* 调试读数:仅 ?debug=1 时显示 */
 if(qs.get('debug')==='1'){
   var dbg=document.createElement('div');
