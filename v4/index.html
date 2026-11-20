@@ -177,18 +177,7 @@ canvas{display:block}
   <div class="hint">左键旋转 · 右键平移 · 滚轮缩放 · ☰ 景区</div>
 </div>
 
-<script src="three.min.js"></script>
-<script src="../GLTFLoader.js"></script>
-<script src="lib/objects/Sky.js"></script>
-<script src="lib/objects/Water.js"></script>
-<script src="lib/shaders/CopyShader.js"></script>
-<script src="lib/shaders/HueSaturationShader.js"></script>
-<script src="lib/shaders/LuminosityHighPassShader.js"></script>
-<script src="lib/postprocessing/EffectComposer.js"></script>
-<script src="lib/postprocessing/RenderPass.js"></script>
-<script src="lib/postprocessing/ShaderPass.js"></script>
-<script src="lib/postprocessing/MaskPass.js"></script>
-<script src="lib/postprocessing/UnrealBloomPass.js"></script>
+<script src="lib/three180.js"></script>
 <script>
 /* ============ OrbitControls(自 v3 内联版复制,增补触控支持;未改动 v3 任何文件) ============ */
 THREE.OrbitControls = function(camera, domElement) {
@@ -473,7 +462,7 @@ function makeTex(w,h,fn,repX,repY){
   var t=new THREE.CanvasTexture(c);
   t.wrapS=t.wrapT=THREE.RepeatWrapping;
   if(repX) t.repeat.set(repX, repY||repX);
-  t.encoding=THREE.sRGBEncoding;
+  t.colorSpace=THREE.SRGBColorSpace;
   t.anisotropy=4;
   return t;
 }
@@ -2253,8 +2242,8 @@ function init(){
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   renderer.shadowMap.autoUpdate=false; /* 场景静态:阴影图仅按需重绘 */
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=0.95; /* 真实感专项:曝光回调,找回对比 */
-  renderer.outputEncoding=THREE.sRGBEncoding;
+  renderer.toneMappingExposure=0.88; /* r180:曝光适配新色彩管线 */
+  renderer.outputColorSpace=THREE.SRGBColorSpace; /* r180:替代 outputEncoding */
   document.body.insertBefore(renderer.domElement, document.body.firstChild);
   bar.style.width='46%';
 
@@ -2336,14 +2325,10 @@ function init(){
   composer.addPass(bloomPass);
   /* 真实感专项:饱和度提升(0=原色,+1=最大),补偿大气灰化 */
   var satPass=new THREE.ShaderPass(THREE.HueSaturationShader);
-  satPass.uniforms['saturation'].value=0.3;
+  satPass.uniforms['saturation'].value=0.24;
   composer.addPass(satPass);
-  var gammaPass=new THREE.ShaderPass({
-    uniforms:{tDiffuse:{value:null}},
-    vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader:'uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c=texture2D(tDiffuse,vUv); c.rgb=pow(c.rgb, vec3(1.0/2.2)); gl_FragColor=c; }'
-  });
-  composer.addPass(gammaPass);
+  /* r180:OutputPass 自动应用色调映射与 sRGB 输出,替代旧内联 gamma */
+  composer.addPass(new THREE.OutputPass());
   bar.style.width='96%';
 
   setupUI();
@@ -2367,7 +2352,7 @@ function setupLights(){
   var hemi=new THREE.HemisphereLight(0xbcd4e8, 0x9a8f70, 0.24); /* 真实感专项:压环境填充,保住暗部 */
   scene.add(hemi);
   /* 暖阳平行光:色温 0xffdfae 级别,方向=Sky 太阳 */
-  var sun=new THREE.DirectionalLight(0xffdfae, 1.38); /* 真实感专项:主光更强,明暗对比拉大 */
+  var sun=new THREE.DirectionalLight(0xffdfae, 1.2); /* r180:物理光照下回调 */
   sun.position.copy(SUN_DIR).multiplyScalar(420);
   sun.castShadow=true;
   sun.shadow.mapSize.set(2048,2048);
@@ -2818,7 +2803,7 @@ function makeLabel(text, x, y, z){
   g.fillStyle='#c9ab72';
   g.fillRect(94,74,68,3);
   var tex=new THREE.CanvasTexture(c);
-  tex.encoding=THREE.sRGBEncoding;
+  tex.colorSpace=THREE.SRGBColorSpace; /* r180 */
   var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, depthWrite:false, opacity:0.95}));
   sp.scale.set(17,6.4,1);
   sp.position.set(x,y,z);
