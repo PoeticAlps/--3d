@@ -2241,7 +2241,7 @@ function init(){
   scene=new THREE.Scene();
   /* 画质升级:雾色调暖,与 Preetham 天空地平线衔接 */
   /* 画质升级:雾改淡蓝灰且推远——此前米白近雾把全景洗成灰白纱 */
-  scene.fog=new THREE.Fog(0xbccfda, 520, 1900); /* 真实感专项:雾只留远景,中景通透 */
+  scene.fog=new THREE.FogExp2(0xbccfda, 0.0009); /* 真实感专项:指数雾,大气纵深更自然 */
 
   camera=new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.5, 3000);
   camera.position.set(14,118,232);
@@ -2991,6 +2991,22 @@ function applyFine(area){
   var st=fineSt[area],def=FINE_DEF[area];
   if(st.active){ def.hide(); } else { def.show(); }
   if(st.group) st.group.visible=st.active;
+  /* 真实感专项②:关闭精细模式时释放 GPU 资源(几何/材质/纹理),下次开启重新加载 */
+  if(!st.active&&st.group){
+    st.group.traverse(function(o){
+      if(o.isMesh){
+        if(o.geometry) o.geometry.dispose();
+        var ms=Array.isArray(o.material)?o.material:[o.material];
+        ms.forEach(function(mm){
+          if(!mm) return;
+          for(var k in mm){ var v=mm[k]; if(v&&v.isTexture) v.dispose(); }
+          mm.dispose();
+        });
+      }
+    });
+    world.remove(st.group);
+    st.group=null; st.loaded=false;
+  }
   shadowDirty=true;
   if(currentScene===area){
     var d=st.active?def.fine:SCENES[area];
@@ -3241,8 +3257,7 @@ moodBtn.addEventListener('click',function(){
     }
   });
   scene.fog.color.set(moodDusk?0x8f9aa8:0xbccfda);
-  scene.fog.near=moodDusk?300:520;
-  scene.fog.far=moodDusk?1500:1900;
+  scene.fog.density=moodDusk?0.0016:0.0009;
   renderer.toneMappingExposure=moodDusk?0.72:0.95;
   /* 水面 uniforms(主湖+池水) */
   waterMats.forEach(function(mm){
