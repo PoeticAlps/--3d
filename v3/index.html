@@ -260,6 +260,15 @@ canvas{display:block}
 </style>
 </head>
 <body>
+<script>
+/* 降级提示:v4 探测到浏览器不支持 WebGL2 时,经 ?fallback=1 引导至此 */
+if(new URLSearchParams(location.search).get('fallback')==='1'){
+  document.write('<div id="fb-note" style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#2e5a3f;color:#fff;'
+    +'padding:10px 46px 10px 14px;font:13px/1.6 -apple-system,sans-serif;text-align:center">您的浏览器不支持新版所需的 WebGL2,已切换到轻量经典版'
+    +'<button onclick="var n=document.getElementById(\\'fb-note\\');n&&n.remove()" '
+    +'style="position:absolute;right:12px;top:8px;background:none;border:none;color:#fff;font-size:15px;cursor:pointer">✕</button></div>');
+}
+</script>
 <div class="loading" id="loading">
     <canvas id="particleCanvas" aria-hidden="true"></canvas>
     <div class="pandora-scene">

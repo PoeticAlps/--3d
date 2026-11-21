@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>重生·圆明园 | 万园之园 · 数字长卷</title>
+<script>
+/* WebGL2 能力探测:新版引擎(r180)需要 WebGL2;不支持时自动降级到轻量经典版 v3(WebGL1 兼容) */
+window.__HAS_WEBGL2=(function(){
+  try{
+    var c=document.createElement('canvas');
+    return !!(window.WebGL2RenderingContext && (c.getContext('webgl2')||c.getContext('experimental-webgl2')));
+  }catch(e){ return false; }
+})();
+if(!window.__HAS_WEBGL2){
+  var __m=new URLSearchParams(location.search).get('scene')||'overview';
+  var __map={fangpu:'fangpu',jiuzhou:'jiuzhou',zhengda:'zhengda',dashuifa:'dashuifa',overview:'overview',haiyantang:'overview'};
+  location.replace('../v3/index.html?fallback=1&scene='+(__map[__m]||'overview'));
+}
+</script>
 <style>
 /* ================= 宋式美学 UI · 素笺 · 细金线 · 朱印 ================= */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -3348,7 +3362,11 @@ try{
   }, 700);
 }catch(err){
   var lg=document.getElementById('loading');
-  if(lg){ lg.innerHTML='<div style="padding:40px;font-size:14px;color:#7e2c23">场景初始化失败:'+err.message+'</div>'; }
+  if(lg){ lg.innerHTML='<div style="padding:34px 26px;font-family:-apple-system,sans-serif;text-align:center">'
+    +'<div style="font-size:17px;font-weight:700;color:#7e2c23;margin-bottom:12px">场景初始化失败</div>'
+    +'<div style="font-size:13.5px;line-height:1.8;color:#6b5a3a;margin-bottom:18px">您的浏览器不支持本作品所需的新版 WebGL。<br>'
+    +'可打开<b>轻量经典版</b>(兼容性更好),或更换 Chrome/Safari 新版后重试。</div>'
+    +'<a href="../v3/index.html?fallback=1" style="display:inline-block;padding:10px 26px;background:#2e5a3f;color:#fff;border-radius:8px;text-decoration:none;font-size:13.5px">打开轻量经典版</a></div>'; }
   throw err;
 }
 
